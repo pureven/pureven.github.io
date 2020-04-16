@@ -52,15 +52,15 @@
   };
 </script>
 
-  <meta name="description" content="不积跬步•无以至千里">
+  <meta name="description" content="引言模块扩展让CodeIgniter框架模块化。模块是一组独立的组件（通常有模型、控制器和视图），它们被分类在应用模块的子文件夹中，并且能够直接拖到其他的CodeIgniter应用中。 HMVC的意思是分层模型视图控制器。 模块控制器能够作为普通的控制器或者HMVC控制器使用，它们也能够被当做小部件帮助你开发一部分视图。">
 <meta name="keywords" content="PHP,Codeigniter">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CodeIgniter实现HMVC模块扩展">
 <meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;28&#x2F;codeigniter-hmvc&#x2F;index.html">
 <meta property="og:site_name" content="Pureven">
-<meta property="og:description" content="不积跬步•无以至千里">
+<meta property="og:description" content="引言模块扩展让CodeIgniter框架模块化。模块是一组独立的组件（通常有模型、控制器和视图），它们被分类在应用模块的子文件夹中，并且能够直接拖到其他的CodeIgniter应用中。 HMVC的意思是分层模型视图控制器。 模块控制器能够作为普通的控制器或者HMVC控制器使用，它们也能够被当做小部件帮助你开发一部分视图。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-04-13T00:41:43.309Z">
+<meta property="og:updated_time" content="2020-04-16T14:21:59.959Z">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://pureven.cc/2020/03/28/codeigniter-hmvc/">
@@ -244,7 +244,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+                <time title="修改时间：2020-04-16 22:21:59" itemprop="dateModified" datetime="2020-04-16T22:21:59+08:00">2020-04-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -278,14 +278,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>4.4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>4 分钟</span>
             </span>
 
         </div>
@@ -297,7 +297,88 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>模块扩展让CodeIgniter框架模块化。模块是一组独立的组件（通常有模型、控制器和视图），它们被分类在应用模块的子文件夹中，并且能够直接拖到其他的CodeIgniter应用中。</p>
+<p>HMVC的意思是分层模型视图控制器。</p>
+<p>模块控制器能够作为普通的控制器或者HMVC控制器使用，它们也能够被当做小部件帮助你开发一部分视图。</p>
+<a id="more"></a>
+<hr>
+<h4 id="模块扩展安装"><a href="#模块扩展安装" class="headerlink" title="模块扩展安装"></a>模块扩展安装</h4><ol>
+<li>安装CI框架，下载地址:<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2JjaXQtY2kvQ29kZUlnbml0ZXIvYXJjaGl2ZS8zLjEuMTEudGFyLmd6" title="https://github.com/bcit-ci/CodeIgniter/archive/3.1.11.tar.gz">CodeIgniter-3.1.11<i class="fa fa-external-link"></i></span>。</li>
+<li>配置好CI环境，访问URL <code>/index.php/welcome</code>可以看到欢迎界面说明正常。</li>
+<li>下载<span class="exturl" data-url="aHR0cHM6Ly9iaXRidWNrZXQub3JnL3dpcmVkZXNpZ256L2NvZGVpZ25pdGVyLW1vZHVsYXItZXh0ZW5zaW9ucy1obXZjL2dldC9mNzdhM2ZjOWE2ZmQuemlw" title="https://bitbucket.org/wiredesignz/codeigniter-modular-extensions-hmvc/get/f77a3fc9a6fd.zip">模块扩展源码<i class="fa fa-external-link"></i></span>并将模块扩展的third_party文件拖入application/third_party目录。</li>
+<li>修改<code>third_party/MX/Loader.php</code>文件，有个bug需要处理下，要不然会报错，<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4vQ29kZUlnbml0ZXItSE1WQy9jb21taXQvY2U0ZjY2ZTIyOGU2MTc4ODViZjE3MzU4MDQ1ZDZjM2VhYmEyMDY5MA==" title="https://github.com/pureven/CodeIgniter-HMVC/commit/ce4f66e228e617885bf17358045d6c3eaba20690">参考连接<i class="fa fa-external-link"></i></span>。 </li>
+<li>再次访问URL <code>/index.php/welcome</code>看到欢迎界面。</li>
+<li>创造模块目录结构<code>application/modules/welcome/controllers</code>。</li>
+<li>将控制器文件<strong>application/controllers/welcome.php</strong>移动至<strong>application/modules/welcome/controllers/welcome.php</strong>。</li>
+<li>访问URL <code>/index.php/welcome</code>看到欢迎界面。</li>
+<li>创建目录<code>application/modules/welcome/views</code>。</li>
+<li>将视图文件<font color="#891717">pplication/views/welcome_message.php</font>移动至<font color="#891717">application/modules/welcome/views/welcome_message.php</font>。</li>
+<li>访问URL <code>/index.php/welcome</code>看到欢迎界面</li>
+</ol>
+<p>配置完毕。</p>
+<hr>
+<h4 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h4><p>Q: 什么是模块？我为什么要使用他们？</p>
+<p>A: 参见维基百科：</p>
+<ul>
+<li><span class="exturl" data-url="aHR0cDovL2VuLndpa2lwZWRpYS5vcmcvd2lraS9Nb2R1bGU=" title="http://en.wikipedia.org/wiki/Module">http://en.wikipedia.org/wiki/Module)<i class="fa fa-external-link"></i></span>)</li>
+<li><span class="exturl" data-url="aHR0cDovL2VuLndpa2lwZWRpYS5vcmcvd2lraS9Nb2R1bGFyX3Byb2dyYW1taW5n" title="http://en.wikipedia.org/wiki/Modular_programming">http://en.wikipedia.org/wiki/Modular_programming)<i class="fa fa-external-link"></i></span>)</li>
+<li><span class="exturl" data-url="aHR0cDovL2Jsb2cuZmVkZWNhcmcuY29tLzIwMDgvMDYvMjgvYS1tb2R1bGFyLWFwcHJvYWNoLXRvLXdlYi1kZXZlbG9wbWVudA==" title="http://blog.fedecarg.com/2008/06/28/a-modular-approach-to-web-development">http://blog.fedecarg.com/2008/06/28/a-modular-approach-to-web-development)<i class="fa fa-external-link"></i></span>)</li>
+</ul>
+<p>Q: 什么是模块化HMVC，为什么我应该使用它？</p>
+<p>A: 模块化 HMVC = <code>Multiple MVC triads</code></p>
+<p>当你需要载入视图和视图中的数据的时候，这将是非常有用的。考虑添加一个购物车到一个页面中，这个购物车需要它自己的控制器，这个控制器要调用一个模型来获取购物车数据。然后控制器需要将数据载入到视图中。因此，和在主控制器处理这个页面和购物车不同，购物车MVC能够直接在页面中加载。这个主控制器不需要知道购物车MVC，并且和购物车MVC是完全隔离的。</p>
+<p>在CI框架中，我们不能够在一次请求中调用多个控制器。因此，为了实现HMVC，我们不得不模拟控制器的行为。这用类库可以做到或者使用这个“模块扩展HMVC”。</p>
+<p>使用一个类库和一个“模块扩展HMVC”类不同之处在于：</p>
+<ol>
+<li>不需要在HMVC中获取和使用CI实例</li>
+<li>HMVC类存储在modules目录中而不是类库目录中</li>
+</ol>
+<p>Q: 模块扩展HMVC和模块分离是一样的么？</p>
+<p>A: 是，也可以说不是。和模块分离类似，模块扩展使得模块变得“可便携的”。例如，如果你有一个漂亮的自包含MVC文件集，你能够将你的MVC文件加入到另一个项目中，仅仅通过复制一个目录就行了。所有文件都在同一个地方而不是散布在model、view 和controller文件夹。</p>
+<p>模块化HMVC意味着模块化MVC triads。 模块分离和模块扩展让相关的控制器、模型、类库、视图等等文件能够被打包在模块子目录中，并且能够像一个小型应用那样使用。但是，模块扩展更进一步，它允许这些模块互相通信。你能够不用通过与http交互得到控制器的输出内容。</p>
+<hr>
+<h4 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h4><p>所有的控制器都包含一个<code>$autoload</code>类变量，这个类变量拥有一个运行时优先载入的条目（item）数组。这个功能能够和 <code>module/config/autoload.php</code>一起使用，然而，使用<code>$autoload</code>变量仅仅在对应的控制器中起作用。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Xyz</span> <span class="keyword">extends</span> <span class="title">MX_Controller</span> </span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    $autoload = <span class="keyword">array</span>(</span><br><span class="line">        <span class="string">'helper'</span>    =&gt; <span class="keyword">array</span>(<span class="string">'url'</span>, <span class="string">'form'</span>),</span><br><span class="line">        <span class="string">'libraries'</span> =&gt; <span class="keyword">array</span>(<span class="string">'email'</span>),</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Modules::$locations</code>可以在<code>application/config.php</code>文件中设置，例如：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$config[<span class="string">'modules_locations'</span>] = <span class="keyword">array</span>(</span><br><span class="line">    APPPATH.<span class="string">'modules/'</span> =&gt; <span class="string">'../modules/'</span>,</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p><code>Modules::run()</code>输出将会被缓存，因此从任何从控制器返回或者输出的数据将会被捕获并且返回到调用者。特别的，<code>$this-&gt;load-&gt;view()</code>能够在一个普通的控制器中按照你所想的那样使用，而不用返回任何值。</p>
+<p>控制器能够作为别的控制器的类变量载入，使用语句<code>$this-&gt;load-&gt;module(&#39;module/controller&#39;);</code>或者在控制器的名称和模块的名称一致的时候，使用<code>$this-&gt;load-&gt;module(&#39;module&#39;);</code></p>
+<p>任何加载的模块都可以当做一个类库使用，例如<code>$this-&gt;controller-&gt;method()</code>，但是加载的模块拥有自己独立与调用它的类的模块和类库。</p>
+<p>所有模块控制器都能够通过URL（ <code>module/controller/method</code>或者模块名和控制器名称一致的时候使用<code>module/method</code>）访问到。如果你添加了<code>_remap()</code>方法到你的控制器中，你能够阻止不需要的访问然后重定向或者发送一个错误，这些随你。</p>
+<hr>
+<h4 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h4><p>要使用HMVC功能，例如<code>Modules::run()</code>，控制器必须继承<code>MX_Controller</code>类。</p>
+<p>仅仅使用分开的模块而不是HMVC功能，控制器可以继承CodeIgniter类。</p>
+<p>你必须在控制器中使用PHP5样式的构造函数，例如：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Xyz</span> <span class="keyword">extends</span> <span class="title">MX_Controller</span> </span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">parent</span>::__construct();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>构造函数并不是必须的，除非你想在控制器创建的时候载入或者处理什么东西。</p>
+<p>所有的<code>MY_extension</code>类库应该包含（需要）他们同等的MX类库文件，并且继承它们同等的<code>MX_class</code>。</p>
+<p>每一个模块可以包含一个<code>config/routes.php</code>文件，在文件中定义该模块的路由和默认控制器：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$route[<span class="string">'module_name'</span>] = <span class="string">'controller_name'</span>;</span><br></pre></td></tr></table></figure>
+
+<p>控制器可以从<code>application/controllers</code>子目录中载入。</p>
+<p>控制器也可以从<code>module/controllers</code>子目录中载入。</p>
+<p>资源能够能够跨控制器载入，例如： <code>$this-&gt;load-&gt;model(&#39;module/model&#39;);</code></p>
+<p><code>Modules::run()</code>被设计成返回部分视图，并且它将会从控制器返回缓存输出（一个视图）。使用<code>modules::run</code>语法是一个URI类型的片段字符串和无限的变量。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** module and controller names are different, you must include the method name also, including 'index' **/</span></span><br><span class="line">modules::run(<span class="string">'module/controller/method'</span>, $params, $...);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** module and controller names are the same but the method is not 'index' **/</span></span><br><span class="line">modules::run(<span class="string">'module/method'</span>, $params, $...);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** module and controller names are the same and the method is 'index' **/</span></span><br><span class="line">modules::run(<span class="string">'module'</span>, $params, $...);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Parameters are optional, You may pass any number of parameters. **/</span></span><br></pre></td></tr></table></figure>
+
+<p>在控制器里边调用一个模块控制器，你可以使用<code>$this-&gt;load-&gt;module()</code>或者<code>Modules::load()</code>，PHP5的方法链也可以用在任何被MX加载的对象中，例如： <code>$this-&gt;load-&gt;library(‘validation’)-&gt;run()</code>。</p>
+<p>载入模块的语言文件推荐使用载入方法，该方法将会传递一个激活的模块名称到一个语言实例，例如：<code>$this-&gt;load-&gt;language(&#39;language_file&#39;);</code></p>
+<p>PHP5的spl_autoload特性允许你自由地扩展你的控制器、模块和来自<code>application/core</code>或者<code>application/libraries</code>基本类的的类库，不需要考虑显式包含他们。</p>
+<p>类库加载器也被更新从而适应一些CI的特性，例如：类库别名能够和模块别名一样的方式接受，并且从模块配置目录中载入配置文件作为类库的参数（例如：<code>form_validation.php</code>），这项特性也被加了进来。</p>
+<p><code>$config = $this-&gt;load-&gt;config(‘config_file’)</code>，返回已加载的数组到变量中。</p>
+<p>模块和类库也能够从他们各自的应用目录的子目录中加载。</p>
+<p>在用MX使用表单验证时，你将需要继承<code>CI_Form_validation</code>类，如下所示：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** application/libraries/MY_Form_validation **/</span> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MY_Form_validation</span> <span class="keyword">extends</span> <span class="title">CI_Form_validation</span> </span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $CI;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在将目前的控制器作为$CI变量赋值给表单验证类库之前。这将让你的回调函数正常工作。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Xyz</span> <span class="keyword">extends</span> <span class="title">MX_Controller</span> </span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">parent</span>::__construct();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;load-&gt;library(<span class="string">'form_validation'</span>);</span><br><span class="line">        <span class="keyword">$this</span>-&gt;form_validation-&gt;CI =&amp; <span class="keyword">$this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly9zZWdtZW50ZmF1bHQuY29tL2EvMTE5MDAwMDAwNDEwNTU2Mw==" title="https://segmentfault.com/a/1190000004105563">【译】CodeIgniter HMVC模块扩展使用文档<i class="fa fa-external-link"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4vQ29kZUlnbml0ZXItSE1WQw==" title="https://github.com/pureven/CodeIgniter-HMVC">源码分析<i class="fa fa-external-link"></i></span></p>
+
     </div>
 
     
@@ -382,6 +463,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#模块扩展安装"><span class="nav-number">2.</span> <span class="nav-text">模块扩展安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FAQ"><span class="nav-number">3.</span> <span class="nav-text">FAQ</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#特点"><span class="nav-number">4.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意"><span class="nav-number">5.</span> <span class="nav-text">注意</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">6.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -478,13 +560,13 @@
       <i class="fa fa-area-chart"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">331k</span>
+    <span title="站点总字数">335k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">5:01</span>
+    <span title="站点阅读时长">5:05</span>
 </div>
 
         
