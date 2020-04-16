@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言上文对Windows平台下搭建Nginx + PHP环境做了介绍，通过上文的配置通过http:&#x2F;&#x2F;localhost:6688&#x2F;index.php访问本地的index.php文件。这时index.php文件是通过后端服务器进行解析的，此时Nginx作为代理服务器，本文对Nginx作为代理服务器进行介绍以及一些其他功能。">
+<meta name="keywords" content="Nginx">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx高级配置">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言上文对Windows平台下搭建Nginx + PHP环境做了介绍，通过上文的配置通过http:&#x2F;&#x2F;localhost:6688&#x2F;index.php访问本地的index.php文件。这时index.php文件是通过后端服务器进行解析的，此时Nginx作为代理服务器，本文对Nginx作为代理服务器进行介绍以及一些其他功能。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308163752.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308164312.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;06&#x2F;nginx-simple-conf-with-php-fpm&#x2F;20200306144934.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308170806.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200310204402.png">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.128Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308163752.png">
+
+<link rel="canonical" href="https://pureven.cc/2020/03/08/nginx-advanced-conf/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Nginx高级配置 | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/03/08/nginx-advanced-conf/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Nginx高级配置
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-08 14:15:46" itemprop="dateCreated datePublished" datetime="2020-03-08T14:15:46+08:00">2020-03-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/03/08/nginx-advanced-conf/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/08/nginx-advanced-conf/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>15k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>13 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p><a href="https://pureven.cc/2020/03/06/nginx-simple-conf-with-php-fpm/">上文</a>对Windows平台下搭建Nginx + PHP环境做了介绍，通过上文的配置通过<code>http://localhost:6688/index.php</code>访问本地的index.php文件。这时index.php文件是通过后端服务器进行解析的，此时Nginx作为代理服务器，本文对Nginx作为代理服务器进行介绍以及一些其他功能。</p><a id="more"></a>
+<hr>
+<h4 id="正向代理与反向代理"><a href="#正向代理与反向代理" class="headerlink" title="正向代理与反向代理"></a>正向代理与反向代理</h4><h5 id="正向代理"><a href="#正向代理" class="headerlink" title="正向代理"></a>正向代理</h5><p>正向代理也是大家最常接触的到的代理模式，我们会从两个方面来说关于正向代理的处理模式，分别从软件方面和生活方面来解释一下什么叫正向代理。比如我们想要访问facebook，但是因为国内的网络环境我们是访问不了的，我们就会去使用一些翻墙工具，帮助我们访问facebook，那么翻墙工具背后实际上就是一个可以访问国外网站的代理服务器，我们将请求发送给代理服务器，代理服务器去访问国外的网站，然后将访问到的数据传递给我们。 </p>
+<p>上述这样的代理模式称为正向代理，<code>正向代理最大的特点是客户端非常明确要访问的服务器地址；服务器只清楚请求来自哪个代理服务器，而不清楚来自哪个具体的客户端；正向代理模式屏蔽或者隐藏了真实客户端信息。</code><br><img src="/2020/03/08/nginx-advanced-conf/20200308163752.png" alt></p>
+<h5 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h5><p>某宝网站，每天同时连接到网站的访问人数已经爆表，单个服务器远远不能满足人民日益增长的购买欲望了，此时就出现了一个大家耳熟能详的名词：<code>分布式部署，即通过部署多台服务器来解决访问人数限制的问题</code>；某宝网站中大部分功能也是直接使用<code>Nginx</code>进行反向代理实现的。<br><img src="/2020/03/08/nginx-advanced-conf/20200308164312.png" alt><br>多个客户端给服务器发送的请求，Nginx服务器接收到之后，按照一定的规则分发给了后端的业务处理服务器进行处理了。此时~请求的来源也就是客户端是明确的，但是请求具体由哪台服务器处理的并不明确了，Nginx扮演的就是一个反向代理角色。</p>
+<h5 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h5><p>本地是Windows系统，当访问localhost:6688/index.php时结果如下：<br><img src="https://pureven.cc/2020/03/06/nginx-simple-conf-with-php-fpm/20200306144934.png" alt><br>此时有一个Linux平台，当通过本地Nginx服务器去代理Linux服务器时步骤如下：</p>
+<ol>
+<li><p>修改本地<code>nginx.conf</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">listen</span> <span class="number">6688</span><span class="string">;</span></span><br><span class="line">    <span class="string">server_name</span> <span class="string">localhost;</span></span><br><span class="line">    </span><br><span class="line">    <span class="string">location</span> <span class="string">^~</span> <span class="string">/pureven</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">proxy_pass</span> <span class="string">http://192.168.31.3:80/index.php;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>修改Linux(192.168.31.3)服务器<code>nginx.conf</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">listen</span> <span class="number">80</span><span class="string">;</span></span><br><span class="line">    <span class="string">server_name</span> <span class="string">localhost;</span></span><br><span class="line">    </span><br><span class="line">    <span class="string">location</span> <span class="string">~</span> <span class="string">\.php$</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">root</span> <span class="string">html;</span> </span><br><span class="line">        <span class="string">fastcgi_pass</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:16688;</span></span><br><span class="line">        <span class="string">fastcgi_index</span> <span class="string">index.php;</span></span><br><span class="line">        <span class="string">fastcgi_param</span> <span class="string">SCRIPT_FILENAME</span> <span class="string">$document_root$fastcgi_script_name;</span></span><br><span class="line">        <span class="string">include</span> <span class="string">fastcgi_params;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>修改Linux(192.168.31.3)服务器<code>www.conf</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">listen</span> <span class="string">=</span> <span class="number">16688</span></span><br></pre></td></tr></table></figure></li>
+<li><p>浏览器访问<code>localhost:6688/pureven</code><br><img src="/2020/03/08/nginx-advanced-conf/20200308170806.png" alt></p>
+</li>
+<li><p>proxy_pass使用方法参考<span class="exturl" data-url="aHR0cHM6Ly94dWV4Yi5naXRodWIuaW8vbGVhcm4tbmdpbngvZXhhbXBsZS9wcm94eV9wYXNzLmh0bWwjdXJsLSVFNSU4RiVBQSVFNiU5OCVBRi1ob3N0" title="https://xuexb.github.io/learn-nginx/example/proxy_pass.html#url-%E5%8F%AA%E6%98%AF-host">proxy_pass url 反向代理的坑<i class="fa fa-external-link"></i></span>。</p>
+</li>
+</ol>
+<hr>
+<h4 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h4><p><strong>当我们的应用单例不能支撑用户请求时，此时就需要扩容，从一台服务器扩容到两台、几十台、几百台，我们需要一个入口，将客户端请求均衡分布在后台的多个服务器上。负载均衡在服务端开发中算是一个比较重要的特性，Nginx提供的负载均衡可以实现<code>上游服务器的负载均衡</code>、<code>故障转移</code>、<code>失败重试</code>、<code>容错</code>、<code>健康检查</code>，当某些上游服务器出现问题时，可以将请求转到其它的上游服务器从而保障高可用。</strong></p>
+<h5 id="upstream指令"><a href="#upstream指令" class="headerlink" title="upstream指令"></a>upstream指令</h5><p>Nginx通过如下配置负载均衡到真实的处理业务的服务器(即<code>上游服务器</code>)：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">upstream</span> <span class="string">backend</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">server</span> <span class="string">backend1.example.com</span>       <span class="string">weight=5;</span></span><br><span class="line">    <span class="string">server</span> <span class="string">backend2.example.com:8080;</span></span><br><span class="line">    <span class="string">server</span> <span class="string">unix:/tmp/backend3;</span></span><br><span class="line"></span><br><span class="line">    <span class="string">server</span> <span class="string">backup1.example.com:8080</span>   <span class="string">backup;</span></span><br><span class="line">    <span class="string">server</span> <span class="string">backup2.example.com:8080</span>   <span class="string">backup;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">location</span> <span class="string">/</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">proxy_pass</span> <span class="string">http://backend;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><code>upstream</code>指令当中包含<code>server</code>指令</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">语法:</span>	<span class="string">server</span> <span class="string">address</span> <span class="string">[parameters];</span></span><br><span class="line"><span class="string">默认值:</span>	<span class="string">—</span></span><br><span class="line"><span class="string">上下文:</span>	<span class="string">upstream</span></span><br></pre></td></tr></table></figure>
+<p>下面介绍部分parameters:</p>
+<ul>
+<li><strong>weight</strong>: 设定服务器的<code>权重</code>，默认是1，权重越大被访问机会越大，要根据机器的配置情况来配置</li>
+<li><strong>max_fails</strong>: 设定Nginx与服务器通信的<code>尝试失败的次数</code>。在<code>fail_timeout</code>参数定义的时间段内，如果失败的次数达到此值，Nginx就认为服务器不可用。在下一个fail_timeout时间段，服务器不会再被尝试。 失败的尝试次数默认是1。可以通过指令<code>proxy_next_upstream</code> 和<code>memcached_next_upstream</code>来配置什么是失败的尝试。 <code>默认配置时，http_404状态不被认为是失败的尝试</code>。</li>
+<li><strong>fail_timeout</strong>: <code>统计失败尝试次数的时间段</code>。在这段时间中，服务器失败次数达到指定的尝试次数，服务器就被认为不可用。默认情况下，该超时时间是10秒。</li>
+<li><strong>backup</strong>: 标记为<code>备用服务器</code>。当主服务器不可用以后，请求会被传给这些服务器，配置这个指令可以实现故障转移。</li>
+<li><strong>down</strong>: 标记服务器<code>永久不可用</code>，可以跟<code>ip_hash</code>指令一起使用。</li>
+</ul>
+<h5 id="负载均衡机制"><a href="#负载均衡机制" class="headerlink" title="负载均衡机制"></a>负载均衡机制</h5><h6 id="轮询"><a href="#轮询" class="headerlink" title="轮询"></a>轮询</h6><p>默认的轮询方式，即每一个来自网络中的请求，轮流分配给内部的服务器，从1到N然后重新开始。此种负载均衡算法适合<code>服务器组内部的服务器都具有相同的配置并且平均服务请求相对均衡的情况。</code></p>
+<h6 id="加权轮询"><a href="#加权轮询" class="headerlink" title="加权轮询"></a>加权轮询</h6><p>通过<code>weight</code>参数控制权重，根据服务器的不同处理能力，给每个服务器分配不同的权值，使其能够接受相应权值数的服务请求。例如：服务器A的权值被设计成1，B的权值是3，C的权值是6，则服务器A、B、C将分别接受到10%、30％、60％的服务请求。<code>此种均衡算法能确保高性能的服务器得到更多的使用率，避免低性能的服务器负载过重。</code></p>
+<h6 id="IP-Hash"><a href="#IP-Hash" class="headerlink" title="IP Hash"></a>IP Hash</h6><p>在upstream当中配置ip_hash;<br>这种方式通过生成请求源IP的哈希值，并通过这个哈希值来找到正确的真实服务器。这意味着对于同一主机来说他对应的服务器总是相同。使用这种方式，你不需要保存任何源IP。将客户端会话”沾住”或者”持久化”，以便总是能选择特定服务器，那么可以使用ip-hash负载均衡机制。<code>使用ip-hash时，客户端IP地址作为hash key使用，用来决策选择服务器集群中的哪个服务器来处理这个客户端的请求。这个方法保证从同一个客户端发起的请求总是定向到同一台服务器，除非服务器不可用。</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">upstream</span> <span class="string">backend&#123;</span></span><br><span class="line">    <span class="string">ip_hash;</span></span><br><span class="line">    <span class="string">server</span> <span class="number">192.168</span><span class="number">.128</span><span class="number">.1</span><span class="string">:8080</span> <span class="string">;</span></span><br><span class="line">    <span class="string">server</span> <span class="number">192.168</span><span class="number">.128</span><span class="number">.2</span><span class="string">:8080</span> <span class="string">;</span></span><br><span class="line">    <span class="string">server</span> <span class="number">192.168</span><span class="number">.128</span><span class="number">.3</span><span class="string">:8080</span> <span class="string">down;</span></span><br><span class="line">    <span class="string">server</span> <span class="number">192.168</span><span class="number">.128</span><span class="number">.4</span><span class="string">:8080</span> <span class="string">down;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">listen</span> <span class="number">8081</span><span class="string">;</span></span><br><span class="line">    <span class="string">server_name</span> <span class="string">test.csdn.net;</span></span><br><span class="line">    <span class="string">root</span> <span class="string">/home/system/test.csdn.net/test;</span></span><br><span class="line">    <span class="string">location</span> <span class="string">^~</span> <span class="string">/Upload/upload</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">proxy_pass</span> <span class="string">http://backend;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>当你服务端的一个特定url路径会被同一个用户连续访问时，如果负载均衡策略还是轮询的话，那该用户的多次访问会被打到各台服务器上，<strong>这显然并不高效（会建立多次http链接等问题）</strong>。甚至考虑一种极端情况，<strong>用户需要分片上传文件到服务器下，然后再由服务器将分片合并，这时如果用户的请求到达了不同的服务器，那么分片将存储于不同的服务器目录中，导致无法将分片合并</strong>。所以，此类场景可以考虑采用nginx提供的ip_hash策略。既能满足每个用户请求到同一台服务器，又能满足不同用户之间负载均衡。</p>
+<h6 id="最少连接数"><a href="#最少连接数" class="headerlink" title="最少连接数"></a>最少连接数</h6><p>在upstream当中配置least_conn实现最少连接数，客户端的每一次请求服务在服务器停留的时间可能会有较大的差异，随着工作时间加长，如果采用简单的轮循或随机均衡算法，每一台服务器上的连接进程可能会产生极大的不同，并没有达到真正的负载均衡。<code>最少连接数均衡算法对内部中需负载的每一台服务器都有一个数据记录，记录当前该服务器正在处理的连接数量，当有新的服务连接请求时，将把当前请求分配给连接数最少的服务器，使均衡更加符合实际情况，负载更加均衡。</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">upstream</span> <span class="string">backend</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">server</span> <span class="string">backend1.example.com</span> <span class="string">weight=5;</span></span><br><span class="line">    <span class="string">server</span> <span class="string">backend2.example.com:8080;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">upstream</span> <span class="string">backend</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">ip_hash;</span>   <span class="comment">#哈希</span></span><br><span class="line">    <span class="string">least_conn;</span> <span class="comment">#最少连接数</span></span><br><span class="line">    <span class="string">server</span>  <span class="string">nginx.23673.com:9502</span> <span class="string">max_fails=3</span> <span class="string">fail_timeout=5s;</span></span><br><span class="line">    <span class="string">server</span>  <span class="string">nginx.23673.com:9503</span> <span class="string">backup</span> <span class="string">max_fails=3</span> <span class="string">fail_timeout=5s;</span></span><br><span class="line">    <span class="string">server</span>  <span class="string">nginx.23673.com:9503</span> <span class="string">down</span> <span class="string">max_fails=3</span> <span class="string">fail_timeout=5s;</span></span><br><span class="line">    <span class="string">server</span>  <span class="string">nginx.23673.com:9502</span> <span class="string">max_fails=3</span> <span class="string">fail_timeout=5s;</span></span><br><span class="line">    <span class="string">server</span>  <span class="string">nginx.23673.com:9502</span> <span class="string">max_fails=3</span> <span class="string">fail_timeout=5s;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h6 id="URL-Hash"><a href="#URL-Hash" class="headerlink" title="URL Hash"></a>URL Hash</h6><p>一般来讲，要用到url hash，是要配合缓存命中来使用。例如：有一个服务器集群A，需要对外提供文件下载，由于文件上传量巨大，没法存储到服务器磁盘中，所以用到了第三方云存储来做文件存储。服务器集群A收到客户端请求之后，需要从云存储中下载文件然后返回，为了省去不必要的网络带宽和下载耗时，在服务器集群A上做了一层临时缓存（缓存一个月）。<strong>由于是服务器集群，所以同一个资源多次请求，可能会到达不同的服务器上，导致不必要的多次下载，缓存命中率不高，以及一些资源时间的浪费</strong>。在此类场景下，<code>为了使得缓存命中率提高，很适合使用url_hash策略，同一个url（也就是同一个资源请求）会到达同一台机器，一旦缓存住了资源，再此收到请求，就可以从缓存中读取，既减少了带宽，也减少的下载时间。</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">upstream</span> <span class="string">somestream</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">hash</span> <span class="string">$request_uri;</span></span><br><span class="line">    <span class="string">server</span> <span class="number">192.168</span><span class="number">.244</span><span class="number">.1</span><span class="string">:8080;</span></span><br><span class="line">    <span class="string">server</span> <span class="number">192.168</span><span class="number">.244</span><span class="number">.2</span><span class="string">:8080;</span></span><br><span class="line">    <span class="string">server</span> <span class="number">192.168</span><span class="number">.244</span><span class="number">.3</span><span class="string">:8080;</span></span><br><span class="line">    <span class="string">server</span> <span class="number">192.168</span><span class="number">.244</span><span class="number">.4</span><span class="string">:8080;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">listen</span> <span class="number">8081</span> <span class="string">default;</span></span><br><span class="line">    <span class="string">server_name</span> <span class="string">test.csdn.net;</span></span><br><span class="line">    <span class="string">charset</span> <span class="string">utf-8;</span></span><br><span class="line">    <span class="string">location</span> <span class="string">/get</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">proxy_pass</span> <span class="string">http://somestream;</span></span><br><span class="line">    <span class="string">&#125;</span>  </span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="失败重试"><a href="#失败重试" class="headerlink" title="失败重试"></a>失败重试</h4><h5 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h5><p>通过配置上游服务器<code>max_fails</code>和<code>fail_timeout</code>，指定每个上游服务器，当fail_timeout时间内失败了max_fails次请求，则认为该上游服务器不可用/不存活，然后这段时间将不会访问这台上游服务器，fail_timeout时间后会再次进行重试。<br>max_fails=2 fail_timeout=30s 这2个一起搭配使用表示<code>当失败2次的时候，就停止使30秒</code>，<code>这样既可以避免重复请求，不能访问或者暂时不能访问的服务，增大服务器的压力，也可以灵活的做到当服务器可用时再次访问。</code></p>
+<p><code>proxy_next_upstream</code>定义了什么情况下算作请求失败</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">语法:</span> <span class="string">proxy_next_upstream</span> <span class="string">error</span> <span class="string">|</span> <span class="string">timeout</span> <span class="string">|</span> <span class="string">invalid_header</span> <span class="string">|</span> <span class="string">http_500</span> <span class="string">|</span> <span class="string">http_502</span> <span class="string">http_503</span> <span class="string">|</span> <span class="string">http_504</span> <span class="string">|http_404</span> <span class="string">|</span> <span class="string">off</span> <span class="string">...;</span> </span><br><span class="line"><span class="string">默认值:</span> <span class="string">proxy_next_upstream</span> <span class="string">error</span> <span class="string">timeout;</span> </span><br><span class="line"><span class="string">上下文:</span> <span class="string">http,</span> <span class="string">server,</span> <span class="string">location</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>error</strong> 表示和后端服务器建立连接时，或者向后端服务器发送请求时，或者从后端服务器接收响应头时，出现错误。</li>
+<li><strong>timeout</strong> 表示和后端服务器建立连接时，或者向后端服务器发送请求时，或者从后端服务器接收响应头时，出现超时。</li>
+<li><strong>invalid_header</strong> 表示后端服务器返回空响应或者非法响应头。</li>
+<li><strong>http_500</strong> 表示后端服务器返回的响应状态码为500。</li>
+<li><strong>off</strong> 表示停止将请求发送给下一台后端服务器。</li>
+</ul>
+<p><strong>重试不能无限制进行，因此，需要控制重试次数和重试超时时间的指令。</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置重试次数，默认0表示不限制，注意此重试次数指的是所有请求次数（包括第一次和之后的重试次数之和）。</span></span><br><span class="line"><span class="string">proxy_next_upstream_tries</span> <span class="string">number</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置重试最大超时时间，默认0表示不限制，即在proxy_next_upstream_timeout时间内允许proxy_next_upstream_tries次重试。</span></span><br><span class="line"><span class="comment"># 如果超过了其中一个设置，则Nginx也会结束重试并返回客户端响应（可能是错误码）。</span></span><br><span class="line"><span class="string">proxy_next_upstream_timeout</span> <span class="string">time</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># 后端服务器数据回传时间(代理发送超时时间)</span></span><br><span class="line"><span class="string">proxy_send_timeout</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># 连接成功后，后端服务器响应时间(代理接收超时时间)</span></span><br><span class="line"><span class="string">proxy_read_timeout</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># nginx连接后端的超时时间，一般不超过75s</span></span><br><span class="line"><span class="string">proxy_connect_timeout</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h5><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">location</span> <span class="string">/</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="comment">#proxy_next_upstream timeout; #超时切换到下一台服务器,注意备用服务器切换问题</span></span><br><span class="line">    <span class="comment">#超时时间</span></span><br><span class="line">    <span class="string">proxy_connect_timeout</span> <span class="number">20</span><span class="string">;</span></span><br><span class="line">    <span class="string">proxy_send_timeout</span> <span class="number">30</span><span class="string">;</span></span><br><span class="line">    <span class="string">proxy_read_timeout</span> <span class="number">30</span><span class="string">;</span></span><br><span class="line">    <span class="string">proxy_next_upstream_tries</span> <span class="number">1</span><span class="string">;</span> <span class="comment">#代理请求的重试次数</span></span><br><span class="line">    <span class="string">proxy_next_upstream_timeout</span> <span class="number">1</span><span class="string">;</span> <span class="comment">#重试的超时时间</span></span><br><span class="line">    <span class="string">proxy_pass</span>   <span class="string">http://backend;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="访问控制"><a href="#访问控制" class="headerlink" title="访问控制"></a>访问控制</h4><p>基于IP的访问控制，基于Nginx的http_access_module模块，是Nginx本身内置的模块，不需要安装的时候配置。也就是允许哪些IP访问，不允许哪些IP访问。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">  <span class="string">listen</span>       <span class="number">80</span><span class="string">;</span></span><br><span class="line">  <span class="string">server_name</span> <span class="string">example.com;</span></span><br><span class="line">  <span class="string">access_log</span> <span class="string">logs/access.log</span> <span class="string">main;</span></span><br><span class="line"></span><br><span class="line">  <span class="string">location</span> <span class="string">/</span> <span class="string">&#123;</span></span><br><span class="line">       <span class="string">deny</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span><span class="string">;</span></span><br><span class="line">       <span class="string">allow</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.0</span><span class="string">/24;</span></span><br><span class="line">       <span class="string">allow</span> <span class="number">10.1</span><span class="number">.1</span><span class="number">.0</span><span class="string">/16;</span></span><br><span class="line">       <span class="string">allow</span> <span class="number">2001</span><span class="string">:0db8::/32;</span></span><br><span class="line">       <span class="string">deny</span> <span class="string">all;</span></span><br><span class="line">  <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>从上到下的顺序，类似iptables。匹配到了便跳出。如上的例子先禁止了192.16.1.1，接下来允许了3个网段，其中包含了一个ipv6，最后未匹配的IP全部禁止访问.被deny的将返回403状态码。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">  <span class="string">listen</span>       <span class="number">80</span><span class="string">;</span></span><br><span class="line">  <span class="string">server_name</span> <span class="string">example.com;</span></span><br><span class="line">  <span class="string">access_log</span> <span class="string">logs/access.log</span> <span class="string">main;</span></span><br><span class="line"></span><br><span class="line">  <span class="string">location</span> <span class="string">~</span> <span class="string">^/phpmyadmin/</span> <span class="string">&#123;</span></span><br><span class="line">      <span class="string">allow</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.0</span><span class="string">/24;</span></span><br><span class="line">      <span class="string">deny</span> <span class="string">all;</span></span><br><span class="line">  <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>只允许局域网访问。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">  <span class="string">listen</span>       <span class="number">80</span><span class="string">;</span></span><br><span class="line">  <span class="string">server_name</span> <span class="string">example.com;</span></span><br><span class="line">  <span class="string">access_log</span> <span class="string">logs/access.log</span> <span class="string">main;</span></span><br><span class="line">   <span class="string">location</span> <span class="string">/project</span> <span class="string">&#123;</span>  </span><br><span class="line">       <span class="string">allow</span>   <span class="number">220.178</span><span class="number">.25</span><span class="number">.22</span><span class="string">;</span>  </span><br><span class="line">       <span class="string">allow</span>   <span class="number">172.2</span><span class="number">.2</span><span class="number">.0</span><span class="string">/24;</span>  </span><br><span class="line">       <span class="string">allow</span>   <span class="number">192.2</span><span class="number">.2</span><span class="number">.0</span><span class="string">/24;</span>  </span><br><span class="line">       <span class="string">deny</span>    <span class="string">all;</span>  </span><br><span class="line">       <span class="string">proxy_pass</span> <span class="string">http://172.2.2.20:8080/project/;</span>  </span><br><span class="line">       <span class="string">proxy_set_header</span>   <span class="string">Host</span>    <span class="string">$host:$server_port;</span>  </span><br><span class="line">       <span class="string">proxy_set_header</span>   <span class="string">X-Real-IP</span>   <span class="string">$remote_addr;</span>   </span><br><span class="line">       <span class="string">proxy_set_header</span>   <span class="string">X-Forwarded-For</span> <span class="string">$proxy_add_x_forwarded_for;</span>  </span><br><span class="line">       <span class="string">client_max_body_size</span>    <span class="string">10m;</span>  </span><br><span class="line">   <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>以上配置的作用是允许IP为220.178.25.22，以及172和192网段的机器可以访问这个location地址，其他IP的客户端访问均是403。其中，24是指子网掩码为255.255.255.0。</p>
+<hr>
+<h4 id="防盗链"><a href="#防盗链" class="headerlink" title="防盗链"></a>防盗链</h4><h5 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h5><p>盗链是一种损害原有网站合法利益，给原网站所在服务器造成额外负担的非法行为。要采取防盗链的措施，首先需要了解盗链的实现原理。 客户端向服务器请求资源时，为了减少网络带宽，提高响应时间，服务器一般不会一次将所有资源完整地传回给客户端。比如在请求一个网页时，首先会传回该网页的文本内容，当客户端浏览器在解析文本的过程中发现有图片存在时，会再次向服务器发起对该图片资源的请求，服务器将存储的图片资源再发送给客户端。在这个过程中，如果该服务器上只包含了网页的文本内容，并没有存储相关的图片资源，而是将图片资源链接到其他站点的服务器上去了，这就形成了盗链行为。</p>
+<p>比如内网用户通过Internet访问域名为<code>www.test.com</code>这个服务器上的WEB服务，而该服务器没有存储图片资源，而是将图片链接到域名为<code>www.fz.com</code>服务器上，这就形成了盗链行为。这种情况下客户端请求图片资源实际上是来自其他的服务器。<code>要实现防盗链，需要了解HTTP协议中的请求头部的Referer头域和采用URL的格式表示访问当前网页或者文件的源地址。通过该头域的值，我们可以检测到访问目标资源的源地址。这样，如果我们检测到Referer头域中的值并不是自己站点内的URL，就采取组织措施，实现防盗链。</code><strong>需要注意是，由于Referer头域中的值可以被更改的，因此该方法不能完全阻止所有盗链行为。</strong></p>
+<h5 id="指令"><a href="#指令" class="headerlink" title="指令"></a>指令</h5><p>一般来说，遵照HTTP协议实现的浏览器，在从A网站访问B网站时，都会带上当前网站的URL，以表明此次点击是从何而起的。因此， Nginx的这个模块也是依靠这个来实现，所以，如果不加此头部，还是没法愉快的防盗图。</p>
+<p>Nginx配置中有一个指令<code>valid_referers</code>，用来获取Referer头域中的值，并且根据该值的情况给Nginx全局变量<code>$invalid_referer</code>的值，<code>如果Referer头域中没有符合valid_referers指令配置的值，$invalid_referer变量将会被赋值为1</code>。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">语法:</span> <span class="string">valid_referers</span> <span class="string">none</span> <span class="string">|</span> <span class="string">blocked</span> <span class="string">|</span> <span class="string">server_names</span> <span class="string">|</span> <span class="string">string</span> <span class="string">...;</span></span><br><span class="line"><span class="string">默认值:</span> <span class="string">—</span></span><br><span class="line"><span class="string">上下文:</span> <span class="string">server,</span> <span class="string">location</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>none</code> 请求标头中缺少<code>Referer</code>字段，也就是说Referer为空，<code>浏览器直接访问的时候Referer一般为空</code>。比如直接从浏览器输入资源的链接地址访问资源时没有<code>Referer头域</code>的。</li>
+<li><code>blocked</code> <code>Referer</code>字段出现在请求标头中，但其值已被防火墙或代理服务器删除; 这些值是不以<code>http://</code> 或 <code>https://</code> 开头的字符串。</li>
+<li><code>server_names</code> 服务器名称，也就是域名列表。设置一个或多个URL,检测<code>Referer头域</code>的值是否是域名列表中的某个。从nginx 0.5.33以后支持使用通配符<code>*</code>。</li>
+</ul>
+<h5 id="示例-2"><a href="#示例-2" class="headerlink" title="示例"></a>示例</h5><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">location</span> <span class="string">~*</span> <span class="string">^.+\.(jpg|gif|png|swf|flv|wma|wmv|asf|mp3|mmf|zip|rar)$</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">valid_referers</span> <span class="string">none</span> <span class="string">blocked</span> <span class="string">www.pureven.com</span> <span class="string">pureven.com</span> <span class="string">server_names</span> <span class="string">~\.google\.;</span></span><br><span class="line">    <span class="string">if</span> <span class="string">($invalid_referer)</span> <span class="string">&#123;</span></span><br><span class="line">       <span class="string">return</span> <span class="number">404</span><span class="string">;</span></span><br><span class="line">       <span class="comment"># rewrite ^/ http://www.pureven.com/404.jpg;</span></span><br><span class="line">     <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>以上所有来自<code>pureven.com</code>和域名中包含<code>google</code>的站点都可以访问当前站点的图片。</p>
+<ol>
+<li>如果域名不在这个列表中，那么<code>$invalid_referer</code>的值为<code>1</code>，在if语句中返回404给用户，如果使用下面的<code>rewrite</code>，那么会返回一个404含义的图片。</li>
+<li>如果用户直接在浏览器中输入资源的地址是可以访问该资源的，因为符合<code>none</code>的规则，即Referer头域不存在。</li>
+</ol>
+<hr>
+<h4 id="限流"><a href="#限流" class="headerlink" title="限流"></a>限流</h4><p>电商平台营销时候，经常会碰到的大流量问题，除了做流量分流处理，可能还要做用户黑白名单、信誉分析，进而根据用户ip信誉权重做相应的流量拦截、限制流量。Nginx自身有的请求限制模块<span class="exturl" data-url="aHR0cDovL25naW54Lm9yZy9lbi9kb2NzL2h0dHAvbmd4X2h0dHBfbGltaXRfcmVxX21vZHVsZS5odG1s" title="http://nginx.org/en/docs/http/ngx_http_limit_req_module.html">ngx_http_limit_req_module<i class="fa fa-external-link"></i></span>、流量限制模块<span class="exturl" data-url="aHR0cDovL25naW54Lm9yZy9lbi9kb2NzL2h0dHAvbmd4X2h0dHBfbGltaXRfY29ubl9tb2R1bGUuaHRtbA==" title="http://nginx.org/en/docs/http/ngx_http_limit_conn_module.html">ngx_stream_limit_conn_module<i class="fa fa-external-link"></i></span>基于<strong>漏桶算法</strong>，可以方便的控制请求速率，自定义调节限流，实现基本的限流控制。对于提供下载的网站，肯定是要进行流量控制的，例如软件下载站、视频服务等。它也可以减少一些爬虫程序或者<span class="exturl" data-url="aHR0cHM6Ly96aC53aWtpcGVkaWEub3JnL3poLWNuLyVFOSU5OCVCQiVFNiU5NiVCNyVFNiU5QyU4RCVFNSU4QiU5OSVFNiU5NCVCQiVFNiU5MyU4QQ==" title="https://zh.wikipedia.org/zh-cn/%E9%98%BB%E6%96%B7%E6%9C%8D%E5%8B%99%E6%94%BB%E6%93%8A">DDOS的攻击<i class="fa fa-external-link"></i></span>。</p>
+<h5 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h5><p>漏桶算法要解决的一个核心问题，便是如何<code>将不断变化的访问量，变成相对稳定的一个访问量</code>。这么说可能太过抽象，举一个实际的例子，NGINX 接收到互联网上的请求，速率是 n requests/second，或者说 n RPS，但这个 n 是不可控制的，可能是 0.1，也可能是 10 万。NGINX 需要将这些请求发送给后台的 PHP-FPM 服务去处理。假如被访问的 PHP 脚本，能稳定处理的 RPS 是 1 万，而实际的访问量正不断在 0.1 RPS 和 10 万 RPS 之间徘徊，那么有什么办法可以让 PHP-FPM 接受到来自 NGINX 的请求能相对稳定，这就是漏桶算法需要解决的问题。</p>
+<p>漏桶这个名字，其实就非常形象的描述了算法本身的原理。大家都知道，一个身上打了 n 个眼儿的桶，无论你倒进桶里的水多还是少，漏出来的水的流速也会保持稳定，这就是此算法的本质。再以 NGINX + PHP-FPM 为例，<code>我们在 NGINX 配置里定义一个最大处理请求的速度，如果 PHP-FPM 的稳定处理速度峰值是 1000 RPS，那就在 NGINX 里定义处理请求速度最大为 1000 RPS。当 RPS 已经大于这个值的时候，多出来的请求就被 NGINX 这个桶暂时储存起来，排着队等待处理。在 NGINX 的精心照料下，PHP-FPM 会相对稳定的处理来自 NGINX 的请求，而不会出现突然暴增的请求让 PHP-FPM 处理不过来，甚至挂掉。然而桶也有大小，NGINX 也一样，假如请求太多太多，桶都装不下了，那么桶将会把多出来的请求直接漏掉，返回 503 错误。</code>而如果用户浏览器发起请求时，服务器的 RPS 还在 1000 以内，那就看不出什么变化；但如果发起请求的时候正好赶上访问高峰期，那么浏览器会一直等待响应，直到请求“漏”给了 PHP-FPM 处理；极端情况，如果赶上访问多得服务器无法承受时，用户就只能得到一个 503 错误。精心呵护 PHP-FPM 避免出现因压力突然增大而导致的雪崩效应，是漏桶的一种用法。然而，没有网站愿意返回 503 错误信息给用户。不过有一种访问，叫恶意访问，以不让服务器罢工不罢休为目的，这种恶意访问叫 <code>DDOS（Distributed Denial of Service）</code>，而漏桶更多是用在防止 DDOS 攻击上。</p>
+<p>大部分 DDOS，都属于低成本 DDOS 攻击，也就是通过一台或者几台机器，不断向服务器发起请求来实现的。<code>我们只要给每一个 IP 设置一个“桶”，并做一个限制：每个 IP 一秒最多只能有 10 次请求，否则视为有问题的请求。</code>在 NGINX 的配置上体现为：10 RPS，桶的大小为 0，如果一秒内有超过 10 个请求被处理，多出来的请求会立马返回 503。当然这种处理方式也是略显粗暴，配置不好会误伤小区宽带内的正常访问。</p>
+<h5 id="关于漏桶算法"><a href="#关于漏桶算法" class="headerlink" title="关于漏桶算法"></a>关于漏桶算法</h5><p>漏桶(Leaky Bucket)算法思路很简单,水(请求)先进入到漏桶里,漏桶以一定的速度出水(接口有响应速率),当水流入速度过大会直接溢出(访问频率超过接口响应速率),然后就拒绝请求,可以看出漏桶算法能强行限制数据的传输速率.示意图如下<br><img src="/2020/03/08/nginx-advanced-conf/20200310204402.png" alt><br>可见这里有两个变量,一个是桶的大小,支持流量突发增多时可以存多少的水(burst),另一个是水桶漏洞的大小(rate)。</p>
+<p>我们假设系统是一个漏桶，当请求到达时，就是往漏桶里“加水”，而当请求被处理掉，就是水从漏桶的底部漏出。水漏出的速度是固定的，当“加水”太快，桶就会溢出，也就是“拒绝请求”。从而使得桶里的水的体积不可能超出桶的容量。主要目的是控制数据注入到网络的速率，平滑网络上的突发流量。漏桶算法提供了一种机制，通过它，突发流量可以被整形以便为网络提供一个稳定的流量。</p>
+<h5 id="相关指令"><a href="#相关指令" class="headerlink" title="相关指令"></a>相关指令</h5><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">limit_req_zone</span>  <span class="string">$binary_remote_addr</span>  <span class="string">zone=req_one:20m</span> <span class="string">rate=10r/s;</span></span><br></pre></td></tr></table></figure>
+<p>该指令只能在<code>http块</code>中使用，作用是限制<strong>请求数</strong>。其中 <code>rate</code> 就是上面所说的 <code>RPS</code>，而且不仅可以设置 n r/s，也可以设置 n r/m；另外 <code>burst</code> 参数，就是我们的桶大小了。</p>
+<ol>
+<li><code>zone</code>表示容器名，是针对每个变量(这里指IP，即<code>$binary_remote_addr</code>)定义一个存储session状态的容器。这个示例中定义了一个20m的容器，按照<code>32bytes/session</code>，可以处理640000个session。使用<code>$binary_remote_addr</code>变量，可以将每条状态记录的大小减少到64个字节，这样1M的内存可以保存大约1万6千个64字节的记录。如果限制域的存储空间耗尽了，对于后续所有请求，服务器都会返回<code>503 (Service Temporarily Unavailable)</code>错误。</li>
+<li><code>rate</code>表示请求频率. 每秒允许10个请求。速度可以设置为每<strong>秒</strong>处理请求数和每<strong>分钟</strong>处理请求数，其值必须是整数，所以如果需要指定每秒处理少于1个的请求，2秒处理一个请求，可以使用 <code>30r/m</code>。</li>
+</ol>
+<br>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">limit_conn</span> <span class="string">req_one</span> <span class="number">10</span><span class="string">;</span></span><br><span class="line"><span class="string">limit_req</span> <span class="string">zone=req_one</span> <span class="string">burst=5</span> <span class="string">nodelay;</span></span><br></pre></td></tr></table></figure>
+<ol>
+<li><code>limit_conn</code> 表示限制一个IP能发起10个并发连接数。</li>
+<li><code>limit_req</code> 与<code>limit_req_zone</code>对应。<code>burst</code>表示缓存住的请求数。可选参数<code>burst=5</code>表示允许超过频率限制的请求数不多于5个(<code>rate=10r/s</code>)，假设1、2、3、4秒请求为每秒9个，那么第5秒内请求15个是允许的，反之，如果第一秒内请求15个，会将5个请求放到第二秒，第二秒内超过10的请求直接<code>503</code>，类似多秒内平均速率限制。<code>nodelay</code>表示超过的请求不被延迟处理，设置后15个请求在1秒内处理。</li>
+<li>可以在http, server, location配置。</li>
+</ol>
+<h5 id="示例-3"><a href="#示例-3" class="headerlink" title="示例"></a>示例</h5><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">http</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="string">limit_req_zone</span>  <span class="string">$binary_remote_addr</span>  <span class="string">zone=req_one:20m</span> <span class="string">rate=10r/s;</span></span><br><span class="line">    <span class="string">limit_conn</span>  <span class="string">req_one</span>  <span class="number">10</span><span class="string">;</span></span><br><span class="line">    <span class="string">limit_req</span>   <span class="string">zone=req_one</span> <span class="string">burst=5;</span></span><br><span class="line">    <span class="string">server</span>  <span class="string">&#123;</span></span><br><span class="line">            <span class="string">listen</span>          <span class="number">80</span><span class="string">;</span></span><br><span class="line">            <span class="string">server_name</span>     <span class="string">localhost</span> <span class="string">;</span></span><br><span class="line">            <span class="string">location</span> <span class="string">/</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="string">limit_req</span> <span class="string">zone=one</span> <span class="string">burst=5</span> <span class="string">nodelay;</span></span><br><span class="line">                <span class="string">root</span>   <span class="string">html;</span></span><br><span class="line">                <span class="string">index</span>  <span class="string">index.html</span> <span class="string">index.htm;</span></span><br><span class="line">            <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="白名单"><a href="#白名单" class="headerlink" title="白名单"></a>白名单</h4><p>限流的配置会对所有的ip都进行限制，有些时候我们不希望对搜索引擎的蜘蛛或者某些自己的代理机过来的请求进行限制。</p>
+<h5 id="geo指令"><a href="#geo指令" class="headerlink" title="geo指令"></a>geo指令</h5><p>geo是Nginx的地域模块， 可以通过用户的IP信息查询到地理位置，再根据地理位置提供更好的服务。对于特定的白名单ip我们可以借助<span class="exturl" data-url="aHR0cDovL25naW54Lm9yZy9lbi9kb2NzL2h0dHAvbmd4X2h0dHBfZ2VvX21vZHVsZS5odG1s" title="http://nginx.org/en/docs/http/ngx_http_geo_module.html">geo<i class="fa fa-external-link"></i></span>指令创建变量，并根据客户端IP地址对变量赋值。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Syntax:</span>	<span class="string">geo</span> <span class="string">[$address]</span> <span class="string">$variable</span> <span class="string">&#123;</span> <span class="string">...</span> <span class="string">&#125;</span></span><br><span class="line"><span class="attr">Default:</span>	<span class="string">—</span></span><br><span class="line"><span class="attr">Context:</span>	<span class="string">http</span></span><br></pre></td></tr></table></figure>
+<p>定义从指定的变量获取客户端的IP地址。默认情况下，Nginx从<code>$remote_addr</code>变量取得客户端IP地址。下面配置会根据不同区域的用户访问不同的服务器进行负载。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">http</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">upstream</span> <span class="string">US</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">server</span> <span class="number">172.22</span><span class="number">.23</span><span class="number">.1</span><span class="string">:80</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line">    <span class="string">upstream</span> <span class="string">RU</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">server</span> <span class="number">172.22</span><span class="number">.23</span><span class="number">.2</span><span class="string">:80</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line">    <span class="string">upstream</span> <span class="string">UK</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">server</span> <span class="number">172.22</span><span class="number">.23</span><span class="number">.3</span><span class="string">:80</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line">    <span class="string">upstream</span> <span class="string">ZZ</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">server</span> <span class="number">172.22</span><span class="number">.23</span><span class="number">.4</span><span class="string">:80</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 根据不同区域的用户访问不同的服务器进行负载</span></span><br><span class="line">    <span class="string">geo</span> <span class="string">$country</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">default</span> <span class="string">ZZ;</span> <span class="comment"># $country默认为ZZ</span></span><br><span class="line">        <span class="string">include</span> <span class="string">conf/geo.conf;</span></span><br><span class="line">        <span class="string">delete</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.0</span><span class="string">/16;</span>     <span class="comment"># 删除指定网络</span></span><br><span class="line">        <span class="string">proxy</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.0</span><span class="string">/24;</span></span><br><span class="line">        <span class="string">proxy</span> <span class="number">2001</span><span class="string">:0db8::/32;</span></span><br><span class="line">    </span><br><span class="line">        <span class="number">127.0</span><span class="number">.0</span><span class="number">.0</span><span class="string">/24</span> <span class="string">US;</span>  <span class="string">设置$contry为US</span></span><br><span class="line">        <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">/32</span> <span class="string">RU;</span>  <span class="string">设置$contry为RU</span></span><br><span class="line">        <span class="number">192.168</span><span class="number">.1</span><span class="number">.0</span><span class="string">/24</span> <span class="string">UK;设置$contry为UK</span></span><br><span class="line">        </span><br><span class="line">        <span class="number">10.1</span><span class="number">.0</span><span class="number">.0</span><span class="string">/16</span> <span class="number">0</span><span class="string">;</span> <span class="comment"># 表示正常访问</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line">    </span><br><span class="line">    <span class="string">location</span> <span class="string">/</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">proxy_redirect</span> <span class="string">off;</span> <span class="comment"># 参数off将在这个字段中禁止所有的proxy_redirect指令</span></span><br><span class="line">        <span class="string">proxy_set_header</span> <span class="string">Host</span> <span class="string">$host;</span> <span class="comment"># 重新定义或添加字段传递给代理服务器的请求头。</span></span><br><span class="line">        <span class="string">proxy_set_header</span> <span class="string">X-Real-IP</span> <span class="string">$remote_addr;</span> <span class="comment"># 重新定义或添加字段传递给代理服务器的请求头。</span></span><br><span class="line">        <span class="string">proxy_pass</span> <span class="string">http://$country;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>Nginx通过CIDR或者地址段来描述地址，同时支持下面的特殊参数：</p>
+<ol>
+<li><code>delete</code> 删除指定的网络。</li>
+<li><code>default</code> 如果客户端地址不能匹配任意一个定义的地址，Nginx将使用此值。如果使用CIDR，可以用<code>0.0.0.0/0</code>代替default。</li>
+<li><code>include</code> 包含一个定义地址和值的文件。可以多次包含。</li>
+<li><code>proxy</code> 定义可信地址， 如果请求来自可信地址，Nginx将使用其<code>X-Forwarded-For</code>头来获得地址。 相对于普通地址，可信地址是顺序检测的。</li>
+<li><code>proxy_recursive</code> 开启递归查找地址， 如果关闭递归查找，在客户端地址与某个可信地址匹配时，Nginx将使用<code>X-Forwarded-For</code>中的最后一个地址来代替原始客户端地址。如果开启递归查找，在客户端地址与某个可信地址匹配时，Nginx将使用<code>X-Forwarded-For</code>中最后一个与所有可信地址都不匹配的地址来代替原始客户端地址。</li>
+<li><code>ranges</code> 指示地址将定义为地址段的形式，这个参数必须放在首位。为了加速装载地址库，地址应按升序定义。</li>
+</ol>
+<h5 id="http-x-forwarded-for和-remote-addr参数过滤"><a href="#http-x-forwarded-for和-remote-addr参数过滤" class="headerlink" title="$http_x_forwarded_for和$remote_addr参数过滤"></a>$http_x_forwarded_for和$remote_addr参数过滤</h5><p>通过$remote_addr参数和$http_x_forwarded_for参数进行访问的分发限制</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">listen</span>       <span class="number">80</span><span class="string">;</span></span><br><span class="line">    <span class="string">server_name</span>  <span class="string">testwww.wangshibo.com;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">##白名单设置，只允许下面三个来源ip的客户端以及本地能访问该站。主要是下面这三行</span></span><br><span class="line">    <span class="string">if</span> <span class="string">($remote_addr</span> <span class="string">!~</span> <span class="string">^(172.20.0.1|172.20.0.2|172.20.0.3|127.0.0.1))</span> <span class="string">&#123;</span></span><br><span class="line">     <span class="string">rewrite</span> <span class="string">^.*$</span> <span class="string">/index.php</span> <span class="string">last;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">#白名单设置，只允许下面三个来源ip的客户端以及本地能访问该站。</span></span><br><span class="line">   <span class="string">if</span> <span class="string">($http_x_forwarded_for</span> <span class="string">!~</span> <span class="string">^(172.20.0.4|172.20.0.5|172.20.0.6|127.0.0.1))</span> <span class="string">&#123;</span></span><br><span class="line">       <span class="string">rewrite</span> <span class="string">^.*$</span>  <span class="string">/index.php</span> <span class="string">last;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line">    </span><br><span class="line">    <span class="string">location</span> <span class="string">~</span> <span class="string">\.php$</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">fastcgi_pass</span>   <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:16688;</span></span><br><span class="line">        <span class="string">fastcgi_read_timeout</span> <span class="number">30</span><span class="string">;</span></span><br><span class="line">        <span class="string">fastcgi_index</span>  <span class="string">index.php;</span></span><br><span class="line">        <span class="string">fastcgi_param</span>  <span class="string">SCRIPT_FILENAME</span>  <span class="string">$document_root$fastcgi_script_name;</span></span><br><span class="line">        <span class="string">include</span>        <span class="string">fastcgi_params;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="支持HTTPS"><a href="#支持HTTPS" class="headerlink" title="支持HTTPS"></a>支持HTTPS</h4><h5 id="基础配置"><a href="#基础配置" class="headerlink" title="基础配置"></a>基础配置</h5><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">http</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">include</span>       <span class="string">mime.types;</span> </span><br><span class="line">    <span class="string">default_type</span>  <span class="string">application/octet-stream;</span></span><br><span class="line"></span><br><span class="line">    <span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="comment"># 监听时指定ssl</span></span><br><span class="line">        <span class="string">listen</span> <span class="number">16688</span> <span class="string">ssl;</span></span><br><span class="line">        <span class="string">server_name</span> <span class="string">localhost;</span></span><br><span class="line">		</span><br><span class="line">        <span class="comment"># 证书文件</span></span><br><span class="line">        <span class="string">ssl_certificate</span> <span class="string">"G:/Nginx+php+mysql/etc/ssl/server.crt"</span><span class="string">;</span></span><br><span class="line">        <span class="comment"># 密钥文件</span></span><br><span class="line">        <span class="string">ssl_certificate_key</span> <span class="string">"G:/Nginx+php+mysql/etc/ssl/server.key"</span><span class="string">;</span></span><br><span class="line">		</span><br><span class="line">        <span class="comment"># ssl_protocols ssl_ciphers用来限制连接只包含SSL/TLS的加强版本和算法</span></span><br><span class="line">        <span class="string">ssl_protocols</span> <span class="string">TLSv1</span> <span class="string">TLSv1.1</span> <span class="string">TLSv1.2;</span></span><br><span class="line">        <span class="string">ssl_ciphers</span>   <span class="string">HIGH:!aNULL:!MD5;</span></span><br><span class="line">		</span><br><span class="line">        <span class="string">root</span> <span class="string">"E:/personal/CodeIgniter_hmvc"</span><span class="string">;</span></span><br><span class="line">		</span><br><span class="line">        <span class="string">location</span> <span class="string">^~</span> <span class="string">/api</span> <span class="string">&#123;</span></span><br><span class="line">            <span class="string">index</span> <span class="string">index.php;</span></span><br><span class="line"></span><br><span class="line">            <span class="string">try_files</span> <span class="string">$uri</span> <span class="string">$uri/</span> <span class="string">/api/index.php;</span></span><br><span class="line">			</span><br><span class="line">            <span class="string">location</span> <span class="string">=</span> <span class="string">/api/index.php</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="string">fastcgi_pass</span>   <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8888;</span></span><br><span class="line">                <span class="string">fastcgi_index</span>  <span class="string">index.php;</span></span><br><span class="line">                <span class="string">fastcgi_param</span> <span class="string">SCRIPT_FILENAME</span> <span class="string">$document_root$fastcgi_script_name;</span></span><br><span class="line">                <span class="string">include</span>        <span class="string">fastcgi_params;</span></span><br><span class="line">            <span class="string">&#125;</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">		</span><br><span class="line">        <span class="string">location</span> <span class="string">/</span> <span class="string">&#123;</span></span><br><span class="line">            <span class="string">index</span>  <span class="string">index.html</span> <span class="string">index.htm</span> <span class="string">index.php;</span></span><br><span class="line">			</span><br><span class="line">            <span class="string">location</span> <span class="string">~</span> <span class="string">\.php$</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="string">root</span>           <span class="string">E:\personal\CodeIgniter_hmvc;</span></span><br><span class="line">                <span class="string">fastcgi_pass</span>   <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8888;</span></span><br><span class="line">                <span class="string">fastcgi_index</span>  <span class="string">index.php;</span></span><br><span class="line">                <span class="string">fastcgi_param</span> <span class="string">SCRIPT_FILENAME</span> <span class="string">$document_root$fastcgi_script_name;</span></span><br><span class="line">                <span class="string">include</span>        <span class="string">fastcgi_params;</span></span><br><span class="line">            <span class="string">&#125;</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h5><h6 id="减少CPU运算量"><a href="#减少CPU运算量" class="headerlink" title="减少CPU运算量"></a>减少CPU运算量</h6><p>进程数量最少为CPU核数</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">worker_processes</span>  <span class="number">4</span><span class="string">;</span></span><br></pre></td></tr></table></figure>
+
+<p>激活keepalive长连接</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">keepalive_timeout</span> <span class="number">300</span><span class="string">;</span></span><br></pre></td></tr></table></figure>
+
+<p>复用SSL会话</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#配置共享会话缓存大小</span></span><br><span class="line"><span class="string">ssl_session_cache</span>   <span class="string">shared:SSL:10m;</span></span><br><span class="line"><span class="comment">#配置会话超时时间</span></span><br><span class="line"><span class="string">ssl_session_timeout</span> <span class="string">10m;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="未完待续"><a href="#未完待续" class="headerlink" title="未完待续"></a>未完待续</h4><p>根据学习进展不定期更新。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2020/03/08/nginx-advanced-conf/" title="Nginx高级配置">https://pureven.cc/2020/03/08/nginx-advanced-conf/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Nginx/" rel="tag"><i class="fa fa-tag"></i> Nginx</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/03/06/nginx-simple-conf-with-php-fpm/" rel="next" title="Nginx配置入门-WNMP(Win10+Nginx+MySQL+PHP)">
+                  <i class="fa fa-chevron-left"></i> Nginx配置入门-WNMP(Win10+Nginx+MySQL+PHP)
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/03/11/phpstormm-about-license/" rel="prev" title="Phpstorm License">
+                  Phpstorm License <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正向代理与反向代理"><span class="nav-number">2.</span> <span class="nav-text">正向代理与反向代理</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#正向代理"><span class="nav-number">2.1.</span> <span class="nav-text">正向代理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#反向代理"><span class="nav-number">2.2.</span> <span class="nav-text">反向代理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#示例"><span class="nav-number">2.3.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#负载均衡"><span class="nav-number">3.</span> <span class="nav-text">负载均衡</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#upstream指令"><span class="nav-number">3.1.</span> <span class="nav-text">upstream指令</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#负载均衡机制"><span class="nav-number">3.2.</span> <span class="nav-text">负载均衡机制</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#轮询"><span class="nav-number">3.2.1.</span> <span class="nav-text">轮询</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#加权轮询"><span class="nav-number">3.2.2.</span> <span class="nav-text">加权轮询</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#IP-Hash"><span class="nav-number">3.2.3.</span> <span class="nav-text">IP Hash</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#最少连接数"><span class="nav-number">3.2.4.</span> <span class="nav-text">最少连接数</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#URL-Hash"><span class="nav-number">3.2.5.</span> <span class="nav-text">URL Hash</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#失败重试"><span class="nav-number">4.</span> <span class="nav-text">失败重试</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#作用"><span class="nav-number">4.1.</span> <span class="nav-text">作用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#示例-1"><span class="nav-number">4.2.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#访问控制"><span class="nav-number">5.</span> <span class="nav-text">访问控制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#防盗链"><span class="nav-number">6.</span> <span class="nav-text">防盗链</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#原理"><span class="nav-number">6.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#指令"><span class="nav-number">6.2.</span> <span class="nav-text">指令</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#示例-2"><span class="nav-number">6.3.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#限流"><span class="nav-number">7.</span> <span class="nav-text">限流</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#原理-1"><span class="nav-number">7.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#关于漏桶算法"><span class="nav-number">7.2.</span> <span class="nav-text">关于漏桶算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#相关指令"><span class="nav-number">7.3.</span> <span class="nav-text">相关指令</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#示例-3"><span class="nav-number">7.4.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#白名单"><span class="nav-number">8.</span> <span class="nav-text">白名单</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#geo指令"><span class="nav-number">8.1.</span> <span class="nav-text">geo指令</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#http-x-forwarded-for和-remote-addr参数过滤"><span class="nav-number">8.2.</span> <span class="nav-text">$http_x_forwarded_for和$remote_addr参数过滤</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#支持HTTPS"><span class="nav-number">9.</span> <span class="nav-text">支持HTTPS</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#基础配置"><span class="nav-number">9.1.</span> <span class="nav-text">基础配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#优化"><span class="nav-number">9.2.</span> <span class="nav-text">优化</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#减少CPU运算量"><span class="nav-number">9.2.1.</span> <span class="nav-text">减少CPU运算量</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#未完待续"><span class="nav-number">10.</span> <span class="nav-text">未完待续</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

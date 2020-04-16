@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言codeigniter.php是CI框架的引导(BOOTSTRAP)文件，也就是CI的核心文件。主要完成下面五项工作：  加载框架常量、函数库以及框架初始化 加载核心类组件 路由的设置与判断 解析请求的类，并调用请求的方法 输出">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter引导文件CodeIgniter.php">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;19&#x2F;codeigniter-codeigniter&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言codeigniter.php是CI框架的引导(BOOTSTRAP)文件，也就是CI的核心文件。主要完成下面五项工作：  加载框架常量、函数库以及框架初始化 加载核心类组件 路由的设置与判断 解析请求的类，并调用请求的方法 输出">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-16T06:20:28.344Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2019/12/19/codeigniter-codeigniter/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter引导文件CodeIgniter.php | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/12/19/codeigniter-codeigniter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter引导文件CodeIgniter.php
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-19 20:56:41" itemprop="dateCreated datePublished" datetime="2019-12-19T20:56:41+08:00">2019-12-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-16 14:20:28" itemprop="dateModified" datetime="2020-04-16T14:20:28+08:00">2020-04-16</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/12/19/codeigniter-codeigniter/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/19/codeigniter-codeigniter/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>12k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>codeigniter.php是CI框架的引导(BOOTSTRAP)文件，也就是CI的核心文件。主要完成下面五项工作：</p>
+<ul>
+<li>加载框架常量、函数库以及框架初始化</li>
+<li>加载核心类组件</li>
+<li>路由的设置与判断</li>
+<li>解析请求的类，并调用请求的方法</li>
+<li>输出<a id="more"></a>
+
+</li>
+</ul>
+<hr>
+<h4 id="加载框架常量、函数库以及框架初始化"><a href="#加载框架常量、函数库以及框架初始化" class="headerlink" title="加载框架常量、函数库以及框架初始化"></a>加载框架常量、函数库以及框架初始化</h4><h5 id="唯一入口判断"><a href="#唯一入口判断" class="headerlink" title="唯一入口判断"></a>唯一入口判断</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defined('BASEPATH') OR exit('No direct script access allowed');</span><br></pre></td></tr></table></figure>
+<p>常量<code>BASEPATH</code>在<code>index.php</code>文件中定义，除index.php外其他所有文件都要执行上面代码进行唯一入口判断，保证单一入口进入程序、防止跨站攻击直接访问文件路径等恶意攻击。</p>
+<h5 id="设置版本号"><a href="#设置版本号" class="headerlink" title="设置版本号"></a>设置版本号</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">const CI_VERSION = '3.1.10';</span><br></pre></td></tr></table></figure>
+
+<h5 id="加载常量文件"><a href="#加载常量文件" class="headerlink" title="加载常量文件"></a>加载常量文件</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">if (file_exists(APPPATH.'config/'.ENVIRONMENT.'/constants.php'))</span><br><span class="line">&#123;</span><br><span class="line">    require_once(APPPATH.'config/'.ENVIRONMENT.'/constants.php');</span><br><span class="line">&#125;</span><br><span class="line">if (file_exists(APPPATH.'config/constants.php'))</span><br><span class="line">&#123;</span><br><span class="line">    require_once(APPPATH.'config/constants.php');</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ENVIRONMENT</code>为index.php文件中定义的运行环境常量，针对某个环境可以在<code>APPPATH . config/</code>下创建对应的目录，然后创建constants.php文件，如<code>application/config/development/constants.php</code>，这个文件为当前运行环境下需要的特殊常量。然后加载CI默认的常量文件<code>APPPATH . config/constants.php</code>。</p>
+<h5 id="加载全局函数库"><a href="#加载全局函数库" class="headerlink" title="加载全局函数库"></a>加载全局函数库</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">require_once(BASEPATH.'core/Common.php');</span><br></pre></td></tr></table></figure>
+<p>这个文件中有很多函数，如<b>get_config()</b>、<b>config_item()</b>这两个方法不是应该由core/Config.php这个组件去做么？那个load_class()不应该由core/Loader.php去做么？把这些函数定义出来貌似感觉架构变得不那么优雅，有点多余。<code>其实是出于这样一种情况：比如说，如果一切和配置有关的动作都由Config组件来完成，一切加载的动作都由Loader来完成，试想一下，如果我要加载Config组件，那么必须得通过Loader来加载，所以Loader必须比Config要更早实例化，但是如果Loader实例化的时候需要一些和Loader有关的配置信息才能实例化呢？那就必须通过Config来为它取得配置信息。这里就出现了鸡和鸡蛋的问题。</code>先定义一些公共的函数就很好地解决了这个问题。</p>
+<h5 id="对全局变量进行安全处理"><a href="#对全局变量进行安全处理" class="headerlink" title="对全局变量进行安全处理"></a>对全局变量进行安全处理</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">if ( ! is_php('5.4'))</span><br><span class="line">&#123;</span><br><span class="line">	ini_set('magic_quotes_runtime', 0);</span><br><span class="line">	if ((bool) ini_get('register_globals'))</span><br><span class="line">	&#123;</span><br><span class="line">		$_protected = array(</span><br><span class="line">			'_SERVER',</span><br><span class="line">			'_GET',</span><br><span class="line">			'_POST',</span><br><span class="line">			'_FILES',</span><br><span class="line">			'_REQUEST',</span><br><span class="line">			'_SESSION',</span><br><span class="line">			'_ENV',</span><br><span class="line">			'_COOKIE',</span><br><span class="line">			'GLOBALS',</span><br><span class="line">			'HTTP_RAW_POST_DATA',</span><br><span class="line">			'system_path',</span><br><span class="line">			'application_folder',</span><br><span class="line">			'view_folder',</span><br><span class="line">			'_protected',</span><br><span class="line">			'_registered'</span><br><span class="line">		);</span><br><span class="line">		$_registered = ini_get('variables_order');</span><br><span class="line">		foreach (array('E' =&gt; '_ENV', 'G' =&gt; '_GET', 'P' =&gt; '_POST', 'C' =&gt; '_COOKIE', 'S' =&gt; '_SERVER') as $key =&gt; $superglobal)</span><br><span class="line">		&#123;</span><br><span class="line">			if (strpos($_registered, $key) === FALSE)</span><br><span class="line">			&#123;</span><br><span class="line">				continue;</span><br><span class="line">			&#125;</span><br><span class="line">			foreach (array_keys($$superglobal) as $var)</span><br><span class="line">			&#123;</span><br><span class="line">				if (isset($GLOBALS[$var]) &amp;&amp; ! in_array($var, $_protected, TRUE))</span><br><span class="line">				&#123;</span><br><span class="line">					$GLOBALS[$var] = NULL;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>is_php()</code>是common.php文件中定义的全局函数，用于判断当前判断是否大于等于指定版本，此处通过比较来对php小于5.4版本时做兼容处理。干了两件事：①禁用魔术引号；②删除全局变量。</p>
+<ol>
+<li><p>魔术引号<br>如果<code>magic_quotes_runtime</code>设置为TRUE，则读取数据时会自动对引号进行转义。<font color="#891717">由于此功能在PHP 5.3.0中已 弃用，而在PHP 7.0.0中已删除。因此为了向后兼容，如果小于5.4则禁用此功能。</font>更多信息请参考<span class="exturl" data-url="aHR0cHM6Ly9kb2MuYmNjbnNvZnQuY29tL2RvY3MvcGhwLWRvY3MtNy40LWNuL2Z1bmN0aW9uLnNldC1tYWdpYy1xdW90ZXMtcnVudGltZS5odG1s" title="https://doc.bccnsoft.com/docs/php-docs-7.4-cn/function.set-magic-quotes-runtime.html">设置当前 magic_quotes_runtime 配置选项的激活状态<i class="fa fa-external-link"></i></span>。</p>
+</li>
+<li><p>全局变量<br>如果低于php5.4版本，将进行全局变量安全处理。当开启了register_globals，这就意味着<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvaW5pLmNvcmUucGhwI2luaS52YXJpYWJsZXMtb3JkZXI=" title="https://www.php.net/manual/zh/ini.core.php#ini.variables-order">EGPCS<i class="fa fa-external-link"></i></span>中的变量可以直接用变量名访问，这些全局变量是存储在$GLOBALS数组中的，这是个隐患，虽然5.4及之后消除了，但考虑兼容以前，需要手工清除这些全局变量。那么挑选了最重要的需要特别保护的一些变量名，也就是$_protected数组的值。凡是EGPCS中涉及到变量名称在$_protected数组中的，一律清空。</p>
+</li>
+</ol>
+<h5 id="自定义错误、异常和程序完成的函数"><a href="#自定义错误、异常和程序完成的函数" class="headerlink" title="自定义错误、异常和程序完成的函数"></a>自定义错误、异常和程序完成的函数</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set_error_handler('_error_handler');</span><br><span class="line">set_exception_handler('_exception_handler');</span><br><span class="line">register_shutdown_function('_shutdown_handler');</span><br></pre></td></tr></table></figure>
+<ol>
+<li>设置错误处理：set_error_handler(‘_error_handler’)。处理函数原型：<code>function _error_handler($severity, $message, $filepath, $line)</code>。程序本身原因或手工触发trigger_error(“A custom error has been triggered”);</li>
+<li>设置异常处理：set_exception_handler(‘_exception_handler’)。处理函数原型：<code>function _exception_handler($exception)</code>。当用户抛出异常时触发throw new Exception(‘Exception occurred’);</li>
+<li>千万不要被shutdown迷惑：register_shutdown_function(‘_shutdown_handler’)可以这样理解调用条件：当页面被用户强制停止时、当程序代码运行超时时、当php代码执行完成时。</li>
+</ol>
+<p>函数信息可参考手册<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uc2V0LWVycm9yLWhhbmRsZXIucGhw" title="https://www.php.net/manual/zh/function.set-error-handler.php">set_error_handler()<i class="fa fa-external-link"></i></span>、<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uc2V0LWV4Y2VwdGlvbi1oYW5kbGVyLnBocA==" title="https://www.php.net/manual/zh/function.set-exception-handler.php">set_exception_handler()<i class="fa fa-external-link"></i></span>、<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24ucmVnaXN0ZXItc2h1dGRvd24tZnVuY3Rpb24=" title="https://www.php.net/manual/zh/function.register-shutdown-function">register_shutdown_function()<i class="fa fa-external-link"></i></span></p>
+<h5 id="检查核心class是否被扩展"><a href="#检查核心class是否被扩展" class="headerlink" title="检查核心class是否被扩展"></a>检查核心class是否被扩展</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if ( ! empty($assign_to_config['subclass_prefix']))</span><br><span class="line">&#123;</span><br><span class="line">    get_config(array('subclass_prefix' =&gt; $assign_to_config['subclass_prefix']));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中,$assign_to_config是定义在入口文件Index.php中的配置数组. 通常情况下，CI的核心组件的名称均以<code>CI_</code>开头，而如果更改了或者扩展CI的核心组件，则应该使用不同的subclass_prefix前缀如<code>MY_</code> ,这种情况下，应该通过$assign_to_config[‘subclass_prefix’]指定你的扩展核心的前缀名，便于CI的Loader组件加载该类，或者可能出现找不到文件的错误。另外，subclass_prefix配置项默认是位于APPPATH/Config/config.php配置文件中的，这段代码同样告诉我们，<code>index.php文件中的subclass_prefix具有更高的优先权</code>（也就是，如果两处都设置了subclass_prefix,index.php中的配置项会覆盖配置文件Config.php中的配置）。</p>
+<h5 id="加载composer"><a href="#加载composer" class="headerlink" title="加载composer"></a>加载composer</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">if ($composer_autoload = config_item('composer_autoload'))</span><br><span class="line">&#123;</span><br><span class="line">    if ($composer_autoload === TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        file_exists(APPPATH.'vendor/autoload.php')</span><br><span class="line">            ? require_once(APPPATH.'vendor/autoload.php')</span><br><span class="line">            : log_message('error', '$config[\'composer_autoload\'] is set to TRUE but '.APPPATH.'vendor/autoload.php was not found.');</span><br><span class="line">    &#125;</span><br><span class="line">    elseif (file_exists($composer_autoload))</span><br><span class="line">    &#123;</span><br><span class="line">        require_once($composer_autoload);</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        log_message('error', 'Could not find the specified $config[\'composer_autoload\'] path: '.$composer_autoload);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>composer_autoload</code>有两种定义方式，一种是Boolean类型，为TRUE时表示composer自动加载，这时需要判断<code>APPPATH . vendor/autoload.php</code>文件是否存在然后再来加载；另外一种时直接定义为加载文件名<code>$config[&#39;composer_autoload&#39;] = &#39;/path/to/vendor/autoload.php&#39;;</code>，具体参考<b>APPPATH . config/config.php</b>。</p>
+<hr>
+<h4 id="加载核心类组件"><a href="#加载核心类组件" class="headerlink" title="加载核心类组件"></a>加载核心类组件</h4><p>通常，CI框架中不同的功能均由不同的组件来完成（如Log组件主要用于记录日志，Input组件则用于处理用户的GET,POST等数据）这种模块化的方式使得各组件之间的耦合性较低，从而也便于扩展。</p>
+<h5 id="基准点组件"><a href="#基准点组件" class="headerlink" title="基准点组件"></a>基准点组件</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$BM =&amp; load_class(&apos;Benchmark&apos;, &apos;core&apos;);</span><br><span class="line">$BM-&gt;mark(&apos;total_execution_time_start&apos;);</span><br><span class="line">$BM-&gt;mark(&apos;loading_time:_base_classes_start&apos;);</span><br></pre></td></tr></table></figure>
+<p>Benchmark主要用于记录各种时间点、记录内存使用等参数，便于性能测试和追踪，说白了就是用来计算程序运行消耗的时间和内存。</p>
+<h5 id="钩子组件"><a href="#钩子组件" class="headerlink" title="钩子组件"></a>钩子组件</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$EXT =&amp; load_class('Hooks', 'core');</span><br><span class="line">$EXT-&gt;call_hook('pre_system');</span><br></pre></td></tr></table></figure>
+<p>CI的扩展组件用于在不改变CI核心的基础上改变或者增加系统的核心运行功能。Hook钩子允许在系统运行的各个挂钩点（hook point）添加自定义的功能，如pre_system，pre_controller,post_controller等预定义的挂钩点，具体参考<b>APPPATH . config/hooks.php</b>。这里加载完Hooks后首先调用pre_system钩子。</p>
+<h5 id="配置组件"><a href="#配置组件" class="headerlink" title="配置组件"></a>配置组件</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$CFG =&amp; load_class('Config', 'core');</span><br><span class="line">if (isset($assign_to_config) &amp;&amp; is_array($assign_to_config))</span><br><span class="line">&#123;</span><br><span class="line">    foreach ($assign_to_config as $key =&gt; $value)</span><br><span class="line">    &#123;</span><br><span class="line">        $CFG-&gt;set_item($key, $value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Config配置管理组件主要用于加载配置文件、获取和设置配置项等。这里包含了对$assign_to_config的处理：如果有在index.php定义配置数组，那么就丢给配置组件CFG，以后就由CFG来保管了配置信息了。</p>
+<h5 id="设置默认字符编码"><a href="#设置默认字符编码" class="headerlink" title="设置默认字符编码"></a>设置默认字符编码</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">$charset = strtoupper(config_item(&apos;charset&apos;));</span><br><span class="line">ini_set(&apos;default_charset&apos;, $charset);</span><br><span class="line">if (extension_loaded(&apos;mbstring&apos;))</span><br><span class="line">&#123;</span><br><span class="line">    define(&apos;MB_ENABLED&apos;, TRUE);</span><br><span class="line">    @ini_set(&apos;mbstring.internal_encoding&apos;, $charset);</span><br><span class="line">    mb_substitute_character(&apos;none&apos;);</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">    define(&apos;MB_ENABLED&apos;, FALSE);</span><br><span class="line">&#125;</span><br><span class="line">if (extension_loaded(&apos;iconv&apos;))</span><br><span class="line">&#123;</span><br><span class="line">    define(&apos;ICONV_ENABLED&apos;, TRUE);</span><br><span class="line">    @ini_set(&apos;iconv.internal_encoding&apos;, $charset);</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">    define(&apos;ICONV_ENABLED&apos;, FALSE);</span><br><span class="line">&#125;</span><br><span class="line">if (is_php(&apos;5.6&apos;))</span><br><span class="line">&#123;</span><br><span class="line">    ini_set(&apos;php.internal_encoding&apos;, $charset);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里功能如下：</p>
+<ol>
+<li>设置默认字符集，可在配置文件中进行相关配置。</li>
+<li>如果php启用<code>mbstring</code>扩展，则设置常量<code>MB_ENABLED</code>为TRUE；设置默认的内部字符编码使网站成为多语言站点，<font color="#891717">注意：此功能自PHP5.6.0起已被弃用</font>；设置替代字符，当输入字符的编码无效时则替换为null，即不输出。</li>
+<li>如果php启用<code>iconv</code>扩展，则设置常量<code>ICONV_ENABLED</code>为TRUE，<font color="#891717">注意：此功能自PHP5.6.0起已被弃用</font>。</li>
+<li>如果PHP版本 &gt;= 5.6, 使用<code>internal_encoding</code>来设置用于mbstring和iconv等多字节模块。默认为空。如果为空， 则使用<code>default_charset</code>。对于5.6已废弃的特性可参考<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvbWlncmF0aW9uNTYuZGVwcmVjYXRlZC5waHA=" title="https://www.php.net/manual/zh/migration56.deprecated.php">PHP 5.6.x 中已废止的特性<i class="fa fa-external-link"></i></span></li>
+</ol>
+<h5 id="加载兼容性函数"><a href="#加载兼容性函数" class="headerlink" title="加载兼容性函数"></a>加载兼容性函数</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">require_once(BASEPATH.&apos;core/compat/mbstring.php&apos;);</span><br><span class="line">require_once(BASEPATH.&apos;core/compat/hash.php&apos;);</span><br><span class="line">require_once(BASEPATH.&apos;core/compat/password.php&apos;);</span><br><span class="line">require_once(BASEPATH.&apos;core/compat/standard.php&apos;);</span><br></pre></td></tr></table></figure>
+<p>CodeIgniter提供了一组兼容性函数，使您可以使用PHP本身可用的函数，但只能在更高版本或取决于特定扩展名的情况下使用。这些函数是自定义实现，它们自己也将具有一些依赖关系，但是如果您的PHP安装程序没有本地提供它们，它们仍然很有用。<br><font color="#891717">注意: 与通用功能很相似，只要满足依赖关系，兼容性功能便始终可用。</font></p>
+<h5 id="UTF8类"><a href="#UTF8类" class="headerlink" title="UTF8类"></a>UTF8类</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$UNI =&amp; load_class(&apos;Utf8&apos;, &apos;core&apos;);</span><br></pre></td></tr></table></figure>
+<p>用于对UTF-8字符集处理的相关支持。其他组件如INPUT组件，需要改组件的支持。</p>
+<h5 id="URI类"><a href="#URI类" class="headerlink" title="URI类"></a>URI类</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$URI =&amp; load_class(&apos;URI&apos;, &apos;core&apos;);</span><br></pre></td></tr></table></figure>
+<p>解析URI（Uniform Rescource Identifier）参数等.这个组件与RTR组件关系紧密。</p>
+<h5 id="Router类"><a href="#Router类" class="headerlink" title="Router类"></a>Router类</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$RTR =&amp; load_class(&apos;Router&apos;, &apos;core&apos;, isset($routing) ? $routing : NULL);</span><br></pre></td></tr></table></figure>
+<p>路由组件，通过URI组件的参数解析，决定数据流向（路由）。</p>
+<h5 id="Output类"><a href="#Output类" class="headerlink" title="Output类"></a>Output类</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$OUT =&amp; load_class(&apos;Output&apos;, &apos;core&apos;);</span><br></pre></td></tr></table></figure>
+<p>最终的输出管理组件，掌管着CI的最终输出。加载完Output类之后，调用<code>cache_override</code>钩子来判断如果有缓存则输出缓存，没用则继续。<br><font color="#891717">注意</font>: <code>cache_override</code>钩子可以调用自己的函数来取代output类中的_display_cache() 函数.这可以使用自己的缓存显示方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if ($EXT-&gt;call_hook(&apos;cache_override&apos;) === FALSE &amp;&amp; $OUT-&gt;_display_cache($CFG, $URI) === TRUE)</span><br><span class="line">&#123;</span><br><span class="line">    exit;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Security类"><a href="#Security类" class="headerlink" title="Security类"></a>Security类</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$SEC =&amp; load_class(&apos;Security&apos;, &apos;core&apos;);</span><br></pre></td></tr></table></figure>
+<p>用于安全性处理，比如防止跨站请求伪造等。</p>
+<h5 id="Input类"><a href="#Input类" class="headerlink" title="Input类"></a>Input类</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$IN	=&amp; load_class(&apos;Input&apos;, &apos;core&apos;);</span><br></pre></td></tr></table></figure>
+<p>用于获取输入以及表单验证。</p>
+<h5 id="Lang类"><a href="#Lang类" class="headerlink" title="Lang类"></a>Lang类</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$LANG =&amp; load_class(&apos;Lang&apos;, &apos;core&apos;);</span><br></pre></td></tr></table></figure>
+<p>用于设置框架语言。</p>
+<h5 id="加载控制器"><a href="#加载控制器" class="headerlink" title="加载控制器"></a>加载控制器</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">require_once BASEPATH.&apos;core/Controller.php&apos;;</span><br><span class="line">function &amp;get_instance()</span><br><span class="line">&#123;</span><br><span class="line">    return CI_Controller::get_instance();</span><br><span class="line">&#125;</span><br><span class="line">if (file_exists(APPPATH.&apos;core/&apos;.$CFG-&gt;config[&apos;subclass_prefix&apos;].&apos;Controller.php&apos;))</span><br><span class="line">&#123;</span><br><span class="line">    require_once APPPATH.&apos;core/&apos;.$CFG-&gt;config[&apos;subclass_prefix&apos;].&apos;Controller.php&apos;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此处定义的get_instance方法返回一个引用，表明CI控制器拒绝副本，是单例模型。到这部核心组件加载完了，标记一下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$BM-&gt;mark(&apos;loading_time:_base_classes_end&apos;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="路由的设置与判断"><a href="#路由的设置与判断" class="headerlink" title="路由的设置与判断"></a>路由的设置与判断</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">$e404 = FALSE;</span><br><span class="line">$class = ucfirst($RTR-&gt;class);</span><br><span class="line">$method = $RTR-&gt;method;</span><br><span class="line">if (empty($class) OR ! file_exists(APPPATH.&apos;controllers/&apos;.$RTR-&gt;directory.$class.&apos;.php&apos;))</span><br><span class="line">&#123;</span><br><span class="line">    $e404 = TRUE;</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">    require_once(APPPATH.&apos;controllers/&apos;.$RTR-&gt;directory.$class.&apos;.php&apos;);</span><br><span class="line">    if ( ! class_exists($class, FALSE) OR $method[0] === &apos;_&apos; OR method_exists(&apos;CI_Controller&apos;, $method))</span><br><span class="line">    &#123;</span><br><span class="line">        $e404 = TRUE;</span><br><span class="line">    &#125;</span><br><span class="line">    elseif (method_exists($class, &apos;_remap&apos;))</span><br><span class="line">    &#123;</span><br><span class="line">        $params = array($method, array_slice($URI-&gt;rsegments, 2));</span><br><span class="line">        $method = &apos;_remap&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    elseif ( ! method_exists($class, $method))</span><br><span class="line">    &#123;</span><br><span class="line">        $e404 = TRUE;</span><br><span class="line">    &#125;</span><br><span class="line">    elseif ( ! is_callable(array($class, $method)))</span><br><span class="line">    &#123;</span><br><span class="line">        $reflection = new ReflectionMethod($class, $method);</span><br><span class="line">        if ( ! $reflection-&gt;isPublic() OR $reflection-&gt;isConstructor())</span><br><span class="line">        &#123;</span><br><span class="line">            $e404 = TRUE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">if ($e404)</span><br><span class="line">&#123;</span><br><span class="line">    if ( ! empty($RTR-&gt;routes[&apos;404_override&apos;]))</span><br><span class="line">    &#123;</span><br><span class="line">        if (sscanf($RTR-&gt;routes[&apos;404_override&apos;], &apos;%[^/]/%s&apos;, $error_class, $error_method) !== 2)</span><br><span class="line">        &#123;</span><br><span class="line">            $error_method = &apos;index&apos;;</span><br><span class="line">        &#125;</span><br><span class="line">        $error_class = ucfirst($error_class);</span><br><span class="line">        if ( ! class_exists($error_class, FALSE))</span><br><span class="line">        &#123;</span><br><span class="line">            if (file_exists(APPPATH.&apos;controllers/&apos;.$RTR-&gt;directory.$error_class.&apos;.php&apos;))</span><br><span class="line">            &#123;</span><br><span class="line">                require_once(APPPATH.&apos;controllers/&apos;.$RTR-&gt;directory.$error_class.&apos;.php&apos;);</span><br><span class="line">                $e404 = ! class_exists($error_class, FALSE);</span><br><span class="line">            &#125;</span><br><span class="line">            elseif ( ! empty($RTR-&gt;directory) &amp;&amp; file_exists(APPPATH.&apos;controllers/&apos;.$error_class.&apos;.php&apos;))</span><br><span class="line">            &#123;</span><br><span class="line">                require_once(APPPATH.&apos;controllers/&apos;.$error_class.&apos;.php&apos;);</span><br><span class="line">                if (($e404 = ! class_exists($error_class, FALSE)) === FALSE)</span><br><span class="line">                &#123;</span><br><span class="line">                    $RTR-&gt;directory = &apos;&apos;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            $e404 = FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if ( ! $e404)</span><br><span class="line">    &#123;</span><br><span class="line">        $class = $error_class;</span><br><span class="line">        $method = $error_method;</span><br><span class="line">        $URI-&gt;rsegments = array(</span><br><span class="line">            1 =&gt; $class,</span><br><span class="line">            2 =&gt; $method</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        show_404($RTR-&gt;directory.$class.&apos;/&apos;.$method);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>CI认为下面这几种情况认为是404，如果找不到就调用show_404()函数:</p>
+<ol>
+<li>请求的class为空或class文件不存在:<code>empty($class) OR ! file_exists(APPPATH.&#39;controllers/&#39;.$RTR-&gt;directory.$class.&#39;.php&#39;)</code>   </li>
+<li>请求的class不存在或请求的方法为私有方法或请求的是基类中的方法:<code>! class_exists($class, FALSE) OR $method[0] === &#39;_&#39; OR method_exists(&#39;CI_Controller&#39;, $method)</code>   </li>
+<li>请求的方法不存在:<code>! method_exists($class, $method)</code></li>
+<li>请求的不是公共方法: <code>! $reflection-&gt;isPublic() OR $reflection-&gt;isConstructor()</code><br>如果请求的条件满足上面4个中的任何一个，则被认为是不合法的请求（或者是无法定位的请求），因此会被CI定向到404页面（值得注意的是，如果设置了404_override，并且404_override的class存在，并不会直接调用show_404并退出，而是会像正常的访问一样，实例化：$CI = new $class();）</li>
+</ol>
+<p>获取请求参数:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if ($method !== &apos;_remap&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    $params = array_slice($URI-&gt;rsegments, 2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>路由选择和安全性检查都已完成后，调用pre_controller钩子，在开始执行前进行环境预处理，然后标记运行开始时间点:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$EXT-&gt;call_hook(&apos;pre_controller&apos;);</span><br><span class="line">$BM-&gt;mark(&apos;controller_execution_time_( &apos;.$class.&apos; / &apos;.$method.&apos; )_start&apos;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="解析请求的类，并调用请求的方法"><a href="#解析请求的类，并调用请求的方法" class="headerlink" title="解析请求的类，并调用请求的方法"></a>解析请求的类，并调用请求的方法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$CI = new $class();</span><br><span class="line">$EXT-&gt;call_hook(&apos;post_controller_constructor&apos;);</span><br><span class="line">call_user_func_array(array(&amp;$CI, $method), $params);</span><br></pre></td></tr></table></figure>
+<p>实例化控制器类，然后调用<code>post_controller_constructor</code>钩子，再然后通过<code>call_user_func_array ( callable $callback , array $param_arr )</code>函数调用<code>$CI</code>类中的<code>$method</code>方法，参数为数组<code>$params</code>。</p>
+<p>在控制器运行完成之后标记运行结束并调用<code>post_controller</code>钩子。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$BM-&gt;mark(&apos;controller_execution_time_( &apos;.$class.&apos; / &apos;.$method.&apos; )_end&apos;);</span><br><span class="line">$EXT-&gt;call_hook(&apos;post_controller&apos;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if ($EXT-&gt;call_hook(&apos;display_override&apos;) === FALSE)</span><br><span class="line">&#123;</span><br><span class="line">    $OUT-&gt;_display();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在未定义<code>display_override</code>钩子的情况下使用<code>_display()</code>函数完成最终输出，$this-&gt;load-&gt;view()之后，并不会直接输出，而是放在了缓存区。$Out-&gt;_display之后，才会设置缓存，并最终输出。<br><font color="#891717">注意</font>: <code>display_override</code>钩子的作用是覆盖_display()函数, 用来在系统执行末尾向web浏览器发送最终页面.这允许你用自己的方法来显示.<b>这里需要通过 $this-&gt;CI =&amp; get_instance()引用CI超级对象，然后这样的最终数据可以通过调用 $this-&gt;CI-&gt;output-&gt;get_output() 来获得。</b></p>
+<p>在最终渲染页面发送到浏览器后，浏览器接收完最终数据的系统末尾调用<code>post_system</code>钩子:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$EXT-&gt;call_hook(&apos;post_system&apos;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1poaWh1YV9XL2FydGljbGUvZGV0YWlscy81MjgyMTU5OA==" title="https://blog.csdn.net/Zhihua_W/article/details/52821598">CI框架源码解析二之引导文件CodeIgniter.php<i class="fa fa-external-link"></i></span></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2019/12/19/codeigniter-codeigniter/" title="CodeIgniter引导文件CodeIgniter.php">https://pureven.cc/2019/12/19/codeigniter-codeigniter/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/12/16/codeigniter-index/" rel="next" title="CodeIgniter入口文件index.php">
+                  <i class="fa fa-chevron-left"></i> CodeIgniter入口文件index.php
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/12/23/codeigniter-common/" rel="prev" title="CodeIgniter全局函数库文件Common.php">
+                  CodeIgniter全局函数库文件Common.php <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#加载框架常量、函数库以及框架初始化"><span class="nav-number">2.</span> <span class="nav-text">加载框架常量、函数库以及框架初始化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#唯一入口判断"><span class="nav-number">2.1.</span> <span class="nav-text">唯一入口判断</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#设置版本号"><span class="nav-number">2.2.</span> <span class="nav-text">设置版本号</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#加载常量文件"><span class="nav-number">2.3.</span> <span class="nav-text">加载常量文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#加载全局函数库"><span class="nav-number">2.4.</span> <span class="nav-text">加载全局函数库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#对全局变量进行安全处理"><span class="nav-number">2.5.</span> <span class="nav-text">对全局变量进行安全处理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自定义错误、异常和程序完成的函数"><span class="nav-number">2.6.</span> <span class="nav-text">自定义错误、异常和程序完成的函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#检查核心class是否被扩展"><span class="nav-number">2.7.</span> <span class="nav-text">检查核心class是否被扩展</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#加载composer"><span class="nav-number">2.8.</span> <span class="nav-text">加载composer</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#加载核心类组件"><span class="nav-number">3.</span> <span class="nav-text">加载核心类组件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#基准点组件"><span class="nav-number">3.1.</span> <span class="nav-text">基准点组件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#钩子组件"><span class="nav-number">3.2.</span> <span class="nav-text">钩子组件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置组件"><span class="nav-number">3.3.</span> <span class="nav-text">配置组件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#设置默认字符编码"><span class="nav-number">3.4.</span> <span class="nav-text">设置默认字符编码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#加载兼容性函数"><span class="nav-number">3.5.</span> <span class="nav-text">加载兼容性函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#UTF8类"><span class="nav-number">3.6.</span> <span class="nav-text">UTF8类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#URI类"><span class="nav-number">3.7.</span> <span class="nav-text">URI类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Router类"><span class="nav-number">3.8.</span> <span class="nav-text">Router类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Output类"><span class="nav-number">3.9.</span> <span class="nav-text">Output类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Security类"><span class="nav-number">3.10.</span> <span class="nav-text">Security类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Input类"><span class="nav-number">3.11.</span> <span class="nav-text">Input类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Lang类"><span class="nav-number">3.12.</span> <span class="nav-text">Lang类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#加载控制器"><span class="nav-number">3.13.</span> <span class="nav-text">加载控制器</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#路由的设置与判断"><span class="nav-number">4.</span> <span class="nav-text">路由的设置与判断</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解析请求的类，并调用请求的方法"><span class="nav-number">5.</span> <span class="nav-text">解析请求的类，并调用请求的方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#输出"><span class="nav-number">6.</span> <span class="nav-text">输出</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">7.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

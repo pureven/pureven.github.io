@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="需求说明安装完Docker Toolbox后，默认docker machine的存储位置为C:\Users\39260.docker\machine\machines，随着对虚机的使用会导虚拟硬盘所占空间越来越大，严重了会导致C盘空间空间告警！">
+<meta name="keywords" content="Docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows Docker Toolbox替换默认docker machine的存储位置">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;11&#x2F;07&#x2F;docker-toolbox-change-default-docker-machine-dir&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="需求说明安装完Docker Toolbox后，默认docker machine的存储位置为C:\Users\39260.docker\machine\machines，随着对虚机的使用会导虚拟硬盘所占空间越来越大，严重了会导致C盘空间空间告警！">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.326Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2019/11/07/docker-toolbox-change-default-docker-machine-dir/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Windows Docker Toolbox替换默认docker machine的存储位置 | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/11/07/docker-toolbox-change-default-docker-machine-dir/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Windows Docker Toolbox替换默认docker machine的存储位置
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-11-07 21:20:29" itemprop="dateCreated datePublished" datetime="2019-11-07T21:20:29+08:00">2019-11-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/11/07/docker-toolbox-change-default-docker-machine-dir/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/11/07/docker-toolbox-change-default-docker-machine-dir/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="需求说明"><a href="#需求说明" class="headerlink" title="需求说明"></a>需求说明</h3><p>安装完Docker Toolbox后，默认docker machine的存储位置为<code>C:\Users\39260.docker\machine\machines</code>，<br>随着对虚机的使用会导虚拟硬盘所占空间越来越大，严重了会导致C盘空间空间告警！</p>
+<a id="more"></a>
+
+<h3 id="设置默认docker-machine存储目录"><a href="#设置默认docker-machine存储目录" class="headerlink" title="设置默认docker machine存储目录"></a>设置默认docker machine存储目录</h3><p>1.选择一块空间充足的磁盘，新建虚机存储目录，这里选择目录为<code>H:\VM\machines</code>，<br>并将目录添加到系统环境变量<code>MACHINE_STORAGE_PATH</code><br>2.添加环境变量<code>VBOX_INSTALL_PATH</code>,其值为<code>virtual安装目录</code>，这里为<code>C:\Program Files\Oracle\VirtualBox</code><br>3.复制boot2docker.iso到<code>H:\VM\machines\cache</code></p>
+<h3 id="新建docker-machine"><a href="#新建docker-machine" class="headerlink" title="新建docker machine"></a>新建docker machine</h3><p>1.停止并删除已有虚机</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PS C:\Users\39260&gt; docker-machine.exe stop default</span><br><span class="line">PS C:\Users\39260&gt; docker-machine.exe rm default</span><br></pre></td></tr></table></figure>
+<p>2.以<strong>管理员</strong>身份运行<code>Docker QuickStart Terminal</code>,并等待所有设置完成，这步很重要！<br>3.等待出现下列显示即可关闭<code>Docker QuickStart Terminal</code>终端，并在没有管理员权限的情况下再次运行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">Running pre-create checks...</span><br><span class="line">Creating machine...</span><br><span class="line">(default) Copying H:\VM\machines\cache\boot2docker.iso to H:\VM\machines\machines\default\boot2docker.iso...</span><br><span class="line">(default) Creating VirtualBox VM...</span><br><span class="line">(default) Creating SSH key...</span><br><span class="line">(default) Starting the VM...</span><br><span class="line">(default) Check network to re-create if needed...</span><br><span class="line">(default) Windows might ask for the permission to configure a dhcp server. Sometimes, such confirmation window is minimized in the taskbar.</span><br><span class="line">(default) Waiting for an IP...</span><br><span class="line">Waiting for machine to be running, this may take a few minutes...</span><br><span class="line">Detecting operating system of created instance...</span><br><span class="line">Waiting for SSH to be available...</span><br><span class="line">Detecting the provisioner...</span><br><span class="line">Provisioning with boot2docker...</span><br><span class="line">Copying certs to the local machine directory...</span><br><span class="line">Copying certs to the remote machine...</span><br><span class="line">Setting Docker configuration on the remote daemon...</span><br><span class="line"></span><br><span class="line">This machine has been allocated an IP address, but Docker Machine could not</span><br><span class="line">reach it successfully.</span><br><span class="line"></span><br><span class="line">SSH for the machine should still work, but connecting to exposed ports, such as</span><br><span class="line">the Docker daemon port (usually &lt;ip&gt;:2376), may not work properly.</span><br><span class="line"></span><br><span class="line">You may need to add the route manually, or use another related workaround.</span><br><span class="line"></span><br><span class="line">This could be due to a VPN, proxy, or host file configuration issue.</span><br><span class="line"></span><br><span class="line">You also might want to clear any VirtualBox host only interfaces you are not using.</span><br><span class="line">Checking connection to Docker...</span><br><span class="line">Docker is up and running!</span><br><span class="line">To see how to connect your Docker Client to the Docker Engine running on this virtual machine, run: H:\Docker Toolbox\docker-machine.exe env default</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                        ##         .</span><br><span class="line">                  ## ## ##        ==</span><br><span class="line">               ## ## ## ## ##    ===</span><br><span class="line">           /&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;\___/ ===</span><br><span class="line">      ~~~ &#123;~~ ~~~~ ~~~ ~~~~ ~~~ ~ /  ===- ~~~</span><br><span class="line">           \______ o           __/</span><br><span class="line">             \    \         __/</span><br><span class="line">              \____\_______/</span><br><span class="line"></span><br><span class="line">docker is configured to use the default machine with IP 192.168.99.100</span><br><span class="line">For help getting started, check out the docs at https://docs.docker.com</span><br><span class="line"></span><br><span class="line">Start interactive shell</span><br><span class="line"></span><br><span class="line">39260@pureven MINGW64 ~</span><br></pre></td></tr></table></figure>
+
+<h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><p>boot2docker用户名和密码：</p>
+<table>
+<thead>
+<tr>
+<th align="center">用户名</th>
+<th align="center">密码</th>
+<th align="center">进入方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">docker</td>
+<td align="center">tcuser</td>
+<td align="center">ssh</td>
+</tr>
+<tr>
+<td align="center">root</td>
+<td align="center"></td>
+<td align="center">command:sudo -i(docker用户下执行)</td>
+</tr>
+</tbody></table>
+<p>1.打开<code>Git Bash</code>,启动虚拟机default</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">39260@pureven MINGW64 ~</span><br><span class="line">$ docker-machine.exe  start default</span><br><span class="line">Starting &quot;default&quot;...</span><br><span class="line">(default) Check network to re-create if needed...</span><br><span class="line">(default) Windows might ask for the permission to configure a dhcp server. Sometimes, such confirmation window is minimized in the taskbar.</span><br><span class="line">(default) Waiting for an IP...</span><br><span class="line">Machine &quot;default&quot; was started.</span><br><span class="line">Waiting for SSH to be available...</span><br><span class="line">Detecting the provisioner...</span><br><span class="line">Started machines may have new IP addresses. You may need to re-run the `docker-machine env` command.</span><br></pre></td></tr></table></figure>
+<p>2.执行<code>docker-machine create --driver=virtualbox pureven</code>，创建虚拟机pureven</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">39260@pureven MINGW64 ~</span><br><span class="line">$ docker-machine.exe create --driver=virtualbox pureven</span><br><span class="line">Running pre-create checks...</span><br><span class="line">Creating machine...</span><br><span class="line">(pureven) Copying H:\VM\machines\cache\boot2docker.iso to H:\VM\machines\machines\pureven\boot2docker.iso...</span><br><span class="line">(pureven) Creating VirtualBox VM...</span><br><span class="line">(pureven) Creating SSH key...</span><br><span class="line">(pureven) Starting the VM...</span><br><span class="line">(pureven) Check network to re-create if needed...</span><br><span class="line">(pureven) Windows might ask for the permission to configure a dhcp server. Sometimes, such confirmation window is minimized in the taskbar.</span><br><span class="line">(pureven) Waiting for an IP...</span><br><span class="line">Waiting for machine to be running, this may take a few minutes...</span><br><span class="line">Detecting operating system of created instance...</span><br><span class="line">Waiting for SSH to be available...</span><br><span class="line">Detecting the provisioner...</span><br><span class="line">Provisioning with boot2docker...</span><br><span class="line">Copying certs to the local machine directory...</span><br><span class="line">Copying certs to the remote machine...</span><br><span class="line">Setting Docker configuration on the remote daemon...</span><br><span class="line"></span><br><span class="line">This machine has been allocated an IP address, but Docker Machine could not</span><br><span class="line">reach it successfully.</span><br><span class="line"></span><br><span class="line">SSH for the machine should still work, but connecting to exposed ports, such as</span><br><span class="line">the Docker daemon port (usually &lt;ip&gt;:2376), may not work properly.</span><br><span class="line"></span><br><span class="line">You may need to add the route manually, or use another related workaround.</span><br><span class="line"></span><br><span class="line">This could be due to a VPN, proxy, or host file configuration issue.</span><br><span class="line"></span><br><span class="line">You also might want to clear any VirtualBox host only interfaces you are not using.</span><br><span class="line">Checking connection to Docker...</span><br><span class="line">Docker is up and running!</span><br><span class="line">To see how to connect your Docker Client to the Docker Engine running on this virtual machine, run: H:\Docker Toolbox\docker-machine.exe env pureven</span><br></pre></td></tr></table></figure>
+
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><p>1.改变docker machine的存储位置之后会导致<code>Windows PowerShell</code>无法使用<code>docker-machine</code>,目前尚未解决！可使用<code>Git Bash</code>代替。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2019/11/07/docker-toolbox-change-default-docker-machine-dir/" title="Windows Docker Toolbox替换默认docker machine的存储位置">https://pureven.cc/2019/11/07/docker-toolbox-change-default-docker-machine-dir/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"><i class="fa fa-tag"></i> Docker</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/11/04/%E4%BD%BF%E7%94%A8Hexo-Next%E7%BE%8E%E5%8C%96%E5%8D%9A%E5%AE%A2/" rel="next" title="使用Hexo-Next美化博客">
+                  <i class="fa fa-chevron-left"></i> 使用Hexo-Next美化博客
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/11/09/linux-sed-awk-grep/" rel="prev" title="grep sed awk 入门">
+                  grep sed awk 入门 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#需求说明"><span class="nav-number">1.</span> <span class="nav-text">需求说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置默认docker-machine存储目录"><span class="nav-number">2.</span> <span class="nav-text">设置默认docker machine存储目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新建docker-machine"><span class="nav-number">3.</span> <span class="nav-text">新建docker machine</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证"><span class="nav-number">4.</span> <span class="nav-text">验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意事项"><span class="nav-number">5.</span> <span class="nav-text">注意事项</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

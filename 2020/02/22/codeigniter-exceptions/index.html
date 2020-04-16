@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言异常类用于异常提示，该类定义了三种类型或级别的异常提示，即错误类型的消息、调试类型的消息和信息类型的消息。">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter异常类文件Exceptions.php">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;02&#x2F;22&#x2F;codeigniter-exceptions&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言异常类用于异常提示，该类定义了三种类型或级别的异常提示，即错误类型的消息、调试类型的消息和信息类型的消息。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.199Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2020/02/22/codeigniter-exceptions/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter异常类文件Exceptions.php | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/02/22/codeigniter-exceptions/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter异常类文件Exceptions.php
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-22 16:37:52" itemprop="dateCreated datePublished" datetime="2020-02-22T16:37:52+08:00">2020-02-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/02/22/codeigniter-exceptions/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/02/22/codeigniter-exceptions/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>异常类用于异常提示，该类定义了三种类型或级别的异常提示，即错误类型的消息、调试类型的消息和信息类型的消息。</p>
+<a id="more"></a>
+
+<hr>
+<h4 id="成员变量"><a href="#成员变量" class="headerlink" title="成员变量"></a>成员变量</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> $ob_level; <span class="comment">// 嵌套的输出缓冲处理程序的级别；如果输出缓冲区不起作用，返回零。</span></span><br><span class="line"><span class="keyword">public</span> $levels = <span class="keyword">array</span>(</span><br><span class="line">    E_ERROR                 =&gt;	<span class="string">'Error'</span>,   <span class="comment">// 致命错误</span></span><br><span class="line">    E_WARNING               =&gt;	<span class="string">'Warning'</span>, <span class="comment">// 非致命运行错误</span></span><br><span class="line">    E_PARSE                 =&gt;	<span class="string">'Parsing Error'</span>, <span class="comment">// 编译错误</span></span><br><span class="line">    E_NOTICE                =&gt;	<span class="string">'Notice'</span>,        <span class="comment">// notice错误</span></span><br><span class="line">    E_CORE_ERROR            =&gt;	<span class="string">'Core Error'</span>,   <span class="comment">// php启动时致命错误</span></span><br><span class="line">    E_CORE_WARNING          =&gt;	<span class="string">'Core Warning'</span>, <span class="comment">// php启动时非致命错误</span></span><br><span class="line">    E_COMPILE_ERROR         =&gt;	<span class="string">'Compile Error'</span>,  <span class="comment">// php致命编译错误</span></span><br><span class="line">    E_COMPILE_WARNING       =&gt;	<span class="string">'Compile Warning'</span>,<span class="comment">// php非致命编译错误</span></span><br><span class="line">    E_USER_ERROR            =&gt;	<span class="string">'User Error'</span>,  <span class="comment">// 致命的用户错误</span></span><br><span class="line">    E_USER_WARNING          =&gt;	<span class="string">'User Warning'</span>,<span class="comment">// 非致命的用户警告</span></span><br><span class="line">    E_USER_NOTICE           =&gt;	<span class="string">'User Notice'</span>, <span class="comment">// 用户生成的通知</span></span><br><span class="line">    E_STRICT                =&gt;	<span class="string">'Runtime Notice'</span>   <span class="comment">// Run-time通知，提高代码稳定可靠性</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="construct"><a href="#construct" class="headerlink" title="__construct()"></a>__construct()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;ob_level = ob_get_level();<span class="comment">// 输出缓冲机制的嵌套级别</span></span><br><span class="line">    <span class="comment">// <span class="doctag">Note:</span> Do not log messages from this constructor.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24ub2ItZ2V0LWxldmVsLnBocA==" title="https://www.php.net/manual/zh/function.ob-get-level.php">ob_get_level<i class="fa fa-external-link"></i></span></p>
+<hr>
+<h4 id="log-exception"><a href="#log-exception" class="headerlink" title="log_exception()"></a>log_exception()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">log_exception</span><span class="params">($severity, $message, $filepath, $line)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $severity = <span class="keyword">isset</span>(<span class="keyword">$this</span>-&gt;levels[$severity]) ? <span class="keyword">$this</span>-&gt;levels[$severity] : $severity;</span><br><span class="line">    log_message(<span class="string">'error'</span>, <span class="string">'Severity: '</span>.$severity.<span class="string">' --&gt; '</span>.$message.<span class="string">' '</span>.$filepath.<span class="string">' '</span>.$line); <span class="comment">// 记录错误日志</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="show-404"><a href="#show-404" class="headerlink" title="show_404()"></a>show_404()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*show_404()是show_error()中的一种特殊情况，就是请求不存在的情况，响应一个404错误*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">show_404</span><span class="params">($page = <span class="string">''</span>, $log_error = TRUE)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (is_cli())</span><br><span class="line">    &#123;</span><br><span class="line">        $heading = <span class="string">'Not Found'</span>;</span><br><span class="line">        $message = <span class="string">'The controller/method pair you requested was not found.'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        $heading = <span class="string">'404 Page Not Found'</span>;</span><br><span class="line">        $message = <span class="string">'The page you requested was not found.'</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// By default we log this, but allow a dev to skip it</span></span><br><span class="line">    <span class="keyword">if</span> ($log_error)</span><br><span class="line">    &#123;</span><br><span class="line">        log_message(<span class="string">'error'</span>, $heading.<span class="string">': '</span>.$page);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">echo</span> <span class="keyword">$this</span>-&gt;show_error($heading, $message, <span class="string">'error_404'</span>, <span class="number">404</span>); <span class="comment">// 调的show_error()方法</span></span><br><span class="line">    <span class="keyword">exit</span>(<span class="number">4</span>); <span class="comment">// EXIT_UNKNOWN_FILE</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="show-error"><a href="#show-error" class="headerlink" title="show_error()"></a>show_error()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* show_error()是有意识触发的错误，不是代码写错，</span></span><br><span class="line"><span class="comment">* 而是代码不当，或者用户操作不当，比如找不到控制器，指定方法之类的，</span></span><br><span class="line"><span class="comment">* CI就show一个错误出来，当然开发者也可以调用此方法响应一个错误信息，</span></span><br><span class="line"><span class="comment">* 某种程度上类似于catch到一个exception之后的处理，然后根据exception发出不同的提示信息。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">show_error</span><span class="params">($heading, $message, $template = <span class="string">'error_general'</span>, $status_code = <span class="number">500</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $templates_path = config_item(<span class="string">'error_views_path'</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">empty</span>($templates_path))</span><br><span class="line">    &#123;</span><br><span class="line">        $templates_path = VIEWPATH.<span class="string">'errors'</span>.DIRECTORY_SEPARATOR;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//默认是500，内部服务错误。是指由于程序代码写得不恰当而引起的，因此向浏览器回应一个内部错误。</span></span><br><span class="line">    <span class="keyword">if</span> (is_cli())</span><br><span class="line">    &#123;</span><br><span class="line">        $message = <span class="string">"\t"</span>.(is_array($message) ? implode(<span class="string">"\n\t"</span>, $message) : $message);</span><br><span class="line">        $template = <span class="string">'cli'</span>.DIRECTORY_SEPARATOR.$template;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        set_status_header($status_code);</span><br><span class="line">        $message = <span class="string">'&lt;p&gt;'</span>.(is_array($message) ? implode(<span class="string">'&lt;/p&gt;&lt;p&gt;'</span>, $message) : $message).<span class="string">'&lt;/p&gt;'</span>;</span><br><span class="line">        $template = <span class="string">'html'</span>.DIRECTORY_SEPARATOR.$template;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 缓冲机制是有嵌套级别的，</span></span><br><span class="line">    <span class="comment">// 这个if判断是说发生错误的缓冲级别和Exception被加载【刚开始】的缓冲级别相差1以上</span></span><br><span class="line">    <span class="comment">// 看core/Loader.php中的_ci_load() CI在加载view的时候先ob_start(),然后由output处理输出，</span></span><br><span class="line">    <span class="comment">// 因此，如果是在视图文件发生错误，则就会出现缓冲级别相差1的情况，此时先把输出的内容给flush出来，然后再把错误信息输出。</span></span><br><span class="line">    <span class="comment">// 此处的作用与show_php_error()中的相应位置作用一样</span></span><br><span class="line">    <span class="keyword">if</span> (ob_get_level() &gt; <span class="keyword">$this</span>-&gt;ob_level + <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        ob_end_flush();</span><br><span class="line">    &#125;</span><br><span class="line">    ob_start();</span><br><span class="line">    <span class="comment">//错误信息模板，位于应用目录errors/下。</span></span><br><span class="line">    <span class="keyword">include</span>($templates_path.$template.<span class="string">'.php'</span>);</span><br><span class="line">    $buffer = ob_get_contents();</span><br><span class="line">    ob_end_clean();</span><br><span class="line">    <span class="comment">//这里是return，因为一般情况下，是使用core/Common.php中，</span></span><br><span class="line">    <span class="comment">//全局函数show_error()间接使用当前Exception::show_error()方法。</span></span><br><span class="line">    <span class="keyword">return</span> $buffer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="show-exception"><a href="#show-exception" class="headerlink" title="show_exception()"></a>show_exception()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">show_exception</span><span class="params">($exception)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $templates_path = config_item(<span class="string">'error_views_path'</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">empty</span>($templates_path))</span><br><span class="line">    &#123;</span><br><span class="line">        $templates_path = VIEWPATH.<span class="string">'errors'</span>.DIRECTORY_SEPARATOR;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $message = $exception-&gt;getMessage();</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">empty</span>($message))</span><br><span class="line">    &#123;</span><br><span class="line">        $message = <span class="string">'(null)'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (is_cli())</span><br><span class="line">    &#123;</span><br><span class="line">        $templates_path .= <span class="string">'cli'</span>.DIRECTORY_SEPARATOR;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        $templates_path .= <span class="string">'html'</span>.DIRECTORY_SEPARATOR;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (ob_get_level() &gt; <span class="keyword">$this</span>-&gt;ob_level + <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        ob_end_flush();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ob_start();</span><br><span class="line">    <span class="keyword">include</span>($templates_path.<span class="string">'error_exception.php'</span>);</span><br><span class="line">    $buffer = ob_get_contents();</span><br><span class="line">    ob_end_clean();</span><br><span class="line">    <span class="keyword">echo</span> $buffer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="show-php-error"><a href="#show-php-error" class="headerlink" title="show_php_error()"></a>show_php_error()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">show_php_error</span><span class="params">($severity, $message, $filepath, $line)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $templates_path = config_item(<span class="string">'error_views_path'</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">empty</span>($templates_path))</span><br><span class="line">    &#123;</span><br><span class="line">        $templates_path = VIEWPATH.<span class="string">'errors'</span>.DIRECTORY_SEPARATOR;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 取得对应错误级别相对的说明。在$this-&gt;levels中定义。</span></span><br><span class="line">    $severity = <span class="keyword">isset</span>(<span class="keyword">$this</span>-&gt;levels[$severity]) ? <span class="keyword">$this</span>-&gt;levels[$severity] : $severity;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// For safety reasons we don't show the full file path in non-CLI requests</span></span><br><span class="line">    <span class="comment">// 为了安全起见，只显示错误文件最后两段路径信息。</span></span><br><span class="line">    <span class="keyword">if</span> ( ! is_cli())</span><br><span class="line">    &#123;</span><br><span class="line">        $filepath = str_replace(<span class="string">'\\'</span>, <span class="string">'/'</span>, $filepath);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">FALSE</span> !== strpos($filepath, <span class="string">'/'</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            $x = explode(<span class="string">'/'</span>, $filepath);</span><br><span class="line">            $filepath = $x[count($x)<span class="number">-2</span>].<span class="string">'/'</span>.end($x);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $template = <span class="string">'html'</span>.DIRECTORY_SEPARATOR.<span class="string">'error_php'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        $template = <span class="string">'cli'</span>.DIRECTORY_SEPARATOR.<span class="string">'error_php'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ob_get_level()是取得当前缓冲机制的嵌套级别。（缓冲是可以一层嵌一层的。）</span></span><br><span class="line">    <span class="comment">// 右边的$this-&gt;ob_level是在__construct()里面同样通过ob_get_level()被赋值的。</span></span><br><span class="line">    <span class="comment">// 也就是说，有可能出现：Exception组件被加载时（也就是应用刚开始运行时）的缓冲级别</span></span><br><span class="line">    <span class="comment">// （其实也就是程序最开始的时候的缓冲级别，那时候是还没有ob_start()过的），</span></span><br><span class="line">    <span class="comment">// 与发生错误的时候的缓冲级别相差1。</span></span><br><span class="line">    <span class="comment">// 在控制器执行$this-&gt;load-&gt;view("xxx");的时候，实质，Loader引入并执行这个视图文件的时候，</span></span><br><span class="line">    <span class="comment">// 是先把缓冲打开，即先ob_start()，所有输出放到缓冲区（详见：core/Loader.php中的_ci_load()）,</span></span><br><span class="line">    <span class="comment">// 然后再由Output处理输出。因此，如果是在视图文件发生错误，则就会出现缓冲级别相差1的情况，</span></span><br><span class="line">    <span class="comment">// 此时先把输出的内容给flush出来，然后再把错误信息输出。</span></span><br><span class="line">    <span class="keyword">if</span> (ob_get_level() &gt; <span class="keyword">$this</span>-&gt;ob_level + <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        ob_end_flush();</span><br><span class="line">    &#125;</span><br><span class="line">    ob_start();</span><br><span class="line">    <span class="keyword">include</span>($templates_path.$template.<span class="string">'.php'</span>);</span><br><span class="line">    $buffer = ob_get_contents();</span><br><span class="line">    ob_end_clean();</span><br><span class="line">    <span class="keyword">echo</span> $buffer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1poaWh1YV9XL2FydGljbGUvZGV0YWlscy81Mjk2Mjc4Ng==" title="https://blog.csdn.net/Zhihua_W/article/details/52962786">CI框架源码解析十七之异常处理类文件Exceptions.php<i class="fa fa-external-link"></i></span></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2020/02/22/codeigniter-exceptions/" title="CodeIgniter异常类文件Exceptions.php">https://pureven.cc/2020/02/22/codeigniter-exceptions/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/02/17/codeigniter-loader/" rel="next" title="CodeIgniter加载类文件Loader.php">
+                  <i class="fa fa-chevron-left"></i> CodeIgniter加载类文件Loader.php
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/02/22/codeigniter-log/" rel="prev" title="CodeIgniter日志类文件Log.php">
+                  CodeIgniter日志类文件Log.php <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#成员变量"><span class="nav-number">2.</span> <span class="nav-text">成员变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#construct"><span class="nav-number">3.</span> <span class="nav-text">__construct()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#log-exception"><span class="nav-number">4.</span> <span class="nav-text">log_exception()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#show-404"><span class="nav-number">5.</span> <span class="nav-text">show_404()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#show-error"><span class="nav-number">6.</span> <span class="nav-text">show_error()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#show-exception"><span class="nav-number">7.</span> <span class="nav-text">show_exception()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#show-php-error"><span class="nav-number">8.</span> <span class="nav-text">show_php_error()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">9.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言index.php是CodeIgniter（简称CI）框架的入口文件，一共完成了四项工作：  设置框架应用的环境状态 配置系统、应用、视图等程序目录以及得到其路径 系统、应用、视图等目录的正确性验证 载入 core&#x2F;CodeIgniter.php框架核心文件，启动框架">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter入口文件index.php">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;16&#x2F;codeigniter-index&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言index.php是CodeIgniter（简称CI）框架的入口文件，一共完成了四项工作：  设置框架应用的环境状态 配置系统、应用、视图等程序目录以及得到其路径 系统、应用、视图等目录的正确性验证 载入 core&#x2F;CodeIgniter.php框架核心文件，启动框架">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.012Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2019/12/16/codeigniter-index/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter入口文件index.php | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/12/16/codeigniter-index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter入口文件index.php
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-16 21:33:50" itemprop="dateCreated datePublished" datetime="2019-12-16T21:33:50+08:00">2019-12-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/12/16/codeigniter-index/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/16/codeigniter-index/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>index.php是CodeIgniter（简称CI）框架的入口文件，一共完成了四项工作：</p>
+<ul>
+<li>设置框架应用的环境状态</li>
+<li>配置系统、应用、视图等程序目录以及得到其路径</li>
+<li>系统、应用、视图等目录的正确性验证</li>
+<li>载入 core/CodeIgniter.php框架核心文件，启动框架</li>
+</ul>
+<a id="more"></a>
+
+<hr>
+<h4 id="设置框架应用的环境状态"><a href="#设置框架应用的环境状态" class="headerlink" title="设置框架应用的环境状态"></a>设置框架应用的环境状态</h4><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');</span><br></pre></td></tr></table></figure>
+<p><code>CI_ENV</code>可在<code>.env</code>文件中定义，.env文件位于项目根目录下，作为全局环境配置文件，通过 .env文件 加载环境变量并且能够自动的通过 <code>getenv()</code>, <code>$_ENV</code>和 <code>$_SERVER</code> 自动调用,如文件内容<code>CI_ENV=production</code>表示将运行环境设置为production。如果没有指定则默认为<code>development</code>。</p>
+<p>CI框架设置了三种应用场景状态，分别是：<strong>开发</strong>-<code>development</code>，<strong>测试</strong>-<code>testing</code>，<strong>产品</strong>-<code>production</code>，<strong>开发</strong>-<code>development</code>状态，<strong>默认</strong>的状态下会产生错误报告，<strong>测试</strong>，<strong>产品</strong>状态下则不会产生错误报告，否则CI框架会认为你没有配置好相应的环境，从而退出进程并给出对应的错误信息：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">switch (ENVIRONMENT)</span><br><span class="line">&#123;</span><br><span class="line">	case 'development':</span><br><span class="line">		error_reporting(-1);</span><br><span class="line">		ini_set('display_errors', 1);</span><br><span class="line">	break;</span><br><span class="line"></span><br><span class="line">	case 'testing':</span><br><span class="line">	case 'production':</span><br><span class="line">		ini_set('display_errors', 0);</span><br><span class="line">		if (version_compare(PHP_VERSION, '5.3', '&gt;='))</span><br><span class="line">		&#123;</span><br><span class="line">			error_reporting(E_ALL &amp; ~E_NOTICE &amp; ~E_DEPRECATED &amp; ~E_STRICT &amp; ~E_USER_NOTICE &amp; ~E_USER_DEPRECATED);</span><br><span class="line">		&#125;</span><br><span class="line">		else</span><br><span class="line">		&#123;</span><br><span class="line">			error_reporting(E_ALL &amp; ~E_NOTICE &amp; ~E_STRICT &amp; ~E_USER_NOTICE);</span><br><span class="line">		&#125;</span><br><span class="line">	break;</span><br><span class="line"></span><br><span class="line">	default:</span><br><span class="line">		header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);</span><br><span class="line">		echo 'The application environment is not set correctly.';</span><br><span class="line">		exit(1); // EXIT_ERROR</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>设置ENVIRONMENT的一个好处是：可以很方便的切换系统的配置而不必修改系统代码。例如，在系统进入测试阶段时，database配置为测试的数据库，而在系统测试完毕时，database切换到线上的数据库。这好比是用一个开关控制了系统的环境切换，自然是非常方便的。</p>
+<hr>
+<h4 id="配置系统、应用、视图等程序目录以及得到其路径"><a href="#配置系统、应用、视图等程序目录以及得到其路径" class="headerlink" title="配置系统、应用、视图等程序目录以及得到其路径"></a>配置系统、应用、视图等程序目录以及得到其路径</h4><p> CI框架允许你将系统核心源码和应用程序代码进行分开放置，但是你必须设定好系统的system文件夹和application文件夹（同样，文件夹名字可以是任何合法的文件夹名称，而不一定使用’system’和’application’）的名称、路径等信息：<br> <figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$system_path = 'system';</span><br><span class="line">$application_folder = 'application';</span><br><span class="line">$view_folder = '';</span><br></pre></td></tr></table></figure></p>
+<p>如果时CLI模式，运行的一般像<code>php filename.php</code>这样直接运行php脚本文件，因此需要将php脚本文件所在目录变为当前工作目录，如下：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// Set the current directory correctly for CLI requests</span><br><span class="line">if (defined('STDIN'))</span><br><span class="line">&#123;</span><br><span class="line">    chdir(dirname(__FILE__));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="系统、应用、视图等目录的正确性验证"><a href="#系统、应用、视图等目录的正确性验证" class="headerlink" title="系统、应用、视图等目录的正确性验证"></a>系统、应用、视图等目录的正确性验证</h4><h5 id="系统-system-文件目录的正确性验证"><a href="#系统-system-文件目录的正确性验证" class="headerlink" title="系统(system)文件目录的正确性验证"></a>系统(system)文件目录的正确性验证</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">if (($_temp = realpath($system_path)) !== FALSE)</span><br><span class="line">&#123;</span><br><span class="line">    $system_path = $_temp.DIRECTORY_SEPARATOR;</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">    // Ensure there's a trailing slash</span><br><span class="line">    $system_path = strtr(</span><br><span class="line">        rtrim($system_path, '/\\'),</span><br><span class="line">        '/\\',</span><br><span class="line">        DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR</span><br><span class="line">    ).DIRECTORY_SEPARATOR;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// Is the system path correct?</span><br><span class="line">if ( ! is_dir($system_path))</span><br><span class="line">&#123;</span><br><span class="line">    header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);</span><br><span class="line">    echo 'Your system folder path does not appear to be set correctly. Please open the following file and correct this: '.pathinfo(__FILE__, PATHINFO_BASENAME);</span><br><span class="line">    exit(3); // EXIT_CONFIG</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="应用-application-文件目录的正确性验证"><a href="#应用-application-文件目录的正确性验证" class="headerlink" title="应用(application)文件目录的正确性验证"></a>应用(application)文件目录的正确性验证</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">// The path to the <span class="string">"application"</span> directory</span><br><span class="line">if (is_dir($application_folder))</span><br><span class="line">&#123;</span><br><span class="line">    if (($_temp = realpath($application_folder)) !== FALSE)</span><br><span class="line">    &#123;</span><br><span class="line">        $application_folder = $_temp;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        $application_folder = strtr(</span><br><span class="line">            rtrim($application_folder, '/\\'),</span><br><span class="line">            '/\\',</span><br><span class="line">            DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">elseif (is_dir(BASEPATH.$application_folder.DIRECTORY_SEPARATOR))</span><br><span class="line">&#123;</span><br><span class="line">    $application_folder = BASEPATH.strtr(</span><br><span class="line">        trim($application_folder, '/\\'),</span><br><span class="line">        '/\\',</span><br><span class="line">        DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">    header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);</span><br><span class="line">    echo 'Your application folder path does not appear to be set correctly. Please open the following file and correct this: '.SELF;</span><br><span class="line">    exit(3); // EXIT_CONFIG</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="视图-view-文件目录的正确性验证"><a href="#视图-view-文件目录的正确性验证" class="headerlink" title="视图(view)文件目录的正确性验证"></a>视图(view)文件目录的正确性验证</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">// The path to the <span class="string">"views"</span> directory</span><br><span class="line">if ( ! isset($view_folder[0]) &amp;&amp; is_dir(APPPATH.'views'.DIRECTORY_SEPARATOR))</span><br><span class="line">&#123;</span><br><span class="line">    $view_folder = APPPATH.'views';</span><br><span class="line">&#125;</span><br><span class="line">elseif (is_dir($view_folder))</span><br><span class="line">&#123;</span><br><span class="line">    if (($_temp = realpath($view_folder)) !== FALSE)</span><br><span class="line">    &#123;</span><br><span class="line">        $view_folder = $_temp;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        $view_folder = strtr(</span><br><span class="line">            rtrim($view_folder, '/\\'),</span><br><span class="line">            '/\\',</span><br><span class="line">            DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">elseif (is_dir(APPPATH.$view_folder.DIRECTORY_SEPARATOR))</span><br><span class="line">&#123;</span><br><span class="line">    $view_folder = APPPATH.strtr(</span><br><span class="line">        trim($view_folder, '/\\'),</span><br><span class="line">        '/\\',</span><br><span class="line">        DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">    header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);</span><br><span class="line">    echo 'Your view folder path does not appear to be set correctly. Please open the following file and correct this: '.SELF;</span><br><span class="line">    exit(3); // EXIT_CONFIG</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="目录相关常量定义"><a href="#目录相关常量定义" class="headerlink" title="目录相关常量定义"></a>目录相关常量定义</h5><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">// The name of THIS file</span><br><span class="line">define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));</span><br><span class="line"></span><br><span class="line">// Path to the system directory</span><br><span class="line">define('BASEPATH', $system_path);</span><br><span class="line"></span><br><span class="line">// Path to the front controller (this file) directory</span><br><span class="line">define('FCPATH', dirname(__FILE__).DIRECTORY_SEPARATOR);</span><br><span class="line"></span><br><span class="line">// Name of the <span class="string">"system"</span> directory</span><br><span class="line">define('SYSDIR', basename(BASEPATH));</span><br><span class="line"></span><br><span class="line">// APPPPATH</span><br><span class="line">define('APPPATH', $application_folder.DIRECTORY_SEPARATOR);</span><br><span class="line"></span><br><span class="line">// VIEWPATH</span><br><span class="line">define('VIEWPATH', $view_folder.DIRECTORY_SEPARATOR);</span><br></pre></td></tr></table></figure>
+
+<p><code>注</code>: 查看所有常量的方法：<code>var_dump(get_defined_constants());</code></p>
+<hr>
+<h4 id="载入-core-CodeIgniter-php框架核心文件，启动框架"><a href="#载入-core-CodeIgniter-php框架核心文件，启动框架" class="headerlink" title="载入 core/CodeIgniter.php框架核心文件，启动框架"></a>载入 core/CodeIgniter.php框架核心文件，启动框架</h4><p>入口文件的最后一行，引入CodeIgniter.php框架核心文件（也是下一步框架执行的关键）。CodeIgniter.php被称为bootstrap file，也就是它是一个引导文件，是CI框架执行流程的核心文件。</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">/<span class="symbol">*</span></span><br><span class="line"> <span class="symbol">*</span> --------------------------------------------------------------------</span><br><span class="line"> <span class="symbol">*</span> LOAD THE BOOTSTRAP FILE</span><br><span class="line"> <span class="symbol">*</span> --------------------------------------------------------------------</span><br><span class="line"> <span class="symbol">*</span></span><br><span class="line"> <span class="symbol">*</span> <span class="keyword">And</span> away we go...</span><br><span class="line"> <span class="symbol">*</span>/</span><br><span class="line">require_once BASEPATH.'core/CodeIgniter.php';</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1poaWh1YV9XL2FydGljbGUvZGV0YWlscy81MjgxNTg5Mg==" title="https://blog.csdn.net/Zhihua_W/article/details/52815892">《CI框架源码解析一之入口文件index.php》<i class="fa fa-external-link"></i></span></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2019/12/16/codeigniter-index/" title="CodeIgniter入口文件index.php">https://pureven.cc/2019/12/16/codeigniter-index/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/12/09/codeigniter-loader-learn/" rel="next" title="CodeIgniter之Loader类原码学习笔记">
+                  <i class="fa fa-chevron-left"></i> CodeIgniter之Loader类原码学习笔记
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/12/19/codeigniter-codeigniter/" rel="prev" title="CodeIgniter引导文件CodeIgniter.php">
+                  CodeIgniter引导文件CodeIgniter.php <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#设置框架应用的环境状态"><span class="nav-number">2.</span> <span class="nav-text">设置框架应用的环境状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置系统、应用、视图等程序目录以及得到其路径"><span class="nav-number">3.</span> <span class="nav-text">配置系统、应用、视图等程序目录以及得到其路径</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#系统、应用、视图等目录的正确性验证"><span class="nav-number">4.</span> <span class="nav-text">系统、应用、视图等目录的正确性验证</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#系统-system-文件目录的正确性验证"><span class="nav-number">4.1.</span> <span class="nav-text">系统(system)文件目录的正确性验证</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#应用-application-文件目录的正确性验证"><span class="nav-number">4.2.</span> <span class="nav-text">应用(application)文件目录的正确性验证</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#视图-view-文件目录的正确性验证"><span class="nav-number">4.3.</span> <span class="nav-text">视图(view)文件目录的正确性验证</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#目录相关常量定义"><span class="nav-number">4.4.</span> <span class="nav-text">目录相关常量定义</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#载入-core-CodeIgniter-php框架核心文件，启动框架"><span class="nav-number">5.</span> <span class="nav-text">载入 core/CodeIgniter.php框架核心文件，启动框架</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">6.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

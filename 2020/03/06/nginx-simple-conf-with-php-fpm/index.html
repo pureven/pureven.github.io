@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言上一篇学习了Nginx配置文件中的基本指令，然后配置了一个静态网站。通过这个网站可以访问指定目录中的静态资源，但是如果向php脚本这样的文件还是无法访问，这是因为php脚本只能由特定的解析器(php解析器)来解析，本文学习Win10环境下配置Nginx和PHP-FPM的环境然后通过Nginx来访问指定目录中的动态资源(php脚本)，同时安装配置并调试MySQL。">
+<meta name="keywords" content="PHP,Nginx,MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx配置入门-WNMP(Win10+Nginx+MySQL+PHP)">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;06&#x2F;nginx-simple-conf-with-php-fpm&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言上一篇学习了Nginx配置文件中的基本指令，然后配置了一个静态网站。通过这个网站可以访问指定目录中的静态资源，但是如果向php脚本这样的文件还是无法访问，这是因为php脚本只能由特定的解析器(php解析器)来解析，本文学习Win10环境下配置Nginx和PHP-FPM的环境然后通过Nginx来访问指定目录中的动态资源(php脚本)，同时安装配置并调试MySQL。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;06&#x2F;nginx-simple-conf-with-php-fpm&#x2F;20200306144934.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;06&#x2F;nginx-simple-conf-with-php-fpm&#x2F;20200306153358.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;06&#x2F;nginx-simple-conf-with-php-fpm&#x2F;20200312085658.png">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.205Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;06&#x2F;nginx-simple-conf-with-php-fpm&#x2F;20200306144934.png">
+
+<link rel="canonical" href="https://pureven.cc/2020/03/06/nginx-simple-conf-with-php-fpm/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Nginx配置入门-WNMP(Win10+Nginx+MySQL+PHP) | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/03/06/nginx-simple-conf-with-php-fpm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Nginx配置入门-WNMP(Win10+Nginx+MySQL+PHP)
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-06 09:15:26" itemprop="dateCreated datePublished" datetime="2020-03-06T09:15:26+08:00">2020-03-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/03/06/nginx-simple-conf-with-php-fpm/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/06/nginx-simple-conf-with-php-fpm/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>9.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p><a href="https://pureven.cc/2020/02/29/nginx-simple-conf-with-static-site/">上一篇</a>学习了Nginx配置文件中的基本指令，然后配置了一个静态网站。通过这个网站可以访问指定目录中的静态资源，但是如果向php脚本这样的文件还是无法访问，这是因为php脚本只能由特定的解析器(php解析器)来解析，本文学习Win10环境下配置Nginx和PHP-FPM的环境然后通过Nginx来访问指定目录中的动态资源(php脚本)，同时安装配置并调试MySQL。</p>
+<a id="more"></a>
+
+<hr>
+<h4 id="PHP下载"><a href="#PHP下载" class="headerlink" title="PHP下载"></a>PHP下载</h4><p>下载PHP的<strong>非线程安全版本：</strong><span class="exturl" data-url="aHR0cHM6Ly93aW5kb3dzLnBocC5uZXQvZG93bmxvYWQjcGhwLTcuNC1udHMtdmMxNS14NjQ=" title="https://windows.php.net/download#php-7.4-nts-vc15-x64">php-7.4.3-nts-Win32-vc15-x64.zip<i class="fa fa-external-link"></i></span>。</p>
+<h5 id="关于线程安全和非线程安全"><a href="#关于线程安全和非线程安全" class="headerlink" title="关于线程安全和非线程安全"></a>关于线程安全和非线程安全</h5><p>Windows版的PHP从版本5.2.1开始有<code>Thread Safe</code>。这两者不同在于何处？到底应该用哪种？这里做一个简单的介绍。</p>
+<p>从2000年10月20日发布的第一个Windows版的PHP3.0.17开始的都是线程安全的版本，这是由于与Linux/Unix系统是采用<code>多进程</code>的工作方式不同的是Windows系统是采用<code>多线程</code>的工作方式。如果在IIS下以CGI方式运行PHP会非常慢，这是由于CGI模式是建立在多进程 的基础之上的，而非多线程。一般我们会把PHP配置成以<code>ISAPI</code>的方式来运行，ISAPI是多线程的方式，这样就快多了。但存在一个问题，很多常用的 PHP扩展是以Linux/Unix的多进程思想来开发的，这些扩展在ISAPI的方式运行时就会出错搞垮IIS。而用线程安全版本的话顶多只是搞跨某个 线程，而不会影响到整个IIS的安全。</p>
+<p>当然在IIS下CGI模式才是 PHP运行的最安全方式，但CGI模式对于每个HTTP请求都需要重新加载和卸载整个PHP环境，其消耗是巨大的。为了兼顾IIS下PHP的效率和安全， 有人给出了FastCGI的解决方案。FastCGI可以让PHP的进程重复利用而不是每一个新的请求就重开一个进程。同时FastCGI也可以允许几个 进程同时执行。这样既解决了CGI进程模式消耗太大的问题，又利用上了CGI进程模式不存在线程安全问题的优势。</p>
+<p><code>因此，如果是使用ISAPI的方式来运行PHP就必须用Thread Safe(线程安全)的版本；而用FastCGI模式运行PHP的话就没有必要用线程安全检查了，用None Thread Safe(NTS，非线程安全)的版本能够更好的提高效率。</code></p>
+<hr>
+<h4 id="PHP配置"><a href="#PHP配置" class="headerlink" title="PHP配置"></a>PHP配置</h4><ol>
+<li>进入<code>php-7.4.3-nts-Win32-vc15-x64</code>目录，拷贝一份<code>php.ini-development</code>并将文件名修改为<code>php.ini</code>。</li>
+<li>修改<code>php.ini</code>:<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">;</span> <span class="attr">On windows:</span></span><br><span class="line"><span class="string">extension_dir</span> <span class="string">=</span> <span class="string">"G:\Nginx+php+mysql\php-7.4.3-nts-Win32-vc15-x64\ext"</span></span><br><span class="line"></span><br><span class="line"><span class="string">extension=curl</span></span><br><span class="line"><span class="string">extension=mbstring</span></span><br><span class="line"><span class="string">extension=exif</span>      <span class="string">;</span> <span class="string">Must</span> <span class="string">be</span> <span class="string">after</span> <span class="string">mbstring</span> <span class="string">as</span> <span class="string">it</span> <span class="string">depends</span> <span class="string">on</span> <span class="string">it</span></span><br><span class="line"><span class="string">extension=mysqli</span></span><br><span class="line"><span class="string">extension=pdo_mysql</span></span><br><span class="line"></span><br><span class="line"><span class="string">;</span> <span class="string">http://php.net/cgi.fix-pathinfo</span></span><br><span class="line"><span class="string">cgi.fix_pathinfo=1</span></span><br><span class="line"></span><br><span class="line"><span class="string">[Date]</span></span><br><span class="line"><span class="string">;</span> <span class="string">Defines</span> <span class="string">the</span> <span class="string">default</span> <span class="string">timezone</span> <span class="string">used</span> <span class="string">by</span> <span class="string">the</span> <span class="string">date</span> <span class="string">functions</span></span><br><span class="line"><span class="string">;</span> <span class="string">http://php.net/date.timezone</span></span><br><span class="line"><span class="string">date.timezone</span> <span class="string">=</span> <span class="string">'Asia/Shanghai'</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<hr>
+<h4 id="Nginx配置"><a href="#Nginx配置" class="headerlink" title="Nginx配置"></a>Nginx配置</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="string">listen</span>       <span class="number">6688</span><span class="string">;</span></span><br><span class="line">    <span class="string">server_name</span>  <span class="string">localhost;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 定义与FastCGI服务器建立连接的超时时间。应该指出的是，这个超时通常不能超过75秒。</span></span><br><span class="line">    <span class="string">fastcgi_connect_timeout</span> <span class="string">120s;</span></span><br><span class="line">    <span class="comment"># 定义从FastCGI服务器读取响应的超时时间。超时只在两次连续的读操作之间设置，而不是用于传输整个响应。</span></span><br><span class="line">    <span class="comment"># 如果FastCGI服务器在此时间内没有传输任何内容，则连接将被关闭。</span></span><br><span class="line">    <span class="string">fastcgi_read_timeout</span> <span class="string">300s;</span></span><br><span class="line">    <span class="comment"># 设置向FastCGI服务器发送请求的超时时间。超时只在两次连续写入操作之间设置，而不是用于传输整个请求。</span></span><br><span class="line">    <span class="comment"># 如果FastCGI服务器在此时间内没有收到任何内容，则连接将关闭。</span></span><br><span class="line">    <span class="string">fastcgi_send_timeout</span> <span class="string">300s;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 设置number和size用于读取从FastCGI的服务器的响应，供用于单个连接的缓冲器。</span></span><br><span class="line">    <span class="comment"># 默认情况下，缓冲区大小等于一个内存页面。这是4K或8K，取决于平台。</span></span><br><span class="line">    <span class="string">fastcgi_buffers</span> <span class="number">256</span> <span class="string">16k;</span> </span><br><span class="line">    <span class="string">fastcgi_buffer_size</span> <span class="string">128k;</span> </span><br><span class="line">    <span class="comment"># 当启用FastCGI服务器的响应缓冲时，限制size可能正忙于向客户端发送响应的缓冲区总数，而响应尚未完全读取。</span></span><br><span class="line">    <span class="comment"># 同时，其余的缓冲区可以用于读取响应，并且如果需要的话，缓冲部分对临时文件的响应。</span></span><br><span class="line">    <span class="comment"># 默认情况下，size受fastcgi_buffer_size和fastcgi_buffers指令设置的两个缓冲区大小的限制。</span></span><br><span class="line">    <span class="string">fastcgi_busy_buffers_size</span> <span class="string">256k;</span> </span><br><span class="line">    <span class="comment"># size一旦启用了从FastCGI服务器到临时文件的缓存响应，就一次限制写入临时文件的数据。</span></span><br><span class="line">    <span class="comment"># 默认情况下，size由fastcgi_buffer_size和fastcgi_buffers指令设置的两个缓冲区限制。</span></span><br><span class="line">    <span class="comment"># 临时文件的最大大小由fastcgi_max_temp_file_size指令设置。</span></span><br><span class="line">    <span class="string">fastcgi_temp_file_write_size</span> <span class="string">256k;</span></span><br><span class="line">    </span><br><span class="line">    <span class="string">root</span> <span class="string">"E:/CodeIgniter_hmvc"</span><span class="string">;</span></span><br><span class="line">    <span class="comment"># pass the PHP scripts to FastCGI server listening on 127.0.0.1:8888</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    <span class="string">location</span> <span class="string">~</span> <span class="string">\.php$</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">root</span>           <span class="string">G:\Nginx+php+mysql\html;</span></span><br><span class="line">        <span class="comment"># 设置FastCGI服务器的地址。该地址可以指定为域名或IP地址，以及端口：localhost:9000;</span></span><br><span class="line">        <span class="comment"># 或者作为UNIX域套接字路径：unix:/tmp/fastcgi.socket;</span></span><br><span class="line">        <span class="string">fastcgi_pass</span>   <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8888;</span></span><br><span class="line">        <span class="comment"># 在$fastcgi_script_name变量的值中设置一个文件名，该文件名将附加在以斜杠结尾的URI后面。</span></span><br><span class="line">        <span class="string">fastcgi_index</span>  <span class="string">index.php;</span></span><br><span class="line">        <span class="comment"># 设置一个parameter应该传递给FastCGI服务器的应用程序。该value可以包含文本，变量，他们的组合。</span></span><br><span class="line">        <span class="comment"># 当且仅当没有fastcgi_param在当前级别上定义的指令时，这些指令才从前一级继承。</span></span><br><span class="line">        <span class="string">fastcgi_param</span> <span class="string">SCRIPT_FILENAME</span> <span class="string">$document_root$fastcgi_script_name;</span> <span class="comment"># 针对当前请求的根路径设置值 . 脚本名称</span></span><br><span class="line">        <span class="string">include</span>        <span class="string">fastcgi_params;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 这里使用try_files</span></span><br><span class="line">    <span class="comment"># ① 当请求localhost:6688/api/migrate时先在root下找api文件</span></span><br><span class="line">    <span class="comment"># ② 找不到就在root/api/下找migrate文件</span></span><br><span class="line">    <span class="comment"># ③ 找不到就请求root/api/index.php并将migrate作为参数传递给fastcgi</span></span><br><span class="line">    <span class="string">location</span> <span class="string">^~</span> <span class="string">/api</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">index</span> <span class="string">index.php;</span></span><br><span class="line"></span><br><span class="line">        <span class="string">try_files</span> <span class="string">$uri</span> <span class="string">$uri/</span> <span class="string">/api/index.php;</span></span><br><span class="line">        </span><br><span class="line">        <span class="string">location</span> <span class="string">=</span> <span class="string">/api/index.php</span> <span class="string">&#123;</span></span><br><span class="line">            <span class="string">fastcgi_pass</span>   <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8888;</span></span><br><span class="line">            <span class="string">fastcgi_index</span>  <span class="string">index.php;</span></span><br><span class="line">            <span class="string">fastcgi_param</span> <span class="string">SCRIPT_FILENAME</span> <span class="string">$document_root$fastcgi_script_name;</span></span><br><span class="line">            <span class="string">include</span>        <span class="string">fastcgi_params;</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><code>fastcig</code>相关指令参考<span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvc2VjdGlvbi8xMjU5MTQ2" title="https://cloud.tencent.com/developer/section/1259146">ngx_http_fastcgi_module<i class="fa fa-external-link"></i></span></p>
+<hr>
+<h4 id="开启PHP-fpm服务"><a href="#开启PHP-fpm服务" class="headerlink" title="开启PHP-fpm服务"></a>开启PHP-fpm服务</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">[G:\Nginx+php+mysql]$</span> <span class="string">cd</span> <span class="string">php-7.4.3-nts-Win32-vc15-x64</span></span><br><span class="line"><span class="string">[G:\Nginx+php+mysql\php-7.4.3-nts-Win32-vc15-x64]$</span> <span class="string">php-cgi.exe</span> <span class="string">-b</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8888</span> <span class="string">-c</span> <span class="string">php.ini</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="重启Nginx"><a href="#重启Nginx" class="headerlink" title="重启Nginx"></a>重启Nginx</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">[G:\Nginx+php+mysql\nginx-1.17.8]$</span> <span class="string">nginx.exe</span> <span class="string">-s</span> <span class="string">reload</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h4><ol>
+<li>创建index.php文件<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">[G:\Nginx+php+mysql]$</span> <span class="string">cd</span> <span class="string">html</span></span><br><span class="line"><span class="string">[G:\Nginx+php+mysql\html]$</span> <span class="string">dir</span></span><br><span class="line"> <span class="string">驱动器</span> <span class="string">G</span> <span class="string">中的卷是</span> <span class="string">研发专用</span></span><br><span class="line"> <span class="string">卷的序列号是</span> <span class="number">5861</span><span class="string">-182A</span></span><br><span class="line"></span><br><span class="line"> <span class="string">G:\Nginx+php+mysql\html</span> <span class="string">的目录</span></span><br><span class="line"></span><br><span class="line"><span class="number">2020</span><span class="string">/03/06</span>  <span class="number">08</span><span class="string">:51</span>    <span class="string">&lt;DIR&gt;</span>          <span class="string">.</span></span><br><span class="line"><span class="number">2020</span><span class="string">/03/06</span>  <span class="number">08</span><span class="string">:51</span>    <span class="string">&lt;DIR&gt;</span>          <span class="string">..</span></span><br><span class="line"><span class="number">2020</span><span class="string">/01/21</span>  <span class="number">21</span><span class="string">:39</span>               <span class="number">494</span> <span class="string">50x.html</span></span><br><span class="line"><span class="number">2020</span><span class="string">/03/06</span>  <span class="number">08</span><span class="string">:51</span>    <span class="string">&lt;DIR&gt;</span>          <span class="string">ci</span></span><br><span class="line"><span class="number">2020</span><span class="string">/01/21</span>  <span class="number">21</span><span class="string">:39</span>               <span class="number">612</span> <span class="string">index.html</span></span><br><span class="line"><span class="number">2020</span><span class="string">/03/06</span>  <span class="number">14</span><span class="string">:24</span>                <span class="number">24</span> <span class="string">index.php</span></span><br><span class="line">               <span class="number">3</span> <span class="string">个文件</span>          <span class="number">1</span><span class="string">,130</span> <span class="string">字节</span></span><br><span class="line">               <span class="number">3</span> <span class="string">个目录</span> <span class="number">31</span><span class="string">,849,316,352</span> <span class="string">可用字节</span></span><br><span class="line"></span><br><span class="line"><span class="string">[G:\Nginx+php+mysql\html]$</span> <span class="string">type</span> <span class="string">index.php</span></span><br><span class="line"><span class="string">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="string">echo</span> <span class="string">phpinfo();</span></span><br><span class="line"><span class="string">[G:\Nginx+php+mysql\html]$</span></span><br></pre></td></tr></table></figure></li>
+<li>访问index.php<br><img src="/2020/03/06/nginx-simple-conf-with-php-fpm/20200306144934.png" alt></li>
+</ol>
+<hr>
+<h4 id="将PHP-fpm注册为服务"><a href="#将PHP-fpm注册为服务" class="headerlink" title="将PHP-fpm注册为服务"></a>将PHP-fpm注册为服务</h4><p>下面介绍使用<code>winsw</code>将nginx加入到windows服务的操作流程：</p>
+<ol>
+<li>下载<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2tvaHN1a2Uvd2luc3cvcmVsZWFzZXMvdGFnL3dpbnN3LXYyLjIuMA==" title="https://github.com/kohsuke/winsw/releases/tag/winsw-v2.2.0">winsw<i class="fa fa-external-link"></i></span>,目前稳定版为<code>winsw-v2.2.0</code>，本例下载的为<code>WinSW.NET2.exe</code></li>
+<li>将<code>WinSW.NET2.exe</code>重命名为<code>php-pureven.exe</code>并放入与<code>php-cgi.exe</code>相同目录下</li>
+<li>新建配置文件<code>php-pureven.xml</code>，参考<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2tvaHN1a2Uvd2luc3cvYmxvYi9tYXN0ZXIvZG9jL3htbENvbmZpZ0ZpbGUubWQ=" title="https://github.com/kohsuke/winsw/blob/master/doc/xmlConfigFile.md">这里<i class="fa fa-external-link"></i></span>进行配置，本例配置信息为：<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- ID of the service. It should be unique accross the Windows system--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">id</span>&gt;</span>PHP-pureven<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- Display name of the service --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>PHPCGI-pureven<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- Service description --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">description</span>&gt;</span>Serve PHPCGI on 8888 by pureven<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">&lt;!-- Path to the executable, which should be started --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">executable</span>&gt;</span>G:\Nginx+php+mysql\php-7.4.3-nts-Win32-vc15-x64\php-cgi.exe<span class="tag">&lt;/<span class="name">executable</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">onfailure</span> <span class="attr">action</span>=<span class="string">"restart"</span> <span class="attr">delay</span>=<span class="string">"20 sec"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">arguments</span>&gt;</span>-b 127.0.0.1:8888 -c "G:\Nginx+php+mysql\php-7.4.3-nts-Win32-vc15-x64\php.ini"<span class="tag">&lt;/<span class="name">arguments</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">  &lt;startarguments&gt;-b 127.0.0.1:8888 -c "G:\Nginx+php+mysql\php-7.4.3-nts-Win32-vc15-x64\php.ini"&lt;/startarguments&gt;</span></span><br><span class="line"><span class="comment">  --&gt;</span></span><br><span class="line">  </span><br><span class="line">  <span class="tag">&lt;<span class="name">priority</span>&gt;</span>Normal<span class="tag">&lt;/<span class="name">priority</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">stoptimeout</span>&gt;</span>30 sec<span class="tag">&lt;/<span class="name">stoptimeout</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">stopparentprocessfirst</span>&gt;</span>false<span class="tag">&lt;/<span class="name">stopparentprocessfirst</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">stopexecutable</span>&gt;</span>taskkill<span class="tag">&lt;/<span class="name">stopexecutable</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">stoparguments</span>&gt;</span>/f /IM php-cgi.exe<span class="tag">&lt;/<span class="name">stoparguments</span>&gt;</span>--&gt;</span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">startmode</span>&gt;</span>Automatic<span class="tag">&lt;/<span class="name">startmode</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">  &lt;delayedAutoStart/&gt;</span></span><br><span class="line"><span class="comment">  --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">waithint</span>&gt;</span>15 sec<span class="tag">&lt;/<span class="name">waithint</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">sleeptime</span>&gt;</span>1 sec<span class="tag">&lt;/<span class="name">sleeptime</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">  <span class="tag">&lt;<span class="name">logpath</span>&gt;</span>G:\Nginx+php+mysql\php-7.4.3-nts-Win32-vc15-x64\logs<span class="tag">&lt;/<span class="name">logpath</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">log</span> <span class="attr">mode</span>=<span class="string">"roll-by-size"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">sizeThreshold</span>&gt;</span>10240<span class="tag">&lt;/<span class="name">sizeThreshold</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">keepFiles</span>&gt;</span>8<span class="tag">&lt;/<span class="name">keepFiles</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">log</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">env</span> <span class="attr">name</span>=<span class="string">"PHP_FCGI_MAX_REQUESTS"</span> <span class="attr">value</span>=<span class="string">"3000"</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">env</span> <span class="attr">name</span>=<span class="string">"PHP_FCGI_CHILDREN"</span> <span class="attr">value</span>=<span class="string">"12"</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">env</span> <span class="attr">name</span>=<span class="string">"CI_ENV"</span> <span class="attr">value</span>=<span class="string">"production"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">beeponshutdown</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>管理员权限通过cmd终端运行<code>php-pureven.exe install</code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">G:\Nginx+php+mysql\php-7.4.3-nts-Win32-vc15-x64&gt;php-pureven.exe install</span><br><span class="line">2020-03-06 15:26:50,233 INFO  - Installing the service with id &apos;PHP-pureven&apos;</span><br></pre></td></tr></table></figure></li>
+<li>加入服务成功，如图：<br><img src="/2020/03/06/nginx-simple-conf-with-php-fpm/20200306153358.png" alt></li>
+<li>启动停止可通过服务界面直接操作了，另外配置文件中设置了开机自启，上图可以看到，至此设置完毕！</li>
+</ol>
+<hr>
+<h4 id="Linux下安装配置Nginx-PHP-fpm"><a href="#Linux下安装配置Nginx-PHP-fpm" class="headerlink" title="Linux下安装配置Nginx + PHP-fpm"></a>Linux下安装配置Nginx + PHP-fpm</h4><p>请参考<span class="exturl" data-url="aHR0cHM6Ly93aXphcmRmb3JjZWwuZ2l0Ym9va3MuaW8vbmdpbngtZG9jL2NvbnRlbnQvVGV4dC82LjVfbmdpbnhfcGhwX2ZwbS5odG1s" title="https://wizardforcel.gitbooks.io/nginx-doc/content/Text/6.5_nginx_php_fpm.html">Nginx中文官方文档-nginx php-fpm安装配置<i class="fa fa-external-link"></i></span></p>
+<hr>
+<h4 id="MySQL下载配置"><a href="#MySQL下载配置" class="headerlink" title="MySQL下载配置"></a>MySQL下载配置</h4><h5 id="下载MySQL-5-7-28安装包并解压到目录G-Nginx-php-mysql"><a href="#下载MySQL-5-7-28安装包并解压到目录G-Nginx-php-mysql" class="headerlink" title="下载MySQL-5.7.28安装包并解压到目录G:\Nginx+php+mysql"></a>下载<span class="exturl" data-url="aHR0cHM6Ly9kZXYubXlzcWwuY29tL2Rvd25sb2Fkcy9teXNxbC8=" title="https://dev.mysql.com/downloads/mysql/">MySQL-5.7.28<i class="fa fa-external-link"></i></span>安装包并解压到目录<code>G:\Nginx+php+mysql</code></h5><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[G:\Nginx+php+mysql]$ cd mysql-5.7.28-winx64</span><br><span class="line">[G:\Nginx+php+mysql\mysql-5.7.28-winx64]$ dir</span><br><span class="line"> 驱动器 G 中的卷是 研发专用</span><br><span class="line"> 卷的序列号是 5861-182A</span><br><span class="line"></span><br><span class="line"> G:\Nginx+php+mysql\mysql-5.7.28-winx64 的目录</span><br><span class="line"></span><br><span class="line">2020/03/12  08:40    <span class="xml"><span class="tag">&lt;<span class="name">DIR</span>&gt;</span></span>          .</span><br><span class="line">2020/03/12  08:40    <span class="xml"><span class="tag">&lt;<span class="name">DIR</span>&gt;</span></span>          ..</span><br><span class="line">2020/03/12  08:40    <span class="xml"><span class="tag">&lt;<span class="name">DIR</span>&gt;</span></span>          bin</span><br><span class="line">2020/03/12  08:40    <span class="xml"><span class="tag">&lt;<span class="name">DIR</span>&gt;</span></span>          docs</span><br><span class="line">2020/03/12  08:40    <span class="xml"><span class="tag">&lt;<span class="name">DIR</span>&gt;</span></span>          include</span><br><span class="line">2020/03/12  08:40    <span class="xml"><span class="tag">&lt;<span class="name">DIR</span>&gt;</span></span>          lib</span><br><span class="line">2019/12/10  03:53           405,571 LICENSE</span><br><span class="line">2019/12/10  03:53               687 README</span><br><span class="line">2020/03/12  08:40    <span class="xml"><span class="tag">&lt;<span class="name">DIR</span>&gt;</span></span>          share</span><br><span class="line"><span class="code">               2 个文件        406,258 字节</span></span><br><span class="line"><span class="code">               7 个目录 30,955,925,504 可用字节</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="在G-Nginx-php-mysql-mysql-5-7-28-winx64目录下新建文件my-ini"><a href="#在G-Nginx-php-mysql-mysql-5-7-28-winx64目录下新建文件my-ini" class="headerlink" title="在G:\Nginx+php+mysql\mysql-5.7.28-winx64目录下新建文件my.ini"></a>在<code>G:\Nginx+php+mysql\mysql-5.7.28-winx64</code>目录下新建文件<code>my.ini</code></h5><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">[G:\Nginx+php+mysql\mysql-5.7.28-winx64]$</span> <span class="string">type</span> <span class="string">my.ini</span></span><br><span class="line"><span class="string">[mysqld]</span></span><br><span class="line"><span class="comment"># 设置3306端口</span></span><br><span class="line"><span class="string">port=3306</span></span><br><span class="line"><span class="comment"># 设置mysql的安装目录</span></span><br><span class="line"><span class="string">basedir=G:\Nginx+php+mysql\mysql-5.7.28-winx64</span></span><br><span class="line"><span class="comment"># 设置mysql数据库的数据的存放目录</span></span><br><span class="line"><span class="string">datadir=G:\Nginx+php+mysql\mysql-5.7.28-winx64\data</span></span><br><span class="line"><span class="comment"># 允许最大连接数</span></span><br><span class="line"><span class="string">max_connections=200</span></span><br><span class="line"><span class="comment"># 允许连接失败的次数。这是为了防止有人从该主机试图攻击数据库系统</span></span><br><span class="line"><span class="string">max_connect_errors=10</span></span><br><span class="line"><span class="comment"># 服务端使用的字符集默认为UTF8</span></span><br><span class="line"><span class="string">character-set-server=utf8</span></span><br><span class="line"><span class="comment"># 创建新表时将使用的默认存储引擎</span></span><br><span class="line"><span class="string">default-storage-engine=INNODB</span></span><br><span class="line"><span class="comment"># 默认使用“mysql_native_password”插件认证</span></span><br><span class="line"><span class="string">default_authentication_plugin=mysql_native_password</span></span><br><span class="line"><span class="string">[mysql]</span></span><br><span class="line"><span class="comment"># 设置mysql客户端默认字符集</span></span><br><span class="line"><span class="string">default-character-set=utf8</span></span><br><span class="line"><span class="string">[client]</span></span><br><span class="line"><span class="comment"># 设置mysql客户端连接服务端时默认使用的端口</span></span><br><span class="line"><span class="string">port=3306</span></span><br><span class="line"><span class="string">default-character-set=utf8</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="环境变量设置"><a href="#环境变量设置" class="headerlink" title="环境变量设置"></a>环境变量设置</h5><p><strong>将MySQL解压后的目录加入环境变量<code>MYSQL_HOME</code></strong><br><img src="/2020/03/06/nginx-simple-conf-with-php-fpm/20200312085658.png" alt></p>
+<p><strong>将bin目录绝对路径加入系统变量<code>path</code></strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">%MYSQL_HOME\bin%</span> <span class="string">==&gt;</span> <span class="string">path</span> <span class="comment"># 此处不是代码，理解万岁</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="数据库服务初始化"><a href="#数据库服务初始化" class="headerlink" title="数据库服务初始化"></a>数据库服务初始化</h5><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">G:\Nginx+php+mysql\mysql-5.7.28-winx64\bin&gt;mysqld.exe</span> <span class="string">--initialize</span> <span class="string">--console</span></span><br><span class="line"><span class="number">2020</span><span class="number">-03</span><span class="string">-11T13:33:52.368829Z</span> <span class="number">0</span> <span class="string">[System]</span> <span class="string">[MY-013169]</span> <span class="string">[Server]</span> <span class="string">G:\Nginx+php+mysql\mysql-5.7.28-winx64\bin\mysqld.exe</span> <span class="string">(mysqld</span> <span class="number">5.7</span><span class="number">.28</span><span class="string">)</span> <span class="string">initializing</span> <span class="string">of</span> <span class="string">server</span> <span class="string">in</span> <span class="string">progress</span> <span class="string">as</span> <span class="string">process</span> <span class="number">12704</span></span><br><span class="line"><span class="number">2020</span><span class="number">-03</span><span class="string">-11T13:33:52.370320Z</span> <span class="number">0</span> <span class="string">[Warning]</span> <span class="string">[MY-013242]</span> <span class="string">[Server]</span> <span class="string">--character-set-server:</span> <span class="string">'utf8'</span> <span class="string">is</span> <span class="string">currently</span> <span class="string">an</span> <span class="string">alias</span> <span class="string">for</span> <span class="string">the</span> <span class="string">character</span> <span class="string">set</span> <span class="string">UTF8MB3,</span> <span class="string">but</span> <span class="string">will</span> <span class="string">be</span> <span class="string">an</span> <span class="string">alias</span> <span class="string">for</span> <span class="string">UTF8MB4</span> <span class="string">in</span> <span class="string">a</span> <span class="string">future</span> <span class="string">release.</span> <span class="string">Please</span> <span class="string">consider</span> <span class="string">using</span> <span class="string">UTF8MB4</span> <span class="string">in</span> <span class="string">order</span> <span class="string">to</span> <span class="string">be</span> <span class="string">unambiguous.</span></span><br><span class="line"><span class="number">2020</span><span class="number">-03</span><span class="string">-11T13:34:00.541307Z</span> <span class="number">5</span> <span class="string">[Note]</span> <span class="string">[MY-010454]</span> <span class="string">[Server]</span> <span class="string">A</span> <span class="string">temporary</span> <span class="string">password</span> <span class="string">is</span> <span class="string">generated</span> <span class="string">for</span> <span class="string">root@localhost:</span> <span class="string">iw.r)rhp)7jX</span></span><br></pre></td></tr></table></figure>
+<p>注意最后一行中的<code>iw.r)rhp)7jX</code>是默认生成的密码。</p>
+<h5 id="安装并启动MySQL服务"><a href="#安装并启动MySQL服务" class="headerlink" title="安装并启动MySQL服务"></a>安装并启动MySQL服务</h5><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">G:\Nginx+php+mysql\mysql-5.7.28-winx64\bin&gt;mysqld.exe</span> <span class="string">install</span> <span class="string">pureven-MySQL-5.7.28</span></span><br><span class="line"><span class="string">Service</span> <span class="string">successfully</span> <span class="string">installed.</span></span><br><span class="line"></span><br><span class="line"><span class="string">G:\Nginx+php+mysql\mysql-5.7.28-winx64\bin&gt;net</span> <span class="string">start</span> <span class="string">mysql</span></span><br><span class="line"><span class="string">MySQL</span> <span class="string">服务正在启动</span> <span class="string">..</span></span><br><span class="line"><span class="string">MySQL</span> <span class="string">服务已经启动成功。</span></span><br></pre></td></tr></table></figure>
+<p><strong>注：可通过<code>sc delete pureven-MySQL-5.7.28</code>命令删除<code>pureven-MySQL</code>服务。</strong></p>
+<h5 id="登录数据库并修改密码"><a href="#登录数据库并修改密码" class="headerlink" title="登录数据库并修改密码"></a>登录数据库并修改密码</h5><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">G:\Nginx+php+mysql\mysql-5.7.28-winx64\bin&gt;mysql.exe</span> <span class="string">-u</span> <span class="string">root</span> <span class="string">-p</span></span><br><span class="line"><span class="attr">Enter password:</span> <span class="string">************</span> <span class="comment"># 这里使用的密码是上面初始化后系统生成的密码：iw.r)rhp)7jX</span></span><br><span class="line"><span class="string">Welcome</span> <span class="string">to</span> <span class="string">the</span> <span class="string">MySQL</span> <span class="string">monitor.</span>  <span class="string">Commands</span> <span class="string">end</span> <span class="string">with</span> <span class="string">;</span> <span class="string">or</span> <span class="string">\g.</span></span><br><span class="line"><span class="string">Your</span> <span class="string">MySQL</span> <span class="string">connection</span> <span class="string">id</span> <span class="string">is</span> <span class="number">8</span></span><br><span class="line"><span class="attr">Server version:</span> <span class="number">5.7</span><span class="number">.28</span></span><br><span class="line"></span><br><span class="line"><span class="string">Copyright</span> <span class="string">(c)</span> <span class="number">2000</span><span class="string">,</span> <span class="number">2020</span><span class="string">,</span> <span class="string">Oracle</span> <span class="string">and/or</span> <span class="string">its</span> <span class="string">affiliates.</span> <span class="string">All</span> <span class="string">rights</span> <span class="string">reserved.</span></span><br><span class="line"></span><br><span class="line"><span class="string">Oracle</span> <span class="string">is</span> <span class="string">a</span> <span class="string">registered</span> <span class="string">trademark</span> <span class="string">of</span> <span class="string">Oracle</span> <span class="string">Corporation</span> <span class="string">and/or</span> <span class="string">its</span></span><br><span class="line"><span class="string">affiliates.</span> <span class="string">Other</span> <span class="string">names</span> <span class="string">may</span> <span class="string">be</span> <span class="string">trademarks</span> <span class="string">of</span> <span class="string">their</span> <span class="string">respective</span></span><br><span class="line"><span class="string">owners.</span></span><br><span class="line"></span><br><span class="line"><span class="string">Type</span> <span class="string">'help;'</span> <span class="string">or</span> <span class="string">'\h'</span> <span class="string">for</span> <span class="string">help.</span> <span class="string">Type</span> <span class="string">'\c'</span> <span class="string">to</span> <span class="string">clear</span> <span class="string">the</span> <span class="string">current</span> <span class="string">input</span> <span class="string">statement.</span></span><br><span class="line"></span><br><span class="line"><span class="string">mysql&gt;</span> <span class="string">set</span> <span class="string">password</span> <span class="string">for</span> <span class="string">root@localhost='xxxxxx';</span> <span class="comment"># 修改密码为6个x，即xxxxxx</span></span><br><span class="line"><span class="string">Query</span> <span class="string">OK,</span> <span class="number">0</span> <span class="string">rows</span> <span class="string">affected</span> <span class="string">(0.03</span> <span class="string">sec)</span></span><br><span class="line"></span><br><span class="line"><span class="string">mysql&gt;</span> <span class="string">show</span> <span class="string">databases;</span></span><br><span class="line"><span class="string">+--------------------+</span></span><br><span class="line"><span class="string">|</span> <span class="string">Database</span>           <span class="string">|</span></span><br><span class="line"><span class="string">+--------------------+</span></span><br><span class="line"><span class="string">|</span> <span class="string">information_schema</span> <span class="string">|</span></span><br><span class="line"><span class="string">|</span> <span class="string">mysql</span>              <span class="string">|</span></span><br><span class="line"><span class="string">|</span> <span class="string">performance_schema</span> <span class="string">|</span></span><br><span class="line"><span class="string">|</span> <span class="string">sys</span>                <span class="string">|</span></span><br><span class="line"><span class="string">+--------------------+</span></span><br><span class="line"><span class="number">4</span> <span class="string">rows</span> <span class="string">in</span> <span class="string">set</span> <span class="string">(0.01</span> <span class="string">sec)</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2020/03/06/nginx-simple-conf-with-php-fpm/" title="Nginx配置入门-WNMP(Win10+Nginx+MySQL+PHP)">https://pureven.cc/2020/03/06/nginx-simple-conf-with-php-fpm/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Nginx/" rel="tag"><i class="fa fa-tag"></i> Nginx</a>
+              <a href="/tags/MySQL/" rel="tag"><i class="fa fa-tag"></i> MySQL</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/02/29/nginx-simple-conf-with-static-site/" rel="next" title="Nginx配置入门-nginx.conf文件学习笔记">
+                  <i class="fa fa-chevron-left"></i> Nginx配置入门-nginx.conf文件学习笔记
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/03/08/nginx-advanced-conf/" rel="prev" title="Nginx高级配置">
+                  Nginx高级配置 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PHP下载"><span class="nav-number">2.</span> <span class="nav-text">PHP下载</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#关于线程安全和非线程安全"><span class="nav-number">2.1.</span> <span class="nav-text">关于线程安全和非线程安全</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PHP配置"><span class="nav-number">3.</span> <span class="nav-text">PHP配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Nginx配置"><span class="nav-number">4.</span> <span class="nav-text">Nginx配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开启PHP-fpm服务"><span class="nav-number">5.</span> <span class="nav-text">开启PHP-fpm服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重启Nginx"><span class="nav-number">6.</span> <span class="nav-text">重启Nginx</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试"><span class="nav-number">7.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将PHP-fpm注册为服务"><span class="nav-number">8.</span> <span class="nav-text">将PHP-fpm注册为服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux下安装配置Nginx-PHP-fpm"><span class="nav-number">9.</span> <span class="nav-text">Linux下安装配置Nginx + PHP-fpm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MySQL下载配置"><span class="nav-number">10.</span> <span class="nav-text">MySQL下载配置</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#下载MySQL-5-7-28安装包并解压到目录G-Nginx-php-mysql"><span class="nav-number">10.1.</span> <span class="nav-text">下载MySQL-5.7.28安装包并解压到目录G:\Nginx+php+mysql</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在G-Nginx-php-mysql-mysql-5-7-28-winx64目录下新建文件my-ini"><span class="nav-number">10.2.</span> <span class="nav-text">在G:\Nginx+php+mysql\mysql-5.7.28-winx64目录下新建文件my.ini</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#环境变量设置"><span class="nav-number">10.3.</span> <span class="nav-text">环境变量设置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数据库服务初始化"><span class="nav-number">10.4.</span> <span class="nav-text">数据库服务初始化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#安装并启动MySQL服务"><span class="nav-number">10.5.</span> <span class="nav-text">安装并启动MySQL服务</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#登录数据库并修改密码"><span class="nav-number">10.6.</span> <span class="nav-text">登录数据库并修改密码</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

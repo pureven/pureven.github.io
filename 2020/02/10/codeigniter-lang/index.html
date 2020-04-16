@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言语言类提供了一些方法用于获取语言文件和不同语言的文本来实现国际化。该类包含两个成员变量language、is_loaded和三个成员方法__construct()、load()、line()。">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter语言类文件Lang.php">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;02&#x2F;10&#x2F;codeigniter-lang&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言语言类提供了一些方法用于获取语言文件和不同语言的文本来实现国际化。该类包含两个成员变量language、is_loaded和三个成员方法__construct()、load()、line()。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.242Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2020/02/10/codeigniter-lang/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter语言类文件Lang.php | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/02/10/codeigniter-lang/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter语言类文件Lang.php
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-10 19:45:39" itemprop="dateCreated datePublished" datetime="2020-02-10T19:45:39+08:00">2020-02-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/02/10/codeigniter-lang/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/02/10/codeigniter-lang/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>语言类提供了一些方法用于获取语言文件和不同语言的文本来实现国际化。该类包含两个成员变量<code>language</code>、<code>is_loaded</code>和三个成员方法<code>__construct()</code>、<code>load()</code>、<code>line()</code>。</p>
+<a id="more"></a>
+<hr>
+<h4 id="成员方法"><a href="#成员方法" class="headerlink" title="成员方法"></a>成员方法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">public $language = array();// 语言列表</span><br><span class="line">public $is_loaded = array();// 加载的语言文件列表</span><br></pre></td></tr></table></figure>
+
+<h4 id="construct"><a href="#construct" class="headerlink" title="__construct()"></a>__construct()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function __construct()</span><br><span class="line">&#123;</span><br><span class="line">    log_message(&apos;info&apos;, &apos;Language Class Initialized&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h4 id="load"><a href="#load" class="headerlink" title="load()"></a>load()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br></pre></td><td class="code"><pre><span class="line">public function load($langfile, $idiom = &apos;&apos;, $return = FALSE, $add_suffix = TRUE, $alt_path = &apos;&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    /**</span><br><span class="line">     * 加载语言包</span><br><span class="line">     * $LANG = &amp; load_class(&apos;Lang&apos;, &apos;core&apos;);</span><br><span class="line">     * $LANG-&gt;load(&apos;test&apos;); 英文</span><br><span class="line">     * // $LANG-&gt;load(&apos;test&apos;, &apos;zh_cn&apos;); 中文</span><br><span class="line">     * var_dump($LANG-&gt;line(&apos;test.successful&apos;));</span><br><span class="line">     */</span><br><span class="line">    if (is_array($langfile)) // 支持按组加载，即 $this-&gt;lang-&gt;load([&apos;test&apos;, &apos;welcome&apos;]);</span><br><span class="line">    &#123;</span><br><span class="line">        foreach ($langfile as $value)</span><br><span class="line">        &#123;</span><br><span class="line">            $this-&gt;load($value, $idiom, $return, $add_suffix, $alt_path);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 去除.php，即$this-&gt;lang-&gt;load(&apos;test.php&apos;)跟$this-&gt;lang-&gt;load(&apos;test&apos;)效果一样</span><br><span class="line">    $langfile = str_replace(&apos;.php&apos;, &apos;&apos;, $langfile);</span><br><span class="line"></span><br><span class="line">    if ($add_suffix === TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        // preg_replace()的作用是去除_lang字符串，即$this-&gt;lang-&gt;load(&apos;test_lang&apos;)跟$this-&gt;lang-&gt;load(&apos;test&apos;)效果一样</span><br><span class="line">        $langfile = preg_replace(&apos;/_lang$/&apos;, &apos;&apos;, $langfile).&apos;_lang&apos;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 至此$langfile = test_lang.php</span><br><span class="line">    $langfile .= &apos;.php&apos;;</span><br><span class="line"></span><br><span class="line">    if (empty($idiom) OR ! preg_match(&apos;/^[a-z_-]+$/i&apos;, $idiom))</span><br><span class="line">    &#123;</span><br><span class="line">        // 若没有指定$idiom, 则首先使用配置文件中指定的语言类型，如果没有配置则使用english</span><br><span class="line">        $config =&amp; get_config();</span><br><span class="line">        $idiom = empty($config[&apos;language&apos;]) ? &apos;english&apos; : $config[&apos;language&apos;];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 已加载则返回，避免重复加载</span><br><span class="line">    if ($return === FALSE &amp;&amp; isset($this-&gt;is_loaded[$langfile]) &amp;&amp; $this-&gt;is_loaded[$langfile] === $idiom)</span><br><span class="line">    &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // Load the base file, so any others found can override it</span><br><span class="line">    $basepath = BASEPATH.&apos;language/&apos;.$idiom.&apos;/&apos;.$langfile;</span><br><span class="line">    //  $basepath = &apos;G:\wamp\www\CodeIgniter_hmvc\system\language/zh_cn/test_lang.php&apos;</span><br><span class="line">    if (($found = file_exists($basepath)) === TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        include($basepath);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // Do we have an alternative path to look in?</span><br><span class="line">    // $alt_path 默认为&apos;&apos;，是个目录，也就是说要加载的语言文件可能在这个目录下</span><br><span class="line">    if ($alt_path !== &apos;&apos;)</span><br><span class="line">    &#123;</span><br><span class="line">        $alt_path .= &apos;language/&apos;.$idiom.&apos;/&apos;.$langfile;</span><br><span class="line">        if (file_exists($alt_path))</span><br><span class="line">        &#123;</span><br><span class="line">            include($alt_path);</span><br><span class="line">            $found = TRUE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        /**</span><br><span class="line">         * var_dump(get_instance()-&gt;load-&gt;get_package_paths(TRUE)) = [</span><br><span class="line">         *      0 =&gt; string &apos;G:\wamp\www\CodeIgniter_hmvc\application\&apos; (length=41)</span><br><span class="line">         *      1 =&gt; string &apos;G:\wamp\www\CodeIgniter_hmvc\system\&apos; (length=36)</span><br><span class="line">         * ]</span><br><span class="line">         */</span><br><span class="line">        foreach (get_instance()-&gt;load-&gt;get_package_paths(TRUE) as $package_path)</span><br><span class="line">        &#123;</span><br><span class="line">            $package_path .= &apos;language/&apos;.$idiom.&apos;/&apos;.$langfile;</span><br><span class="line">            // $package_path = &apos;G:\wamp\www\CodeIgniter_hmvc\application\language/zh_cn/test_lang.php&apos;</span><br><span class="line">            if ($basepath !== $package_path &amp;&amp; file_exists($package_path))</span><br><span class="line">            &#123;</span><br><span class="line">                include($package_path);</span><br><span class="line">                $found = TRUE;</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if ($found !== TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        show_error(&apos;Unable to load the requested language file: language/&apos;.$idiom.&apos;/&apos;.$langfile);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 语言文件内容：$lang[&apos;test_failed&apos;] = &apos;测试成功&apos;;</span><br><span class="line">    if ( ! isset($lang) OR ! is_array($lang))</span><br><span class="line">    &#123;</span><br><span class="line">        log_message(&apos;error&apos;, &apos;Language file contains no data: language/&apos;.$idiom.&apos;/&apos;.$langfile);</span><br><span class="line"></span><br><span class="line">        if ($return === TRUE)</span><br><span class="line">        &#123;</span><br><span class="line">            return array();</span><br><span class="line">        &#125;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // $return 默认为false， 如果为true直接返回</span><br><span class="line">    if ($return === TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        return $lang;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     *  var_dump($this-&gt;is_loaded) = [</span><br><span class="line">     *       &apos;test_lang.php&apos; =&gt; string &apos;zh_cn&apos; (length=5)</span><br><span class="line">     * ]</span><br><span class="line">     */</span><br><span class="line">    $this-&gt;is_loaded[$langfile] = $idiom;</span><br><span class="line">    /**</span><br><span class="line">     * var_dump($this-&gt;language) = [</span><br><span class="line">     *        &apos;test.successful&apos; =&gt; string &apos;测试成功&apos; (length=12)</span><br><span class="line">     *        &apos;test_failed&apos; =&gt; string &apos;测试失败&apos; (length=12)</span><br><span class="line">     * ]</span><br><span class="line">     */</span><br><span class="line">    $this-&gt;language = array_merge($this-&gt;language, $lang);</span><br><span class="line"></span><br><span class="line">    log_message(&apos;info&apos;, &apos;Language file loaded: language/&apos;.$idiom.&apos;/&apos;.$langfile);</span><br><span class="line">    return TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>加载语言文件。</p>
+<hr>
+<h4 id="line"><a href="#line" class="headerlink" title="line()"></a>line()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public function line($line, $log_errors = TRUE)</span><br><span class="line">&#123;</span><br><span class="line">    // $line = string &apos;test.successful&apos; (length=15) 找到返回$value找不到返回false</span><br><span class="line">    $value = isset($this-&gt;language[$line]) ? $this-&gt;language[$line] : FALSE;</span><br><span class="line"></span><br><span class="line">    // Because killer robots like unicorns!</span><br><span class="line">    if ($value === FALSE &amp;&amp; $log_errors === TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        log_message(&apos;error&apos;, &apos;Could not find the language line &quot;&apos;.$line.&apos;&quot;&apos;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return $value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从一个已加载的语言文件中，通过行名获取一行该语言的文本。</p>
+<hr>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1poaWh1YV9XL2FydGljbGUvZGV0YWlscy81Mjk0NTM1OA==" title="https://blog.csdn.net/Zhihua_W/article/details/52945358">CI框架源码解析十三之语言类文件Lang.php<i class="fa fa-external-link"></i></span></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2020/02/10/codeigniter-lang/" title="CodeIgniter语言类文件Lang.php">https://pureven.cc/2020/02/10/codeigniter-lang/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/02/09/codeigniter-input/" rel="next" title="CodeIgniter输入类文件Input.php">
+                  <i class="fa fa-chevron-left"></i> CodeIgniter输入类文件Input.php
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/02/16/codeigniter-c/" rel="prev" title="CodeIgniter控制器类文件Controller.php">
+                  CodeIgniter控制器类文件Controller.php <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#成员方法"><span class="nav-number">2.</span> <span class="nav-text">成员方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#construct"><span class="nav-number">3.</span> <span class="nav-text">__construct()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#load"><span class="nav-number">4.</span> <span class="nav-text">load()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#line"><span class="nav-number">5.</span> <span class="nav-text">line()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">6.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

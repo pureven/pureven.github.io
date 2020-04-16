@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言URI类主要处理地址字符串，将uri分解成对应的片段并存到segments数组中。启用查询字符串则将查询字符串分解后存到$_GET数组中。Router路由类在之后的解析路由动作中，也主要依靠URI类的segments属性数组来获取当前上下文的请求URI信息。在CI框架中如果启用查询字符串，URI类将不做任何处理，Router类也只会匹配目录、控制器、方法。CI框架体系中的方法参数都是从URI片">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter解析类文件URI.php">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;01&#x2F;14&#x2F;codeigniter-uri&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言URI类主要处理地址字符串，将uri分解成对应的片段并存到segments数组中。启用查询字符串则将查询字符串分解后存到$_GET数组中。Router路由类在之后的解析路由动作中，也主要依靠URI类的segments属性数组来获取当前上下文的请求URI信息。在CI框架中如果启用查询字符串，URI类将不做任何处理，Router类也只会匹配目录、控制器、方法。CI框架体系中的方法参数都是从URI片">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.301Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2020/01/14/codeigniter-uri/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter解析类文件URI.php | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/01/14/codeigniter-uri/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter解析类文件URI.php
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-01-14 21:51:34" itemprop="dateCreated datePublished" datetime="2020-01-14T21:51:34+08:00">2020-01-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/01/14/codeigniter-uri/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/01/14/codeigniter-uri/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>12k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>URI类主要处理地址字符串，将<strong>uri</strong>分解成对应的片段并存到<strong>segments</strong>数组中。启用查询字符串则将<strong>查询字符串</strong>分解后存到<strong>$_GET</strong>数组中。<strong>Router路由类</strong>在之后的解析路由动作中，也主要依靠URI类的segments属性数组来获取当前上下文的请求URI信息。<font color="#891717">在CI框架中如果启用查询字符串，URI类将不做任何处理，Router类也只会匹配目录、控制器、方法。CI框架体系中的方法参数都是从URI片段中取的,并按<strong>顺序</strong>传递给方法参数。不支持将参数中的变量通过方法参数名传给方法，只能用$_GET获取。</font><br>该类包含5个属性及22个方法，下面分别剖析。</p>
+<a id="more"></a>
+<hr>
+<h4 id="类属性"><a href="#类属性" class="headerlink" title="类属性"></a>类属性</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public $keyval = array();</span><br><span class="line">public $uri_string = &apos;&apos;;</span><br><span class="line">public $segments = array();</span><br><span class="line">public $rsegments = array();</span><br><span class="line">protected $_permitted_uri_chars;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>$keyval</code>用于存放<code>segments</code>和<code>rsegments</code>转换后的关联数组。</li>
+<li><code>$uri_string</code>用于存放uri。</li>
+<li><code>$segments</code>用于将uri解析后以数组形式存放。</li>
+<li><code>$rsegments</code>在URI类中定义，在Router类中赋值，用于存放class和method。</li>
+<li><code>$_permitted_uri_chars</code>表示URI中接受的字符，在config.php中定义:<code>$config[&#39;permitted_uri_chars&#39;] = &#39;a-z 0-9~%.:_\-&#39;;</code>，为空表示允许所有字符！</li>
+</ul>
+<hr>
+<h4 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">public function __construct()</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;config =&amp; load_class(&apos;Config&apos;, &apos;core&apos;);</span><br><span class="line">    if (is_cli() OR $this-&gt;config-&gt;item(&apos;enable_query_strings&apos;) !== TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;_permitted_uri_chars = $this-&gt;config-&gt;item(&apos;permitted_uri_chars&apos;);</span><br><span class="line">        if (is_cli())</span><br><span class="line">        &#123;</span><br><span class="line">            $uri = $this-&gt;_parse_argv();</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            $protocol = $this-&gt;config-&gt;item(&apos;uri_protocol&apos;);</span><br><span class="line">            empty($protocol) &amp;&amp; $protocol = &apos;REQUEST_URI&apos;;</span><br><span class="line">            switch ($protocol)</span><br><span class="line">            &#123;</span><br><span class="line">                case &apos;AUTO&apos;: // For BC purposes only</span><br><span class="line">                case &apos;REQUEST_URI&apos;:</span><br><span class="line">                    $uri = $this-&gt;_parse_request_uri();</span><br><span class="line">                    break;</span><br><span class="line">                case &apos;QUERY_STRING&apos;:</span><br><span class="line">                    $uri = $this-&gt;_parse_query_string();</span><br><span class="line">                    break;</span><br><span class="line">                case &apos;PATH_INFO&apos;:</span><br><span class="line">                default:</span><br><span class="line">                    $uri = isset($_SERVER[$protocol])</span><br><span class="line">                        ? $_SERVER[$protocol]</span><br><span class="line">                        : $this-&gt;_parse_request_uri();</span><br><span class="line">                    break;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        $this-&gt;_set_uri_string($uri);</span><br><span class="line">    &#125;</span><br><span class="line">    log_message(&apos;info&apos;, &apos;URI Class Initialized&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法注要是作用在运行在cli模式或未启用字符串查询的条件下。</p>
+<ol>
+<li>从配置文件中获取url允许的字符，即<code>$config[&#39;permitted_uri_chars&#39;]</code>，该属性在<code>filter_uri()</code>方法中用来过滤uri。</li>
+<li>如果是cli模式下则使用<code>_parse_argv()</code>方法解析命令行参数并整合为uri字符串。</li>
+<li>如果uri_protocol是<code>AUTO</code>、<code>REQUEST_URI</code>使用<code>_parse_query_string()</code>方法解析uri，如果是<code>QUERY_STRING</code>使用<code>_parse_query_string()</code>方法解析uri，<code>PATH_INFO</code>以及其他配置则先判断<code>$_SERVER</code>的值是否设置，若设置了则用该值作为uri否则跟<code>AUTO</code>处理一致。</li>
+<li>调用<code>_set_uri_string()</code>方法将$uri赋值给<code>$uri_string</code>变量并解析填充到<code>segments</code>数组中去。</li>
+</ol>
+<h5 id="关于uri-protocol"><a href="#关于uri-protocol" class="headerlink" title="关于uri_protocol"></a>关于uri_protocol</h5><p><code>$config[&#39;uri_protocol&#39;]</code>配置不但决定以哪个函数处理URI，同时决定了从哪个全局变量里获取当前上下文的uri地址。uri_protocol可选项有 <code>AUTO</code>、<code>PATH_INFO</code>、<code>QUERY_STRING</code>、<code>REQUEST_URI</code>、<code>ORIG_PATH_INFO</code>，对应关系是：</p>
+<ol>
+<li><code>&#39;REQUEST_URI&#39;</code>使用 <code>$_SERVER[&#39;REQUEST_URI&#39;]</code>。</li>
+<li><code>&#39;QUERY_STRING&#39;</code>使用 <code>$_SERVER[&#39;QUERY_STRING&#39;]</code>。</li>
+<li><code>&#39;PATH_INFO&#39;</code>使用 <code>$_SERVER[&#39;PATH_INFO&#39;]</code>。</li>
+</ol>
+<p>【注意】: <strong>如果配置为PATH_INFO，则uri需要进行url_decode解码。</strong><br>那么这三个变量有什么区别呢？</p>
+<ol>
+<li><code>$_SERVER[&#39;REQUEST_URI&#39;]</code>获取的是<strong>获取的是url地址中主机头后面所有的字符</strong>。</li>
+<li><code>$_SERVER[&#39;QUERY_STRING&#39;]</code>获取的是<strong>获取的url地址中”?”后面的部分</strong>。</li>
+<li><code>$_SERVER[&#39;PATH_INFO&#39;]</code>获取的是<strong>获取的是url地址中脚本文件($_SERVER[‘SCRIPT_NAME’])之后”?”之前的字符内容</strong>。</li>
+</ol>
+<p><strong>举例说明:</strong>  <code>http://pc.local/index.php/product/pc/summary?a=1</code><br><b><font color="#891717">QUERY_STRING:</font></b> <code>a=1</code><br><b><font color="#891717">REQUEST_URI:</font></b> <code>/index.php/product/pc/summary?a=1</code><br><b><font color="#891717">PATH_INFO:</font></b>  <code>/product/pc/summary</code></p>
+<p>uri_protocol的值决定了<strong>CI路由</strong>和<strong>参数</strong>的获取方式，CI会通过这些值来判断解析到哪一个控制器，所以需要确保服务器配置了正确的值。大部分情况下设置AUTO即可，AUTO会依次检测<code>REQUEST_URI</code>、<code>PATH_INFO</code>、<code>QUERY_STRING</code>、<code>$_GET</code>的值，直到读到内容。</p>
+<hr>
+<h4 id="set-uri-string"><a href="#set-uri-string" class="headerlink" title="_set_uri_string()"></a>_set_uri_string()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">protected function _set_uri_string($str)</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;uri_string = trim(remove_invisible_characters($str, FALSE), &apos;/&apos;);</span><br><span class="line">    if ($this-&gt;uri_string !== &apos;&apos;)</span><br><span class="line">    &#123;</span><br><span class="line">        if (($suffix = (string) $this-&gt;config-&gt;item(&apos;url_suffix&apos;)) !== &apos;&apos;)</span><br><span class="line">        &#123;</span><br><span class="line">            $slen = strlen($suffix);</span><br><span class="line">            if (substr($this-&gt;uri_string, -$slen) === $suffix)</span><br><span class="line">            &#123;</span><br><span class="line">                $this-&gt;uri_string = substr($this-&gt;uri_string, 0, -$slen);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        $this-&gt;segments[0] = NULL;</span><br><span class="line">        foreach (explode(&apos;/&apos;, trim($this-&gt;uri_string, &apos;/&apos;)) as $val)</span><br><span class="line">        &#123;</span><br><span class="line">            $val = trim($val);</span><br><span class="line">            $this-&gt;filter_uri($val);</span><br><span class="line">            if ($val !== &apos;&apos;)</span><br><span class="line">            &#123;</span><br><span class="line">                $this-&gt;segments[] = $val;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        unset($this-&gt;segments[0]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法给功能是将$uri赋值给<code>$uri_string</code>变量并解析填充到<code>segments</code>数组中去，功能实现:</p>
+<ol>
+<li>若设置了后缀则移除uri后缀。</li>
+<li>解析uri，用’/‘分段，经<code>filter_uri()</code>检查是否包含无效字符，最后填充到$this-&gt;segments数组中去。</li>
+</ol>
+<hr>
+<h4 id="parse-request-uri"><a href="#parse-request-uri" class="headerlink" title="_parse_request_uri()"></a>_parse_request_uri()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">protected function _parse_request_uri()</span><br><span class="line">&#123;</span><br><span class="line">    if ( ! isset($_SERVER[&apos;REQUEST_URI&apos;], $_SERVER[&apos;SCRIPT_NAME&apos;]))</span><br><span class="line">    &#123;</span><br><span class="line">        return &apos;&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    $uri = parse_url(&apos;http://dummy&apos;.$_SERVER[&apos;REQUEST_URI&apos;]);</span><br><span class="line">    $query = isset($uri[&apos;query&apos;]) ? $uri[&apos;query&apos;] : &apos;&apos;;</span><br><span class="line">    $uri = isset($uri[&apos;path&apos;]) ? $uri[&apos;path&apos;] : &apos;&apos;;</span><br><span class="line">    if (isset($_SERVER[&apos;SCRIPT_NAME&apos;][0]))</span><br><span class="line">    &#123;</span><br><span class="line">        if (strpos($uri, $_SERVER[&apos;SCRIPT_NAME&apos;]) === 0)</span><br><span class="line">        &#123;</span><br><span class="line">            $uri = (string) substr($uri, strlen($_SERVER[&apos;SCRIPT_NAME&apos;]));</span><br><span class="line">        &#125;</span><br><span class="line">        elseif (strpos($uri, dirname($_SERVER[&apos;SCRIPT_NAME&apos;])) === 0)</span><br><span class="line">        &#123;</span><br><span class="line">            $uri = (string) substr($uri, strlen(dirname($_SERVER[&apos;SCRIPT_NAME&apos;])));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (trim($uri, &apos;/&apos;) === &apos;&apos; &amp;&amp; strncmp($query, &apos;/&apos;, 1) === 0)</span><br><span class="line">    &#123;</span><br><span class="line">        $query = explode(&apos;?&apos;, $query, 2);</span><br><span class="line">        $uri = $query[0];</span><br><span class="line">        $_SERVER[&apos;QUERY_STRING&apos;] = isset($query[1]) ? $query[1] : &apos;&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        $_SERVER[&apos;QUERY_STRING&apos;] = $query;</span><br><span class="line">    &#125;</span><br><span class="line">    parse_str($_SERVER[&apos;QUERY_STRING&apos;], $_GET);</span><br><span class="line">    if ($uri === &apos;/&apos; OR $uri === &apos;&apos;)</span><br><span class="line">    &#123;</span><br><span class="line">        return &apos;/&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    return $this-&gt;_remove_relative_directory($uri);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用来解析<code>$_SERVER[&#39;REQUEST_URI&#39;]</code>并返回uri，功能实现：</p>
+<ol>
+<li>如果没用设置全局变量<code>$_SERVER[&#39;REQUEST_URI&#39;]</code>, <code>$_SERVER[&#39;SCRIPT_NAME&#39;]</code>则不做任何处理，直接返回。</li>
+<li>使用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24ucGFyc2UtdXJsLnBocA==" title="https://www.php.net/manual/zh/function.parse-url.php">parse_url<i class="fa fa-external-link"></i></span>解析URL(<code>&#39;http://dummy&#39;.$_SERVER[&#39;REQUEST_URI&#39;]</code>)之后得到一个关联数组，这里直接将数组赋值给变量$uri了。</li>
+<li>将数组中的<code>query</code>和<code>path</code>部分分别赋值给变量<code>$query</code>和<code>$uri</code>，即表示从<code>$_SERVER[&#39;REQUEST_URI&#39;]</code>取值，解析成<code>$uri</code>和<code>$query</code>两个字符串，分别存储请求的路径和get请求参数。举个栗子: path =&gt; <code>/pear/index.php</code> query =&gt; <code>googleguy=gooley</code>。</li>
+<li>去掉uri包含的<code>$_SERVER[&#39;SCRIPT_NAME&#39;]</code>，举个栗子: 比如uri是<code>/pear/index.php/news/view/crm</code>，经过处理后就变成<code>/news/view/crm</code>了</li>
+<li>对于请求服务器的具体URI包含在查询字符串这种情况，例如$uri以<code>?/</code>开头的 ，实际上if条件换种写法就是if(strncmp($uri, ‘?/‘, 2) === 0))，类似：<code>http://www.example.twm/index.php?/welcome/index</code>。其他情况直接<code>$_SERVER[&#39;QUERY_STRING&#39;] = $query;</code> 如下面这种请求uri：<code>http://www.example.twm/mall/lists?page=7</code>。</li>
+<li>使用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24ucGFyc2Utc3Ry" title="https://www.php.net/manual/zh/function.parse-str">parse_str()<i class="fa fa-external-link"></i></span>将查询字符串按键名存入<code>_GET</code>数组。</li>
+<li>调用<code>_remove_relative_directory()</code>方法作安全处理，移除$uri中的<code>../</code>相对路径字符和反斜杠<code>////</code>。</li>
+</ol>
+<hr>
+<h4 id="parse-query-string"><a href="#parse-query-string" class="headerlink" title="_parse_query_string()"></a>_parse_query_string()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">protected function _parse_query_string()</span><br><span class="line">&#123;</span><br><span class="line">    $uri = isset($_SERVER[&apos;QUERY_STRING&apos;]) ? $_SERVER[&apos;QUERY_STRING&apos;] : @getenv(&apos;QUERY_STRING&apos;);</span><br><span class="line">    if (trim($uri, &apos;/&apos;) === &apos;&apos;)</span><br><span class="line">    &#123;</span><br><span class="line">        return &apos;&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    elseif (strncmp($uri, &apos;/&apos;, 1) === 0)</span><br><span class="line">    &#123;</span><br><span class="line">        $uri = explode(&apos;?&apos;, $uri, 2);</span><br><span class="line">        $_SERVER[&apos;QUERY_STRING&apos;] = isset($uri[1]) ? $uri[1] : &apos;&apos;;</span><br><span class="line">        $uri = $uri[0];</span><br><span class="line">    &#125;</span><br><span class="line">    parse_str($_SERVER[&apos;QUERY_STRING&apos;], $_GET);</span><br><span class="line">    return $this-&gt;_remove_relative_directory($uri);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用来解析类似<code>http://www.nc.com/index.php?/news/list/fruit?page=2</code>这样的地址，解析过程如下:</p>
+<ol>
+<li>从<code>$_SERVER[&#39;QUERY_STRING&#39;]</code>中取值<code>/news/list/fruit?page=2</code>。</li>
+<li>$uri赋值<code>/news/list/fruit</code>，<code>page=2</code>赋值<code>$_GET</code>。</li>
+<li>去除$uri中的<code>../</code>相对路径字符和反斜杠<code>////</code>。</li>
+</ol>
+<hr>
+<h4 id="parse-argv"><a href="#parse-argv" class="headerlink" title="_parse_argv()"></a>_parse_argv()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">protected function _parse_argv()</span><br><span class="line">&#123;</span><br><span class="line">    $args = array_slice($_SERVER[&apos;argv&apos;], 1);</span><br><span class="line">    return $args ? implode(&apos;/&apos;, $args) : &apos;&apos;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法将CLI默认下传递给脚本的参数数组整合为字符串uri并将其返回。<br><font color="#891717">注意: <span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvcmVzZXJ2ZWQudmFyaWFibGVzLmFyZ3YucGhw" title="https://www.php.net/manual/zh/reserved.variables.argv.php">$_SERVER[‘argv’]<i class="fa fa-external-link"></i></span>第一个参数为脚本文件名，因此从第二个参数开始表示url传参。</font></p>
+<hr>
+<h4 id="remove-relative-directory"><a href="#remove-relative-directory" class="headerlink" title="_remove_relative_directory()"></a>_remove_relative_directory()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">protected function _remove_relative_directory($uri)</span><br><span class="line">&#123;</span><br><span class="line">    $uris = array();</span><br><span class="line">    $tok = strtok($uri, &apos;/&apos;);</span><br><span class="line">    while ($tok !== FALSE)</span><br><span class="line">    &#123;</span><br><span class="line">        if (( ! empty($tok) OR $tok === &apos;0&apos;) &amp;&amp; $tok !== &apos;..&apos;)</span><br><span class="line">        &#123;</span><br><span class="line">            $uris[] = $tok;</span><br><span class="line">        &#125;</span><br><span class="line">        $tok = strtok(&apos;/&apos;);</span><br><span class="line">    &#125;</span><br><span class="line">    return implode(&apos;/&apos;, $uris);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法主要作用是移除$uri中的<code>../</code>相对路径字符和反斜杠<code>////</code>。功能实现:</p>
+<ol>
+<li>首先使用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uc3RydG9r" title="https://www.php.net/manual/zh/function.strtok">strtok<i class="fa fa-external-link"></i></span>标记$uri中的反斜杠<code>/</code>。</li>
+<li>然后对每个字符串进行判断，过滤<code>..</code>和<code>//</code>。</li>
+<li>将过滤后留下的字符串进行整合。</li>
+</ol>
+<hr>
+<h4 id="filter-uri"><a href="#filter-uri" class="headerlink" title="filter_uri()"></a>filter_uri()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public function filter_uri(&amp;$str)</span><br><span class="line">&#123;</span><br><span class="line">    if ( ! empty($str) &amp;&amp; ! empty($this-&gt;_permitted_uri_chars) &amp;&amp; ! preg_match(&apos;/^[&apos;.$this-&gt;_permitted_uri_chars.&apos;]+$/i&apos;.(UTF8_ENABLED ? &apos;u&apos; : &apos;&apos;), $str))</span><br><span class="line">    &#123;</span><br><span class="line">        show_error(&apos;The URI you submitted has disallowed characters.&apos;, 400);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用来判断uri中是否包含允许字符范围之外的字符，若存在保错退出。</p>
+<hr>
+<h4 id="segment"><a href="#segment" class="headerlink" title="segment()"></a>segment()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function segment($n, $no_result = NULL)</span><br><span class="line">&#123;</span><br><span class="line">    return isset($this-&gt;segments[$n]) ? $this-&gt;segments[$n] : $no_result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法的功能是从<code>segments</code>数组中取出指定的段，没有则返回null。在Pagination和DB_cache类中有使用。</p>
+<hr>
+<h4 id="rsegment"><a href="#rsegment" class="headerlink" title="rsegment()"></a>rsegment()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function rsegment($n, $no_result = NULL)</span><br><span class="line">&#123;</span><br><span class="line">    return isset($this-&gt;rsegments[$n]) ? $this-&gt;rsegments[$n] : $no_result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法的功能从<code>rsements</code>数组中取出指定的值，若不存在则返回null。</p>
+<hr>
+<h4 id="uri-to-assoc"><a href="#uri-to-assoc" class="headerlink" title="uri_to_assoc()"></a>uri_to_assoc()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function uri_to_assoc($n = 3, $default = array())</span><br><span class="line">&#123;</span><br><span class="line">    return $this-&gt;_uri_to_assoc($n, $default, &apos;segment&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法将成员变量<code>segments</code>整合为关联数组并返回该数组。</p>
+<hr>
+<h4 id="ruri-to-assoc"><a href="#ruri-to-assoc" class="headerlink" title="ruri_to_assoc()"></a>ruri_to_assoc()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function ruri_to_assoc($n = 3, $default = array())</span><br><span class="line">&#123;</span><br><span class="line">    return $this-&gt;_uri_to_assoc($n, $default, &apos;rsegment&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法将成员变量<code>rsegments</code>整合为关联数组并返回该数组。</p>
+<hr>
+<h4 id="uri-to-assoc-1"><a href="#uri-to-assoc-1" class="headerlink" title="_uri_to_assoc()"></a>_uri_to_assoc()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">protected function _uri_to_assoc($n = 3, $default = array(), $which = &apos;segment&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    if ( ! is_numeric($n))</span><br><span class="line">    &#123;</span><br><span class="line">        return $default;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isset($this-&gt;keyval[$which], $this-&gt;keyval[$which][$n]))</span><br><span class="line">    &#123;</span><br><span class="line">        return $this-&gt;keyval[$which][$n];</span><br><span class="line">    &#125;</span><br><span class="line">    $total_segments = &quot;total_&#123;$which&#125;s&quot;;</span><br><span class="line">    $segment_array = &quot;&#123;$which&#125;_array&quot;;</span><br><span class="line">    if ($this-&gt;$total_segments() &lt; $n)</span><br><span class="line">    &#123;</span><br><span class="line">        return (count($default) === 0)</span><br><span class="line">            ? array()</span><br><span class="line">            : array_fill_keys($default, NULL);</span><br><span class="line">    &#125;</span><br><span class="line">    $segments = array_slice($this-&gt;$segment_array(), ($n - 1));</span><br><span class="line">    $i = 0;</span><br><span class="line">    $lastval = &apos;&apos;;</span><br><span class="line">    $retval = array();</span><br><span class="line">    foreach ($segments as $seg)</span><br><span class="line">    &#123;</span><br><span class="line">        if ($i % 2)</span><br><span class="line">        &#123;</span><br><span class="line">            $retval[$lastval] = $seg;</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            $retval[$seg] = NULL;</span><br><span class="line">            $lastval = $seg;</span><br><span class="line">        &#125;</span><br><span class="line">        $i++;</span><br><span class="line">    &#125;</span><br><span class="line">    if (count($default) &gt; 0)</span><br><span class="line">    &#123;</span><br><span class="line">        foreach ($default as $val)</span><br><span class="line">        &#123;</span><br><span class="line">            if ( ! array_key_exists($val, $retval))</span><br><span class="line">            &#123;</span><br><span class="line">                $retval[$val] = NULL;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    isset($this-&gt;keyval[$which]) OR $this-&gt;keyval[$which] = array();</span><br><span class="line">    $this-&gt;keyval[$which][$n] = $retval;</span><br><span class="line">    return $retval;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法的作用是根据指定索引将<code>segments</code>或<code>rsegments</code>进行分割并将剩余的uri段整合为关联数组，然后返回。参数<code>$which</code>可传<code>segment</code>或<code>rsegment</code>，分别对应成员变量<code>segments</code>和<code>rsegments</code>。下面以<code>segment</code>为例进行功能剖析:</p>
+<ol>
+<li><code>$n</code>默认值为3，因为前两个参数一般为<code>class</code>和<code>method</code>。<code>$default</code>数组表示设置默认的键名，这样即使uri中缺少某个键名，也能保证返回的数组中包含该索引。</li>
+<li>如果已经设置过，即成员变量<code>keyval</code>中已存在指定索引的键名则直接返回。</li>
+<li>获取<code>segments</code>数组及数组个数，当数组个数小于指定索引则将<code>$default</code>的键置<code>null</code>，这也很容易理解，因为<code>segments</code>数组中没用这个键值对。</li>
+<li>根据指定索引截取<code>segments</code>数组，对于之后的数组进行键值方式整合: 奇数为键、偶数为值，<code>$default</code>若不为空且整合之后不存则该键则将该键对应值置为null。</li>
+<li>以指定索引为键、整合后的数组为值存入成员变量<code>keyval</code>中，即<code>$this-&gt;keyval[$which][$n] = $retval;</code>并返回整合后的数组。</li>
+</ol>
+<hr>
+<h4 id="assoc-to-uri"><a href="#assoc-to-uri" class="headerlink" title="assoc_to_uri()"></a>assoc_to_uri()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public function assoc_to_uri($array)</span><br><span class="line">&#123;</span><br><span class="line">    $temp = array();</span><br><span class="line">    foreach ((array) $array as $key =&gt; $val)</span><br><span class="line">    &#123;</span><br><span class="line">        $temp[] = $key;</span><br><span class="line">        $temp[] = $val;</span><br><span class="line">    &#125;</span><br><span class="line">    return implode(&apos;/&apos;, $temp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法的作用是根据给定的关联数组生成一个对应的URI字符串。</p>
+<hr>
+<h4 id="slash-segment"><a href="#slash-segment" class="headerlink" title="slash_segment()"></a>slash_segment()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function slash_segment($n, $where = &apos;trailing&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    return $this-&gt;_slash_segment($n, $where, &apos;segment&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法从<code>segment</code>数组中取出指定的值，并根据<code>$where</code>在值前后加<code>/</code>。</p>
+<hr>
+<h4 id="slash-rsegment"><a href="#slash-rsegment" class="headerlink" title="slash_rsegment()"></a>slash_rsegment()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function slash_rsegment($n, $where = &apos;trailing&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    return $this-&gt;_slash_segment($n, $where, &apos;rsegment&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法从<code>rsegment</code>数组中取出指定的值，并根据<code>$where</code>在值前后加<code>/</code>。</p>
+<hr>
+<h4 id="slash-segment-1"><a href="#slash-segment-1" class="headerlink" title="_slash_segment()"></a>_slash_segment()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">protected function _slash_segment($n, $where = &apos;trailing&apos;, $which = &apos;segment&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    $leading = $trailing = &apos;/&apos;;</span><br><span class="line">    if ($where === &apos;trailing&apos;)</span><br><span class="line">    &#123;</span><br><span class="line">        $leading	= &apos;&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    elseif ($where === &apos;leading&apos;)</span><br><span class="line">    &#123;</span><br><span class="line">        $trailing	= &apos;&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    return $leading.$this-&gt;$which($n).$trailing;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法去根据<code>$which</code>来获取指定的值，其中<code>$which</code>可能为<code>segment</code>或<code>rsegment</code>。若<code>$where</code>为<code>trailing</code>时则在后面加<code>/</code>，若为<code>leading</code>则在前面加<code>/</code>，若为其他值则两边都加<code>/</code>。</p>
+<hr>
+<h4 id="segment-array"><a href="#segment-array" class="headerlink" title="segment_array()"></a>segment_array()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function segment_array()</span><br><span class="line">&#123;</span><br><span class="line">    return $this-&gt;segments;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法返回<code>segments</code>数组。</p>
+<hr>
+<h4 id="rsegment-array"><a href="#rsegment-array" class="headerlink" title="rsegment_array()"></a>rsegment_array()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function rsegment_array()</span><br><span class="line">&#123;</span><br><span class="line">    return $this-&gt;rsegments;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法返回<code>rsegments</code>数组。</p>
+<hr>
+<h4 id="total-segments"><a href="#total-segments" class="headerlink" title="total_segments()"></a>total_segments()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function total_segments()</span><br><span class="line">&#123;</span><br><span class="line">    return count($this-&gt;segments);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法返回<code>segments</code>数组中段的个数。</p>
+<hr>
+<h4 id="total-rsegments"><a href="#total-rsegments" class="headerlink" title="total_rsegments()"></a>total_rsegments()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function total_rsegments()</span><br><span class="line">&#123;</span><br><span class="line">    return count($this-&gt;rsegments);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法返回<code>rsegments</code>数组中元素的个数。</p>
+<hr>
+<h4 id="uri-string"><a href="#uri-string" class="headerlink" title="uri_string()"></a>uri_string()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function uri_string()</span><br><span class="line">&#123;</span><br><span class="line">    return $this-&gt;uri_string;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法返回<code>uri_string</code>成员变量的值。</p>
+<hr>
+<h4 id="ruri-string"><a href="#ruri-string" class="headerlink" title="ruri_string()"></a>ruri_string()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function ruri_string()</span><br><span class="line">&#123;</span><br><span class="line">    return ltrim(load_class(&apos;Router&apos;, &apos;core&apos;)-&gt;directory, &apos;/&apos;).implode(&apos;/&apos;, $this-&gt;rsegments);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法返回经过路由处理后的uri，如果设置了覆盖目录则加上此目录，没用则返回类似<code>class/method</code>的uri。</p>
+<hr>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1poaWh1YV9XL2FydGljbGUvZGV0YWlscy81Mjg3MjQwNw==" title="https://blog.csdn.net/Zhihua_W/article/details/52872407">CI框架源码解析八之地址解析类文件URI.php<i class="fa fa-external-link"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly9pdG9waWMub3JnL2NvZGVpZ25pdGVyLWNvbmZpZy5odG1s" title="https://itopic.org/codeigniter-config.html">CodeIgniter配置详解<i class="fa fa-external-link"></i></span><br><span class="exturl" data-url="aHR0cDovL3d3dy5qZWVweGllLm5ldC9hcnRpY2xlLzU0Nzc0NS5odG1s" title="http://www.jeepxie.net/article/547745.html">CodeIgniter框架原码笔记(5)–识别多种URI风格：地址解析类URI.php<i class="fa fa-external-link"></i></span></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2020/01/14/codeigniter-uri/" title="CodeIgniter解析类文件URI.php">https://pureven.cc/2020/01/14/codeigniter-uri/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/01/13/codeigniter-utf8/" rel="next" title="CodeIgniter编码类文件Utf8.php">
+                  <i class="fa fa-chevron-left"></i> CodeIgniter编码类文件Utf8.php
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/01/20/codeigniter-router/" rel="prev" title="CodeIgniter路由类文件Router.php">
+                  CodeIgniter路由类文件Router.php <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类属性"><span class="nav-number">2.</span> <span class="nav-text">类属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#构造方法"><span class="nav-number">3.</span> <span class="nav-text">构造方法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#关于uri-protocol"><span class="nav-number">3.1.</span> <span class="nav-text">关于uri_protocol</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#set-uri-string"><span class="nav-number">4.</span> <span class="nav-text">_set_uri_string()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#parse-request-uri"><span class="nav-number">5.</span> <span class="nav-text">_parse_request_uri()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#parse-query-string"><span class="nav-number">6.</span> <span class="nav-text">_parse_query_string()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#parse-argv"><span class="nav-number">7.</span> <span class="nav-text">_parse_argv()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#remove-relative-directory"><span class="nav-number">8.</span> <span class="nav-text">_remove_relative_directory()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#filter-uri"><span class="nav-number">9.</span> <span class="nav-text">filter_uri()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#segment"><span class="nav-number">10.</span> <span class="nav-text">segment()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rsegment"><span class="nav-number">11.</span> <span class="nav-text">rsegment()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#uri-to-assoc"><span class="nav-number">12.</span> <span class="nav-text">uri_to_assoc()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ruri-to-assoc"><span class="nav-number">13.</span> <span class="nav-text">ruri_to_assoc()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#uri-to-assoc-1"><span class="nav-number">14.</span> <span class="nav-text">_uri_to_assoc()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#assoc-to-uri"><span class="nav-number">15.</span> <span class="nav-text">assoc_to_uri()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#slash-segment"><span class="nav-number">16.</span> <span class="nav-text">slash_segment()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#slash-rsegment"><span class="nav-number">17.</span> <span class="nav-text">slash_rsegment()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#slash-segment-1"><span class="nav-number">18.</span> <span class="nav-text">_slash_segment()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#segment-array"><span class="nav-number">19.</span> <span class="nav-text">segment_array()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rsegment-array"><span class="nav-number">20.</span> <span class="nav-text">rsegment_array()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#total-segments"><span class="nav-number">21.</span> <span class="nav-text">total_segments()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#total-rsegments"><span class="nav-number">22.</span> <span class="nav-text">total_rsegments()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#uri-string"><span class="nav-number">23.</span> <span class="nav-text">uri_string()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ruri-string"><span class="nav-number">24.</span> <span class="nav-text">ruri_string()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">25.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言该类主要功能负责向浏览器输出最终结果，其中包括从缓存加载内容输出，根据控制器方法产生的内容输出，还包括写缓存、设置头信息、加载CI内部分析器。该类有11个成员变量和18个成员方法。下面逐个分析。">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter输出类Output.php">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;02&#x2F;04&#x2F;codeigniter-output&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言该类主要功能负责向浏览器输出最终结果，其中包括从缓存加载内容输出，根据控制器方法产生的内容输出，还包括写缓存、设置头信息、加载CI内部分析器。该类有11个成员变量和18个成员方法。下面逐个分析。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.284Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2020/02/04/codeigniter-output/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter输出类Output.php | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/02/04/codeigniter-output/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter输出类Output.php
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-04 12:01:29" itemprop="dateCreated datePublished" datetime="2020-02-04T12:01:29+08:00">2020-02-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/02/04/codeigniter-output/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/02/04/codeigniter-output/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>15 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>该类主要功能负责向浏览器输出最终结果，其中包括从缓存加载内容输出，根据控制器方法产生的内容输出，还包括写缓存、设置头信息、加载CI内部分析器。该类有11个成员变量和18个成员方法。下面逐个分析。</p>
+<a id="more"></a>
+<hr>
+<h4 id="成员变量"><a href="#成员变量" class="headerlink" title="成员变量"></a>成员变量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public $final_output;</span><br><span class="line">public $cache_expiration = 0;</span><br><span class="line">public $headers = array();</span><br><span class="line">public $mimes =	array();</span><br><span class="line">protected $mime_type = &apos;text/html&apos;;</span><br><span class="line">public $enable_profiler = FALSE;</span><br><span class="line">protected $_zlib_oc = FALSE;</span><br><span class="line">protected $_compress_output = FALSE;</span><br><span class="line">protected $_profiler_sections =	array();</span><br><span class="line">public $parse_exec_vars = TRUE;</span><br><span class="line">protected static $func_overload;</span><br></pre></td></tr></table></figure>
+<p>$final_output表示最终输出结果字符串。<br>$cache_expiration表示缓存有效时间。<br>$headers用于存放头信息。<br>$mimes用于存放从配置文件中读取的mime列表。<br>$mime_type表示当前页面的mime类型。<br>$enable_profiler表示性能分析器开关。<br>$_zlib_oc表示Gzip压缩开关。<br>$_compress_output表示CI压缩开关。<br>$_profiler_sections表示分析器模块。<br>$parse_exec_vars表示分析器解析变量开关，比如解析<code>{elapsed_time}</code>、<code>{memory_usage}</code>等。<br>$func_overload表示启用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvbWJzdHJpbmcub3ZlcmxvYWQucGhw" title="https://www.php.net/manual/zh/mbstring.overload.php">函数重载功能<i class="fa fa-external-link"></i></span>开关。</p>
+<hr>
+<h4 id="construct"><a href="#construct" class="headerlink" title="__construct()"></a>__construct()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public function __construct()</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;_zlib_oc = (bool) ini_get(&apos;zlib.output_compression&apos;);</span><br><span class="line">    $this-&gt;_compress_output = (</span><br><span class="line">        $this-&gt;_zlib_oc === FALSE</span><br><span class="line">        &amp;&amp; config_item(&apos;compress_output&apos;) === TRUE</span><br><span class="line">        &amp;&amp; extension_loaded(&apos;zlib&apos;)</span><br><span class="line">    );</span><br><span class="line">    isset(self::$func_overload) OR self::$func_overload = (extension_loaded(&apos;mbstring&apos;) &amp;&amp; ini_get(&apos;mbstring.func_overload&apos;));</span><br><span class="line">    $this-&gt;mimes =&amp; get_mimes();</span><br><span class="line">    log_message(&apos;info&apos;, &apos;Output Class Initialized&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在构造函数中，CI通过ini_get(‘zlib.output_compression’)获取当前php环境是否开启了GZIP压缩。如果PHP环境没有开启，那么判断配置文件中的压缩设置(compress_output=TRUE)，是不是要求框架压缩输出，如果要求的话，只要当前PHP是加载了zlib扩展的，那么就把$_compress_output标记设为TRUE。通常情况下，我们在使用过程中会开启WEB服务器的压缩功能，而关闭程序本身压缩功能。</p>
+<hr>
+<h4 id="get-output"><a href="#get-output" class="headerlink" title="get_output()"></a>get_output()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function get_output()</span><br><span class="line">&#123;</span><br><span class="line">    return $this-&gt;final_output;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于获取最终输出信息。</p>
+<hr>
+<h4 id="set-output"><a href="#set-output" class="headerlink" title="set_output()"></a>set_output()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public function set_output($output)</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;final_output = $output;</span><br><span class="line">    return $this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于设置$this-&gt;final_output允许你手工设置最终的输出字符串</p>
+<hr>
+<h4 id="append-output"><a href="#append-output" class="headerlink" title="append_output()"></a>append_output()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public function append_output($output)</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;final_output .= $output;</span><br><span class="line">    return $this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于向输出字符串附加数据。</p>
+<hr>
+<h4 id="set-header"><a href="#set-header" class="headerlink" title="set_header()"></a>set_header()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public function set_header($header, $replace = TRUE)</span><br><span class="line">&#123;</span><br><span class="line">    if ($this-&gt;_zlib_oc &amp;&amp; strncasecmp($header, &apos;content-length&apos;, 14) === 0)</span><br><span class="line">    &#123;</span><br><span class="line">        return $this;</span><br><span class="line">    &#125;</span><br><span class="line">    $this-&gt;headers[] = array($header, $replace);</span><br><span class="line">    return $this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于设置头信息，如果php开启了zlib.output_compression压缩，就跳过content-length头的设置这样做的理由是当压缩开启后，实际输出字节数比正常少，误设content-length头后，会使得客户端一直等待服务器发送足够字节的文本，造成无法正常响应。</p>
+<hr>
+<h4 id="set-content-type"><a href="#set-content-type" class="headerlink" title="set_content_type()"></a>set_content_type()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public function set_content_type($mime_type, $charset = NULL)</span><br><span class="line">&#123;</span><br><span class="line">    if (strpos($mime_type, &apos;/&apos;) === FALSE)</span><br><span class="line">    &#123;</span><br><span class="line">        $extension = ltrim($mime_type, &apos;.&apos;);</span><br><span class="line">        if (isset($this-&gt;mimes[$extension]))</span><br><span class="line">        &#123;</span><br><span class="line">            $mime_type =&amp; $this-&gt;mimes[$extension];</span><br><span class="line">            if (is_array($mime_type))</span><br><span class="line">            &#123;</span><br><span class="line">                $mime_type = current($mime_type);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    $this-&gt;mime_type = $mime_type;</span><br><span class="line">    if (empty($charset))</span><br><span class="line">    &#123;</span><br><span class="line">        $charset = config_item(&apos;charset&apos;);</span><br><span class="line">    &#125;</span><br><span class="line">    $header = &apos;Content-Type: &apos;.$mime_type</span><br><span class="line">        .(empty($charset) ? &apos;&apos; : &apos;; charset=&apos;.$charset);</span><br><span class="line"></span><br><span class="line">    $this-&gt;headers[] = array($header, TRUE);</span><br><span class="line">    return $this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于设置页面的 MIME 类型，可以很方便的提供 JSON 数据、JPEG、XML 等等格式,通过$charset设置文档的字符集。$mime_type是要设置MIME信息的文件扩展名，系统从$mimes数组中找出对应扩展名中的MIME信息。</p>
+<hr>
+<h4 id="get-content-type"><a href="#get-content-type" class="headerlink" title="get_content_type()"></a>get_content_type()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public function get_content_type()</span><br><span class="line">&#123;</span><br><span class="line">    for ($i = 0, $c = count($this-&gt;headers); $i &lt; $c; $i++)</span><br><span class="line">    &#123;</span><br><span class="line">        if (sscanf($this-&gt;headers[$i][0], &apos;Content-Type: %[^;]&apos;, $content_type) === 1)</span><br><span class="line">        &#123;</span><br><span class="line">            return $content_type;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return &apos;text/html&apos;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法获取当前正在使用的 HTTP 头 Content-Type ，不包含字符集部分。从一堆header信息中匹配Content-Type信息，找到了就返回其中的MIME值，没找到，就返回默认的text/html。</p>
+<hr>
+<h4 id="get-header"><a href="#get-header" class="headerlink" title="get_header()"></a>get_header()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public function get_header($header)</span><br><span class="line">&#123;</span><br><span class="line">    $headers = array_merge(</span><br><span class="line">        array_map(&apos;array_shift&apos;, $this-&gt;headers),</span><br><span class="line">        headers_list()</span><br><span class="line">    );</span><br><span class="line">    if (empty($headers) OR empty($header))</span><br><span class="line">    &#123;</span><br><span class="line">        return NULL;</span><br><span class="line">    &#125;</span><br><span class="line">    for ($c = count($headers) - 1; $c &gt; -1; $c--)</span><br><span class="line">    &#123;</span><br><span class="line">        if (strncasecmp($header, $headers[$c], $l = self::strlen($header)) === 0)</span><br><span class="line">        &#123;</span><br><span class="line">            return trim(self::substr($headers[$c], $l+1));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return NULL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法返回请求的 HTTP 头，如果 HTTP 头还没设置，返回 NULL。</p>
+<hr>
+<h4 id="set-status-header"><a href="#set-status-header" class="headerlink" title="set_status_header()"></a>set_status_header()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public function set_status_header($code = 200, $text = &apos;&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    set_status_header($code, $text);</span><br><span class="line">    return $this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法设置头信息状态。</p>
+<hr>
+<h4 id="enable-profiler"><a href="#enable-profiler" class="headerlink" title="enable_profiler()"></a>enable_profiler()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public function enable_profiler($val = TRUE)</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;enable_profiler = is_bool($val) ? $val : TRUE;</span><br><span class="line">    return $this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于设置禁用或开启分析器。</p>
+<hr>
+<h4 id="set-profiler-sections"><a href="#set-profiler-sections" class="headerlink" title="set_profiler_sections()"></a>set_profiler_sections()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public function set_profiler_sections($sections)</span><br><span class="line">&#123;</span><br><span class="line">    if (isset($sections[&apos;query_toggle_count&apos;]))</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;_profiler_sections[&apos;query_toggle_count&apos;] = (int) $sections[&apos;query_toggle_count&apos;];</span><br><span class="line">        unset($sections[&apos;query_toggle_count&apos;]);</span><br><span class="line">    &#125;</span><br><span class="line">    foreach ($sections as $section =&gt; $enable)</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;_profiler_sections[$section] = ($enable !== FALSE);</span><br><span class="line">    &#125;</span><br><span class="line">    return $this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于设置分析器的内容，该类允许你启用或禁用程序分析器，它可以在你的页面底部显示，基准测试的结果或其他一些数据帮助你调试和优化程序。</p>
+<hr>
+<h4 id="cache"><a href="#cache" class="headerlink" title="cache()"></a>cache()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public function cache($time)</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;cache_expiration = is_numeric($time) ? $time : 0;</span><br><span class="line">    return $this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于设置缓存时长，开启文件缓存。</p>
+<hr>
+<h4 id="display"><a href="#display" class="headerlink" title="_display()"></a>_display()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">public function _display($output = &apos;&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    $BM =&amp; load_class(&apos;Benchmark&apos;, &apos;core&apos;);</span><br><span class="line">    $CFG =&amp; load_class(&apos;Config&apos;, &apos;core&apos;);</span><br><span class="line">    if (class_exists(&apos;CI_Controller&apos;, FALSE))</span><br><span class="line">    &#123;</span><br><span class="line">        $CI =&amp; get_instance();</span><br><span class="line">    &#125;</span><br><span class="line">    if ($output === &apos;&apos;)</span><br><span class="line">    &#123;</span><br><span class="line">        $output =&amp; $this-&gt;final_output;</span><br><span class="line">    &#125;</span><br><span class="line">    if ($this-&gt;cache_expiration &gt; 0 &amp;&amp; isset($CI) &amp;&amp; ! method_exists($CI, &apos;_output&apos;))</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;_write_cache($output);</span><br><span class="line">    &#125;</span><br><span class="line">    $elapsed = $BM-&gt;elapsed_time(&apos;total_execution_time_start&apos;, &apos;total_execution_time_end&apos;);</span><br><span class="line">    if ($this-&gt;parse_exec_vars === TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        $memory	= round(memory_get_usage() / 1024 / 1024, 2).&apos;MB&apos;;</span><br><span class="line">        $output = str_replace(array(&apos;&#123;elapsed_time&#125;&apos;, &apos;&#123;memory_usage&#125;&apos;), array($elapsed, $memory), $output);</span><br><span class="line">    &#125;</span><br><span class="line">    if (isset($CI) // This means that we&apos;re not serving a cache file, if we were, it would already be compressed</span><br><span class="line">        &amp;&amp; $this-&gt;_compress_output === TRUE</span><br><span class="line">        &amp;&amp; isset($_SERVER[&apos;HTTP_ACCEPT_ENCODING&apos;]) &amp;&amp; strpos($_SERVER[&apos;HTTP_ACCEPT_ENCODING&apos;], &apos;gzip&apos;) !== FALSE)</span><br><span class="line">    &#123;</span><br><span class="line">        ob_start(&apos;ob_gzhandler&apos;);</span><br><span class="line">    &#125;</span><br><span class="line">    if (count($this-&gt;headers) &gt; 0)</span><br><span class="line">    &#123;</span><br><span class="line">        foreach ($this-&gt;headers as $header)</span><br><span class="line">        &#123;</span><br><span class="line">            @header($header[0], $header[1]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if ( ! isset($CI))</span><br><span class="line">    &#123;</span><br><span class="line">        if ($this-&gt;_compress_output === TRUE)</span><br><span class="line">        &#123;</span><br><span class="line">            if (isset($_SERVER[&apos;HTTP_ACCEPT_ENCODING&apos;]) &amp;&amp; strpos($_SERVER[&apos;HTTP_ACCEPT_ENCODING&apos;], &apos;gzip&apos;) !== FALSE)</span><br><span class="line">            &#123;</span><br><span class="line">                header(&apos;Content-Encoding: gzip&apos;);</span><br><span class="line">                header(&apos;Content-Length: &apos;.self::strlen($output));</span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                $output = gzinflate(self::substr($output, 10, -8));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        echo $output;</span><br><span class="line">        log_message(&apos;info&apos;, &apos;Final output sent to browser&apos;);</span><br><span class="line">        log_message(&apos;debug&apos;, &apos;Total execution time: &apos;.$elapsed);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    if ($this-&gt;enable_profiler === TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        $CI-&gt;load-&gt;library(&apos;profiler&apos;);</span><br><span class="line">        if ( ! empty($this-&gt;_profiler_sections))</span><br><span class="line">        &#123;</span><br><span class="line">            $CI-&gt;profiler-&gt;set_sections($this-&gt;_profiler_sections);</span><br><span class="line">        &#125;</span><br><span class="line">        $output = preg_replace(&apos;|&lt;/body&gt;.*?&lt;/html&gt;|is&apos;, &apos;&apos;, $output, -1, $count).$CI-&gt;profiler-&gt;run();</span><br><span class="line">        if ($count &gt; 0)</span><br><span class="line">        &#123;</span><br><span class="line">            $output .= &apos;&lt;/body&gt;&lt;/html&gt;&apos;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (method_exists($CI, &apos;_output&apos;))</span><br><span class="line">    &#123;</span><br><span class="line">        $CI-&gt;_output($output);</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        echo $output; // Send it to the browser!</span><br><span class="line">    &#125;</span><br><span class="line">    log_message(&apos;info&apos;, &apos;Final output sent to browser&apos;);</span><br><span class="line">    log_message(&apos;debug&apos;, &apos;Total execution time: &apos;.$elapsed);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法的功能主要是将最终结果输出到浏览器。功能实现：</p>
+<ol>
+<li>获取$BM、$CFG，注意这里使用的是load_class()而不直接用$CI =&amp; get_instance()，因为有时候本方法是被缓存机制调用的，这时候$CI超级对象还无法使用。</li>
+<li>当然如果可能的话，获取超级对象$CI。</li>
+<li>获取需要最终输出的字符串$output。当$CI对象存在时证明我们不是在从缓存输出数据，这时如果Controller没有自定义_output方法就需要写缓存(调<code>_write_cache方法</code>)。</li>
+<li>如果分析器解析变量是开着的则替换系统的总体运行时间和内存消耗。</li>
+<li>如果满足条件（$CI对象存在、支持压缩输出、本地服务器支持<code>gzip</code>编码）则打开输出缓冲。当输出缓冲激活后，脚本将不会输出内容（除http标头外），相反需要输出的内容被存储在内部缓冲区中。<code>ob_gzhandler()</code>目的是用在ob_start()中作回调函数，以方便将gz编码的数据发送到支持压缩页面的浏览器。在ob_gzhandler()真正发送压缩过的数据之前，该 函数会确定（判定）浏览器可以接受哪种类型内容编码（”gzip”,”deflate”,或者根本什么都不支持），然后 返回相应的输出。 所有可以发送正确头信息表明他自己可以接受压缩的网页的浏览器，都可以支持。</li>
+<li>如果存放头信息的数组<code>headers</code>不为空则设置头信息。</li>
+<li>如果没有超级控制器，可以证明当前是在处理一个缓存的输出。输出缓存内容并结束本函数。</li>
+<li>如果开启了分析器模块，会生成一些报告到页面尾部用于辅助我们调试。这里使用Profile显示所有基准点的时间消耗，同时还会显示出提交的数据和数据库查询的信息。</li>
+</ol>
+<hr>
+<h4 id="write-cache"><a href="#write-cache" class="headerlink" title="_write_cache()"></a>_write_cache()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">public function _write_cache($output)</span><br><span class="line">&#123;</span><br><span class="line">    $CI =&amp; get_instance();</span><br><span class="line">    $path = $CI-&gt;config-&gt;item(&apos;cache_path&apos;);</span><br><span class="line">    $cache_path = ($path === &apos;&apos;) ? APPPATH.&apos;cache/&apos; : $path;</span><br><span class="line">    if ( ! is_dir($cache_path) OR ! is_really_writable($cache_path))</span><br><span class="line">    &#123;</span><br><span class="line">        log_message(&apos;error&apos;, &apos;Unable to write cache file: &apos;.$cache_path);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    $uri = $CI-&gt;config-&gt;item(&apos;base_url&apos;)</span><br><span class="line">        .$CI-&gt;config-&gt;item(&apos;index_page&apos;)</span><br><span class="line">        .$CI-&gt;uri-&gt;uri_string();</span><br><span class="line"></span><br><span class="line">    if (($cache_query_string = $CI-&gt;config-&gt;item(&apos;cache_query_string&apos;)) &amp;&amp; ! empty($_SERVER[&apos;QUERY_STRING&apos;]))</span><br><span class="line">    &#123;</span><br><span class="line">        if (is_array($cache_query_string))</span><br><span class="line">        &#123;</span><br><span class="line">            $uri .= &apos;?&apos;.http_build_query(array_intersect_key($_GET, array_flip($cache_query_string)));</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            $uri .= &apos;?&apos;.$_SERVER[&apos;QUERY_STRING&apos;];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    $cache_path .= md5($uri);</span><br><span class="line">    if ( ! $fp = @fopen($cache_path, &apos;w+b&apos;))</span><br><span class="line">    &#123;</span><br><span class="line">        log_message(&apos;error&apos;, &apos;Unable to write cache file: &apos;.$cache_path);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    if ( ! flock($fp, LOCK_EX))</span><br><span class="line">    &#123;</span><br><span class="line">        log_message(&apos;error&apos;, &apos;Unable to secure a file lock for file at: &apos;.$cache_path);</span><br><span class="line">        fclose($fp);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    if ($this-&gt;_compress_output === TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        $output = gzencode($output);</span><br><span class="line"></span><br><span class="line">        if ($this-&gt;get_header(&apos;content-type&apos;) === NULL)</span><br><span class="line">        &#123;</span><br><span class="line">            $this-&gt;set_content_type($this-&gt;mime_type);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    $expire = time() + ($this-&gt;cache_expiration * 60);</span><br><span class="line">    $cache_info = serialize(array(</span><br><span class="line">        &apos;expire&apos;	=&gt; $expire,</span><br><span class="line">        &apos;headers&apos;	=&gt; $this-&gt;headers</span><br><span class="line">    ));</span><br><span class="line">    $output = $cache_info.&apos;ENDCI---&gt;&apos;.$output;</span><br><span class="line">    for ($written = 0, $length = self::strlen($output); $written &lt; $length; $written += $result)</span><br><span class="line">    &#123;</span><br><span class="line">        if (($result = fwrite($fp, self::substr($output, $written))) === FALSE)</span><br><span class="line">        &#123;</span><br><span class="line">            break;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    flock($fp, LOCK_UN);</span><br><span class="line">    fclose($fp);</span><br><span class="line">    if ( ! is_int($result))</span><br><span class="line">    &#123;</span><br><span class="line">        @unlink($cache_path);</span><br><span class="line">        log_message(&apos;error&apos;, &apos;Unable to write the complete cache content at: &apos;.$cache_path);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    chmod($cache_path, 0640);</span><br><span class="line">    log_message(&apos;debug&apos;, &apos;Cache file written: &apos;.$cache_path);</span><br><span class="line">    $this-&gt;set_cache_header($_SERVER[&apos;REQUEST_TIME&apos;], $expire);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法主要用于将缓存信息写入缓存文件。功能实现：</p>
+<ol>
+<li>获取缓存路径$cache_path并判断如果不是目录或不可写则返回。</li>
+<li>构造$uri，并对$uri进行md5加密，然后放到$cache_path后面作为缓存文件的完整路径。</li>
+<li>判断缓存文件完整路径$cache_path是否可写，不可写或无法上锁则返回。</li>
+<li>根据支持条件将输出内容进行压缩，这里用到了<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uZ3plbmNvZGUucGhw" title="https://www.php.net/manual/zh/function.gzencode.php">gzencode<i class="fa fa-external-link"></i></span>，设置内容类型mime_type头信息。</li>
+<li>将$cache_info<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uc2VyaWFsaXplLnBocA==" title="https://www.php.net/manual/zh/function.serialize.php">序列化<i class="fa fa-external-link"></i></span>，构造成<code>$cache_info.&#39;ENDCI---&gt;&#39;.$output</code>的格式写入到缓存文件中，写入时将文件上锁，写入失败则删除该文件。</li>
+<li>设置缓存文件权限<code>0640</code>， 发送HTTP缓存控制头到浏览器以匹配文件缓存设置。</li>
+</ol>
+<hr>
+<h4 id="display-cache"><a href="#display-cache" class="headerlink" title="_display_cache()"></a>_display_cache()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">public function _display_cache(&amp;$CFG, &amp;$URI)</span><br><span class="line">&#123;</span><br><span class="line">    $cache_path = ($CFG-&gt;item(&apos;cache_path&apos;) === &apos;&apos;) ? APPPATH.&apos;cache/&apos; : $CFG-&gt;item(&apos;cache_path&apos;);</span><br><span class="line">    $uri = $CFG-&gt;item(&apos;base_url&apos;).$CFG-&gt;item(&apos;index_page&apos;).$URI-&gt;uri_string;</span><br><span class="line">    if (($cache_query_string = $CFG-&gt;item(&apos;cache_query_string&apos;)) &amp;&amp; ! empty($_SERVER[&apos;QUERY_STRING&apos;]))</span><br><span class="line">    &#123;</span><br><span class="line">        if (is_array($cache_query_string))</span><br><span class="line">        &#123;</span><br><span class="line">            $uri .= &apos;?&apos;.http_build_query(array_intersect_key($_GET, array_flip($cache_query_string)));</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            $uri .= &apos;?&apos;.$_SERVER[&apos;QUERY_STRING&apos;];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    $filepath = $cache_path.md5($uri);</span><br><span class="line">    if ( ! file_exists($filepath) OR ! $fp = @fopen($filepath, &apos;rb&apos;))</span><br><span class="line">    &#123;</span><br><span class="line">        return FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    flock($fp, LOCK_SH);</span><br><span class="line">    $cache = (filesize($filepath) &gt; 0) ? fread($fp, filesize($filepath)) : &apos;&apos;;</span><br><span class="line">    flock($fp, LOCK_UN);</span><br><span class="line">    fclose($fp);</span><br><span class="line">    if ( ! preg_match(&apos;/^(.*)ENDCI---&gt;/&apos;, $cache, $match))</span><br><span class="line">    &#123;</span><br><span class="line">        return FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    $cache_info = unserialize($match[1]);</span><br><span class="line">    $expire = $cache_info[&apos;expire&apos;];</span><br><span class="line">    $last_modified = filemtime($filepath);</span><br><span class="line">    if ($_SERVER[&apos;REQUEST_TIME&apos;] &gt;= $expire &amp;&amp; is_really_writable($cache_path))</span><br><span class="line">    &#123;</span><br><span class="line">        @unlink($filepath);</span><br><span class="line">        log_message(&apos;debug&apos;, &apos;Cache file has expired. File deleted.&apos;);</span><br><span class="line">        return FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    $this-&gt;set_cache_header($last_modified, $expire);</span><br><span class="line">    foreach ($cache_info[&apos;headers&apos;] as $header)</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;set_header($header[0], $header[1]);</span><br><span class="line">    &#125;</span><br><span class="line">    $this-&gt;_display(self::substr($cache, self::strlen($match[0])));</span><br><span class="line">    log_message(&apos;debug&apos;, &apos;Cache file is current. Sending it to browser.&apos;);</span><br><span class="line">    return TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法在CodeIgniter.php里面有调用，用来负责缓存的输出，如果在CodeIgniter.php中调用此方法有输出，则本次请求的运行将直接结束，直接以缓存输出作为响应。功能实现：</p>
+<ol>
+<li>获取保存缓存的路径<code>$cache_path</code>，如<code>G:\wamp\www\CodeIgniter_hmvc\application\cache/449a65bd3d6bad1ee34104f01d27cc26</code>。</li>
+<li>构造<code>$uri</code>并进行md5加密，附加在<code>$cache_path</code>后面作为缓存文件的完整路径<code>$filepath</code>。</li>
+<li>如果<code>$filepath</code>不存在或读取失败则返回false。否则读取缓存信息到<code>$cache</code>，读取期间<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uZmxvY2sucGhw" title="https://www.php.net/manual/zh/function.flock.php">flock<i class="fa fa-external-link"></i></span>上锁。</li>
+<li>这个地方可参考_write_cache()方法中构造缓存的部分：<code>$output = $cache_info.&#39;ENDCI---&gt;&#39;.$output;</code>。 <font color="#891717">下面这个ENDCI—&gt;字样，只是因为CI的缓存文件里面的内容是规定以cache_info[‘expire’, ‘headers’]＋ENDCI—&gt;开头而已。</font>如果不符合此结构，可视为非CI的缓存文件，或者文件已损坏，获取缓存内容失败，返回FALSE。$match[0]是除页面内容之外的附加信息:<code>a:2:{s:6:&quot;expire&quot;;i:1566534312;s:7:&quot;headers&quot;;a:0:{}}ENDCI---&gt;</code>，$match[1]是附加信息中和时间有关的信息:<code>a:2:{s:6:&quot;expire&quot;;i:1566534312;s:7:&quot;headers&quot;;a:0:{}}</code>缓存文件开头: <code>a:2:{s:6:&quot;expire&quot;;i:1566534312;s:7:&quot;headers&quot;;a:0:{}}ENDCI---&gt;&lt;!DOCTYPE html&gt;</code>。</li>
+<li>获取$cache_info，这里用到了<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24udW5zZXJpYWxpemUucGhw" title="https://www.php.net/manual/zh/function.unserialize.php">unserialize<i class="fa fa-external-link"></i></span>。可以通过<span class="exturl" data-url="aHR0cHM6Ly93d3cudzNjc2Nob29sLmNuL3Rvb2xzL2luZGV4P25hbWU9dW5zZXJpYWxpemU=" title="https://www.w3cschool.cn/tools/index?name=unserialize">php在线反序列化工具<i class="fa fa-external-link"></i></span>在线反序列化试下，然后拿到<code>$expire</code>。</li>
+<li>使用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uZmlsZW10aW1lLnBocA==" title="https://www.php.net/manual/zh/function.filemtime.php">filemtime<i class="fa fa-external-link"></i></span>取得文件修改时间<code>$last_modified</code>。判断缓存是否过期，如果过期并且可写则删除，然后返回false。</li>
+<li>设置缓存头信息，调用<code>_display()</code>方法输出缓冲信息。</li>
+</ol>
+<hr>
+<h4 id="delete-cache"><a href="#delete-cache" class="headerlink" title="delete_cache()"></a>delete_cache()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">public function delete_cache($uri = &apos;&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    $CI =&amp; get_instance();</span><br><span class="line">    $cache_path = $CI-&gt;config-&gt;item(&apos;cache_path&apos;);</span><br><span class="line">    if ($cache_path === &apos;&apos;)</span><br><span class="line">    &#123;</span><br><span class="line">        $cache_path = APPPATH.&apos;cache/&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    if ( ! is_dir($cache_path))</span><br><span class="line">    &#123;</span><br><span class="line">        log_message(&apos;error&apos;, &apos;Unable to find cache path: &apos;.$cache_path);</span><br><span class="line">        return FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    if (empty($uri))</span><br><span class="line">    &#123;</span><br><span class="line">        $uri = $CI-&gt;uri-&gt;uri_string();</span><br><span class="line">        if (($cache_query_string = $CI-&gt;config-&gt;item(&apos;cache_query_string&apos;)) &amp;&amp; ! empty($_SERVER[&apos;QUERY_STRING&apos;]))</span><br><span class="line">        &#123;</span><br><span class="line">            if (is_array($cache_query_string))</span><br><span class="line">            &#123;</span><br><span class="line">                $uri .= &apos;?&apos;.http_build_query(array_intersect_key($_GET, array_flip($cache_query_string)));</span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                $uri .= &apos;?&apos;.$_SERVER[&apos;QUERY_STRING&apos;];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    $cache_path .= md5($CI-&gt;config-&gt;item(&apos;base_url&apos;).$CI-&gt;config-&gt;item(&apos;index_page&apos;).ltrim($uri, &apos;/&apos;));</span><br><span class="line">    if ( ! @unlink($cache_path))</span><br><span class="line">    &#123;</span><br><span class="line">        log_message(&apos;error&apos;, &apos;Unable to delete cache file for &apos;.$uri);</span><br><span class="line">        return FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    return TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法提供删除缓存的功能，前提是已经有缓存了，否则会报错。功能实现：</p>
+<ol>
+<li>从配置文件中读取缓存路径，为空则默认为<code>APPPATH . cache/</code>。</li>
+<li>检查缓存目录是否存在，不存在则报错退出。</li>
+<li>构造缓存文件，然后删除。这里有三个php函数<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uYXJyYXktaW50ZXJzZWN0LWtleS5waHA=" title="https://www.php.net/manual/zh/function.array-intersect-key.php">array_intersect_key<i class="fa fa-external-link"></i></span>、<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uYXJyYXktZmxpcC5waHA=" title="https://www.php.net/manual/zh/function.array-flip.php">array_flip<i class="fa fa-external-link"></i></span>、<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uaHR0cC1idWlsZC1xdWVyeS5waHA=" title="https://www.php.net/manual/zh/function.http-build-query.php">http_build_query<i class="fa fa-external-link"></i></span>。</li>
+</ol>
+<hr>
+<h4 id="set-cache-header"><a href="#set-cache-header" class="headerlink" title="set_cache_header()"></a>set_cache_header()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public function set_cache_header($last_modified, $expiration)</span><br><span class="line">&#123;</span><br><span class="line">    $max_age = $expiration - $_SERVER[&apos;REQUEST_TIME&apos;];</span><br><span class="line">    if (isset($_SERVER[&apos;HTTP_IF_MODIFIED_SINCE&apos;]) &amp;&amp; $last_modified &lt;= strtotime($_SERVER[&apos;HTTP_IF_MODIFIED_SINCE&apos;]))</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;set_status_header(304);</span><br><span class="line">        exit;</span><br><span class="line">    &#125;</span><br><span class="line">    header(&apos;Pragma: public&apos;);</span><br><span class="line">    header(&apos;Cache-Control: max-age=&apos;.$max_age.&apos;, public&apos;);</span><br><span class="line">    header(&apos;Expires: &apos;.gmdate(&apos;D, d M Y H:i:s&apos;, $expiration).&apos; GMT&apos;);</span><br><span class="line">    header(&apos;Last-modified: &apos;.gmdate(&apos;D, d M Y H:i:s&apos;, $last_modified).&apos; GMT&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于设置缓存头信息。功能实现：</p>
+<ol>
+<li><span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWIvSFRUUC9IZWFkZXJzL0lmLU1vZGlmaWVkLVNpbmNl" title="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/If-Modified-Since">HTTP_IF_MODIFIED_SINCE<i class="fa fa-external-link"></i></span>表示浏览器缓存页面的最后修改时间，如果设置了HTTP_IF_MODIFIED_SINCE头，且文件最后修改时间没有超过HTTP_IF_MODIFIED_SINCE时间，则直接发304状态码给客户端，让客户端调用本地缓存。</li>
+<li>如果文件修改时间超过了HTTP_IF_MODIFIED_SINCE时间，就重新发送头信息，告诉客户端缓存该次请求的结果到本地。下面是<span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWIvSFRUUC9IZWFkZXJzL1ByYWdtYQ==" title="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Pragma">Pragma<i class="fa fa-external-link"></i></span>、<span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWIvSFRUUC9IZWFkZXJzL1ByYWdtYQ==" title="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Pragma">Cache-Control<i class="fa fa-external-link"></i></span>、<span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWIvSFRUUC9IZWFkZXJzL0V4cGlyZXM=" title="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Expires">Expires<i class="fa fa-external-link"></i></span>、<span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWIvSFRUUC9IZWFkZXJzL0xhc3QtTW9kaWZpZWQ=" title="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Last-Modified">Last-modified<i class="fa fa-external-link"></i></span>的相关说明。</li>
+</ol>
+<hr>
+<h4 id="strlen"><a href="#strlen" class="headerlink" title="strlen()"></a>strlen()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">protected static function strlen($str)</span><br><span class="line">&#123;</span><br><span class="line">    return (self::$func_overload)</span><br><span class="line">        ? mb_strlen($str, &apos;8bit&apos;)</span><br><span class="line">        : strlen($str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于多字节安全处理，功能是获取字符串长度。如果启用了函数重载功能，则返回utf-8编码的字符串长度，详见<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24ubWItc3RybGVuLnBocA==" title="https://www.php.net/manual/zh/function.mb-strlen.php">mb_strlen<i class="fa fa-external-link"></i></span>。举个例子，<code>$str=&#39;武汉加油&#39;;</code>，如果使用<code>strlen</code>计算时$str长度为4 x 3 = 12，如果使用的是<code>mb_strlen($str, &#39;8bit&#39;)</code>则长度为4，因为这里会将中文字符当作1来计算而不是3。关于更多多字符的信息可参考[阮先生]的文章<span class="exturl" data-url="aHR0cDovL3d3dy5ydWFueWlmZW5nLmNvbS9ibG9nLzIwMDcvMTAvYXNjaWlfdW5pY29kZV9hbmRfdXRmLTguaHRtbA==" title="http://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html">字符编码笔记：ASCII，Unicode 和 UTF-8<i class="fa fa-external-link"></i></span>。</p>
+<hr>
+<h4 id="substr"><a href="#substr" class="headerlink" title="substr()"></a>substr()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">protected static function substr($str, $start, $length = NULL)</span><br><span class="line">&#123;</span><br><span class="line">    if (self::$func_overload)</span><br><span class="line">    &#123;</span><br><span class="line">        // mb_substr($str, $start, null, &apos;8bit&apos;) returns an empty</span><br><span class="line">        // string on PHP 5.3</span><br><span class="line">        isset($length) OR $length = ($start &gt;= 0 ? self::strlen($str) - $start : -$start);</span><br><span class="line">        return mb_substr($str, $start, $length, &apos;8bit&apos;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return isset($length)</span><br><span class="line">        ? substr($str, $start, $length)</span><br><span class="line">        : substr($str, $start);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于多字节安全处理，功能是截取字符串，如果开启函数重载功能，则需要先reset长度，然后使用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24ubWItc3Vic3RyLnBocA==" title="https://www.php.net/manual/zh/function.mb-substr.php">mb_substr<i class="fa fa-external-link"></i></span>；否则使用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uc3Vic3RyLnBocA==" title="https://www.php.net/manual/zh/function.substr.php">substr<i class="fa fa-external-link"></i></span>。</p>
+<hr>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1poaWh1YV9XL2FydGljbGUvZGV0YWlscy81MjkzMTU4MQ==" title="https://blog.csdn.net/Zhihua_W/article/details/52931581">CI框架源码解析十之输出类文件Output.php<i class="fa fa-external-link"></i></span></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2020/02/04/codeigniter-output/" title="CodeIgniter输出类Output.php">https://pureven.cc/2020/02/04/codeigniter-output/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/01/20/codeigniter-router/" rel="next" title="CodeIgniter路由类文件Router.php">
+                  <i class="fa fa-chevron-left"></i> CodeIgniter路由类文件Router.php
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/02/07/codeigniter-security/" rel="prev" title="CodeIgniter安全类文件Security.php">
+                  CodeIgniter安全类文件Security.php <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#成员变量"><span class="nav-number">2.</span> <span class="nav-text">成员变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#construct"><span class="nav-number">3.</span> <span class="nav-text">__construct()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get-output"><span class="nav-number">4.</span> <span class="nav-text">get_output()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#set-output"><span class="nav-number">5.</span> <span class="nav-text">set_output()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#append-output"><span class="nav-number">6.</span> <span class="nav-text">append_output()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#set-header"><span class="nav-number">7.</span> <span class="nav-text">set_header()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#set-content-type"><span class="nav-number">8.</span> <span class="nav-text">set_content_type()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get-content-type"><span class="nav-number">9.</span> <span class="nav-text">get_content_type()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get-header"><span class="nav-number">10.</span> <span class="nav-text">get_header()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#set-status-header"><span class="nav-number">11.</span> <span class="nav-text">set_status_header()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#enable-profiler"><span class="nav-number">12.</span> <span class="nav-text">enable_profiler()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#set-profiler-sections"><span class="nav-number">13.</span> <span class="nav-text">set_profiler_sections()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cache"><span class="nav-number">14.</span> <span class="nav-text">cache()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#display"><span class="nav-number">15.</span> <span class="nav-text">_display()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#write-cache"><span class="nav-number">16.</span> <span class="nav-text">_write_cache()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#display-cache"><span class="nav-number">17.</span> <span class="nav-text">_display_cache()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#delete-cache"><span class="nav-number">18.</span> <span class="nav-text">delete_cache()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#set-cache-header"><span class="nav-number">19.</span> <span class="nav-text">set_cache_header()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#strlen"><span class="nav-number">20.</span> <span class="nav-text">strlen()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#substr"><span class="nav-number">21.</span> <span class="nav-text">substr()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">22.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

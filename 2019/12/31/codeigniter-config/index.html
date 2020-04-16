@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言CodeIgniter的配置类有跟配置相关的属性和方法，比如:load()方法、item()方法等等。application&#x2F;config目录下有好多配置文件，这些文件通过手工加载时会用到load()方法；当加载完某个配置文件后，可以通过item()方法获取某个配置项，当然也可以通过set_item()设置配置项。配置类主要完成下面几个功能:  加载配置文件。 获取配置项。 设置配置项。 一些">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter配置类文件Config.php">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;31&#x2F;codeigniter-config&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言CodeIgniter的配置类有跟配置相关的属性和方法，比如:load()方法、item()方法等等。application&#x2F;config目录下有好多配置文件，这些文件通过手工加载时会用到load()方法；当加载完某个配置文件后，可以通过item()方法获取某个配置项，当然也可以通过set_item()设置配置项。配置类主要完成下面几个功能:  加载配置文件。 获取配置项。 设置配置项。 一些">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.293Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2019/12/31/codeigniter-config/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter配置类文件Config.php | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/12/31/codeigniter-config/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter配置类文件Config.php
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-31 18:40:47" itemprop="dateCreated datePublished" datetime="2019-12-31T18:40:47+08:00">2019-12-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/12/31/codeigniter-config/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/31/codeigniter-config/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>CodeIgniter的配置类有跟配置相关的属性和方法，比如:load()方法、item()方法等等。application/config目录下有好多配置文件，这些文件通过手工加载时会用到<code>load()</code>方法；当加载完某个配置文件后，可以通过<code>item()</code>方法获取某个配置项，当然也可以通过<code>set_item()</code>设置配置项。配置类主要完成下面几个功能:</p>
+<ul>
+<li>加载配置文件。</li>
+<li>获取配置项。</li>
+<li>设置配置项。</li>
+<li>一些url辅助函数的函数原型。</li>
+</ul>
+<p>下面对配置类进行详细分析。</p>
+<a id="more"></a>
+<hr>
+<h4 id="相关属性"><a href="#相关属性" class="headerlink" title="相关属性"></a>相关属性</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public $config = array();</span><br><span class="line">public $is_loaded =	array();</span><br><span class="line">public $_config_paths =	array(APPPATH);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>$config: <span class="exturl" data-url="aHR0cHM6Ly9jb2RlaWduaXRlci5vcmcuY24vdXNlcl9ndWlkZS9saWJyYXJpZXMvY29uZmlnLmh0bWw=" title="https://codeigniter.org.cn/user_guide/libraries/config.html">官网<i class="fa fa-external-link"></i></span>的解释为 所有已加载的配置项组成的数组。</li>
+<li>$is_loaded: 所有已加载的配置文件组成的数组。</li>
+<li>$_config_paths: 默认时一个数组<code>array(APPPATH)</code>，当自动加载package时会将package的路径放入该数组中。</li>
+</ul>
+<hr>
+<h4 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public function __construct()</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;config =&amp; get_config();</span><br><span class="line">    if (empty($this-&gt;config[&apos;base_url&apos;]))</span><br><span class="line">    &#123;</span><br><span class="line">        if (isset($_SERVER[&apos;SERVER_ADDR&apos;]))</span><br><span class="line">        &#123;</span><br><span class="line">            if (strpos($_SERVER[&apos;SERVER_ADDR&apos;], &apos;:&apos;) !== FALSE)</span><br><span class="line">            &#123;</span><br><span class="line">                $server_addr = &apos;[&apos;.$_SERVER[&apos;SERVER_ADDR&apos;].&apos;]&apos;;</span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                $server_addr = $_SERVER[&apos;SERVER_ADDR&apos;];</span><br><span class="line">            &#125;</span><br><span class="line">            $base_url = (is_https() ? &apos;https&apos; : &apos;http&apos;).&apos;://&apos;.$server_addr</span><br><span class="line">                .substr($_SERVER[&apos;SCRIPT_NAME&apos;], 0, strpos($_SERVER[&apos;SCRIPT_NAME&apos;], basename($_SERVER[&apos;SCRIPT_FILENAME&apos;])));</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            $base_url = &apos;http://localhost/&apos;;</span><br><span class="line">        &#125;</span><br><span class="line">        $this-&gt;set_item(&apos;base_url&apos;, $base_url);</span><br><span class="line">    &#125;</span><br><span class="line">    log_message(&apos;info&apos;, &apos;Config Class Initialized&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法的功能实现:</p>
+<ol>
+<li>由<a href="https://pureven.cc/2019/12/23/codeigniter-common/">全局函数库文件</a>可知<code>get_config()</code>函数返回的是config文件中$config的引用。这里在Config组件实例化时，要将所有的配置存放到属性$config中，便于之后的访问和处理。</li>
+<li>如果配置文件中<code>base_url</code>设置为空，即<code>$config[&#39;base_url&#39;] = &#39;&#39;;</code>，这时该方法会根据服务器和执行环境信息来设置此配置项，不满足条件时设置为<code>http://localhost/</code>。</li>
+</ol>
+<hr>
+<h4 id="load"><a href="#load" class="headerlink" title="load()"></a>load()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">public function load($file = &apos;&apos;, $use_sections = FALSE, $fail_gracefully = FALSE)</span><br><span class="line">&#123;</span><br><span class="line">    $file = ($file === &apos;&apos;) ? &apos;config&apos; : str_replace(&apos;.php&apos;, &apos;&apos;, $file);</span><br><span class="line">    $loaded = FALSE;</span><br><span class="line">    foreach ($this-&gt;_config_paths as $path)</span><br><span class="line">    &#123;</span><br><span class="line">        foreach (array($file, ENVIRONMENT.DIRECTORY_SEPARATOR.$file) as $location)</span><br><span class="line">        &#123;</span><br><span class="line">            $file_path = $path.&apos;config/&apos;.$location.&apos;.php&apos;;</span><br><span class="line">            if (in_array($file_path, $this-&gt;is_loaded, TRUE))</span><br><span class="line">            &#123;</span><br><span class="line">                return TRUE;</span><br><span class="line">            &#125;</span><br><span class="line">            if ( ! file_exists($file_path))</span><br><span class="line">            &#123;</span><br><span class="line">                continue;</span><br><span class="line">            &#125;</span><br><span class="line">            include($file_path);</span><br><span class="line">            if ( ! isset($config) OR ! is_array($config))</span><br><span class="line">            &#123;</span><br><span class="line">                if ($fail_gracefully === TRUE)</span><br><span class="line">                &#123;</span><br><span class="line">                    return FALSE;</span><br><span class="line">                &#125;</span><br><span class="line">                show_error(&apos;Your &apos;.$file_path.&apos; file does not appear to contain a valid configuration array.&apos;);</span><br><span class="line">            &#125;</span><br><span class="line">            if ($use_sections === TRUE)</span><br><span class="line">            &#123;</span><br><span class="line">                $this-&gt;config[$file] = isset($this-&gt;config[$file])</span><br><span class="line">                    ? array_merge($this-&gt;config[$file], $config)</span><br><span class="line">                    : $config;</span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                $this-&gt;config = array_merge($this-&gt;config, $config);</span><br><span class="line">            &#125;</span><br><span class="line">            $this-&gt;is_loaded[] = $file_path;</span><br><span class="line">            $config = NULL;</span><br><span class="line">            $loaded = TRUE;</span><br><span class="line">            log_message(&apos;debug&apos;, &apos;Config file loaded: &apos;.$file_path);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if ($loaded === TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        return TRUE;</span><br><span class="line">    &#125;</span><br><span class="line">    elseif ($fail_gracefully === TRUE)</span><br><span class="line">    &#123;</span><br><span class="line">        return FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    show_error(&apos;The configuration file &apos;.$file.&apos;.php does not exist.&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法的功能是<strong>include</strong>默认或指定的配置文件并将完整路径放入<code>is_loaded</code>。功能实现:</p>
+<ol>
+<li>明确要加载的配置文件名，如果没有指定则为<code>config</code>。这里需要去掉<code>.php</code>扩展名。</li>
+<li>定义局部变量<code>$loaded</code>为FALSE。</li>
+<li>遍历数组<code>_config_paths</code>来判断要加载的文件是否存在，不存在则第三个参数<code>$fail_gracefully</code>为true的情况下返回false，否则<strong>报错</strong>。这里需要加载的文件也可能为对应当前运行环境的配置文件，即<code>ENVIRONMENT.DIRECTORY_SEPARATOR.$file</code>，因此也是要遍历来判断的。</li>
+<li>如果配置文件存在则加载，加载后发现$config遍历不为数组则报错返回，若为数组继续。</li>
+<li>第二个参数<code>$use_sections</code>如果为true会对该配置文件启用独立的key存储，并且对于相同键名的项用新加载的覆盖主配置文件中的，<font color="#891717"><b>注意</b>:这里赋值时指定了文件名<code>$this-&gt;config[$file]</code></font>。然后将文件路径赋值给数组<code>is_loaded</code>便于加载文件的追踪。</li>
+</ol>
+<hr>
+<h4 id="item"><a href="#item" class="headerlink" title="item()"></a>item()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public function item($item, $index = &apos;&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    if ($index == &apos;&apos;)</span><br><span class="line">    &#123;</span><br><span class="line">        return isset($this-&gt;config[$item]) ? $this-&gt;config[$item] : NULL;</span><br><span class="line">    &#125;</span><br><span class="line">    return isset($this-&gt;config[$index], $this-&gt;config[$index][$item]) ? $this-&gt;config[$index][$item] : NULL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于获取某个配置项。第二个参数<code>$index</code>表示使用<code>load()</code>方法加载文件时<code>$use_sections</code>参数为true，写入config数组用文件名当作key了。因此当$index不为空时表示获取的是<code>$this-&gt;config[$index][$item]</code>。</p>
+<hr>
+<h4 id="slash-item"><a href="#slash-item" class="headerlink" title="slash_item()"></a>slash_item()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public function slash_item($item)</span><br><span class="line">&#123;</span><br><span class="line">    if ( ! isset($this-&gt;config[$item]))</span><br><span class="line">    &#123;</span><br><span class="line">        return NULL;</span><br><span class="line">    &#125;</span><br><span class="line">    elseif (trim($this-&gt;config[$item]) === &apos;&apos;)</span><br><span class="line">    &#123;</span><br><span class="line">        return &apos;&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    return rtrim($this-&gt;config[$item], &apos;/&apos;).&apos;/&apos;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法值判断主配置文件中是否有指定的配置项，并在配置项最后加上反斜杠，通常用于base_url和index_page这两个配置项的处理。</p>
+<hr>
+<h4 id="site-url"><a href="#site-url" class="headerlink" title="site_url()"></a>site_url()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">public function site_url($uri = &apos;&apos;, $protocol = NULL)</span><br><span class="line">&#123;</span><br><span class="line">    $base_url = $this-&gt;slash_item(&apos;base_url&apos;);</span><br><span class="line">    if (isset($protocol))</span><br><span class="line">    &#123;</span><br><span class="line">        if ($protocol === &apos;&apos;)</span><br><span class="line">        &#123;</span><br><span class="line">            $base_url = substr($base_url, strpos($base_url, &apos;//&apos;));</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            $base_url = $protocol.substr($base_url, strpos($base_url, &apos;://&apos;));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (empty($uri))</span><br><span class="line">    &#123;</span><br><span class="line">        return $base_url.$this-&gt;item(&apos;index_page&apos;);</span><br><span class="line">    &#125;</span><br><span class="line">    $uri = $this-&gt;_uri_string($uri);</span><br><span class="line">    if ($this-&gt;item(&apos;enable_query_strings&apos;) === FALSE)</span><br><span class="line">    &#123;</span><br><span class="line">        $suffix = isset($this-&gt;config[&apos;url_suffix&apos;]) ? $this-&gt;config[&apos;url_suffix&apos;] : &apos;&apos;;</span><br><span class="line">        if ($suffix !== &apos;&apos;)</span><br><span class="line">        &#123;</span><br><span class="line">            if (($offset = strpos($uri, &apos;?&apos;)) !== FALSE)</span><br><span class="line">            &#123;</span><br><span class="line">                $uri = substr($uri, 0, $offset).$suffix.substr($uri, $offset);</span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                $uri .= $suffix;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return $base_url.$this-&gt;slash_item(&apos;index_page&apos;).$uri;</span><br><span class="line">    &#125;</span><br><span class="line">    elseif (strpos($uri, &apos;?&apos;) === FALSE)</span><br><span class="line">    &#123;</span><br><span class="line">        $uri = &apos;?&apos;.$uri;</span><br><span class="line">    &#125;</span><br><span class="line">    return $base_url.$this-&gt;item(&apos;index_page&apos;).$uri;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>官网给出的解释是: 根据配置文件返回你的站点URL。index.php（获取其他你在配置文件中设置的 <strong>index_page</strong> 参数） 将会包含在你的 URL 中，另外再加上你传给函数的 URI 参数，以及配置文件中设置的 <strong>url_suffix</strong> 参数。<font color="#891717">推荐在任何时候都使用这种方法来生成你的 URL ，这样在你的 URL 变动时你的代码将具有可移植性。</font><br>通常通过<span class="exturl" data-url="aHR0cHM6Ly9jb2RlaWduaXRlci5vcmcuY24vdXNlcl9ndWlkZS9oZWxwZXJzL3VybF9oZWxwZXIuaHRtbA==" title="https://codeigniter.org.cn/user_guide/helpers/url_helper.html">URL辅助函数<i class="fa fa-external-link"></i></span>中函数<code>site_url()</code>来访问。例如：<code>echo site_url(&#39;news/local/123&#39;);</code>会返回<code>http://example.com/index.php/news/local/123</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">function site_url($uri = &apos;&apos;, $protocol = NULL)</span><br><span class="line">&#123;</span><br><span class="line">    return get_instance()-&gt;config-&gt;site_url($uri, $protocol);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>功能实现:</p>
+<ol>
+<li>获取base_url，格式化协议类型。</li>
+<li>如果uri为空，在base_url后面加上index_page并返回，否则格式化uri。</li>
+<li>如果没有开启了查询字符串则判断是否有后缀，如果有后缀则uri后面加上此后缀，然后返回base_url + index_page + uri。</li>
+<li>如果开启了字符串查询则在uri前面加上问号构成类似<code>?0=news&amp;1=local&amp;2=123</code>的uri，然后返回base_uri + index_page + uri。</li>
+</ol>
+<hr>
+<h4 id="base-url"><a href="#base-url" class="headerlink" title="base_url()"></a>base_url()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public function base_url($uri = &apos;&apos;, $protocol = NULL)</span><br><span class="line">&#123;</span><br><span class="line">    $base_url = $this-&gt;slash_item(&apos;base_url&apos;);</span><br><span class="line">    if (isset($protocol))</span><br><span class="line">    &#123;</span><br><span class="line">        // For protocol-relative links</span><br><span class="line">        if ($protocol === &apos;&apos;)</span><br><span class="line">        &#123;</span><br><span class="line">            $base_url = substr($base_url, strpos($base_url, &apos;//&apos;));</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            $base_url = $protocol.substr($base_url, strpos($base_url, &apos;://&apos;));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return $base_url.$this-&gt;_uri_string($uri);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法根据配置文件返回你站点的根URL，和<code>site_url()</code>函数相同，只是不会在URL的后面加上<strong>index_page</strong>或<strong>url_suffix</strong>。但也字符串或数组格式的URI段，这是由于调用了<code>_url_string()</code>的缘故。官网举例<code>echo base_url(&quot;blog/post/123&quot;)</code>将会返回<code>http://example.com/blog/post/123</code>。<br>功能实现：</p>
+<ol>
+<li>从配置中获取$base_url，这个$base_url是经过构造方法处理后的。</li>
+<li>如果指定了协议类型则在$base_url中替换为指定的协议。</li>
+<li>给$base_url加上格式化后的$uri。这里参见<code>_uri_string()</code>。</li>
+</ol>
+<hr>
+<h4 id="uri-string"><a href="#uri-string" class="headerlink" title="_uri_string()"></a>_uri_string()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">protected function _uri_string($uri)</span><br><span class="line">&#123;</span><br><span class="line">    if ($this-&gt;item(&apos;enable_query_strings&apos;) === FALSE)</span><br><span class="line">    &#123;</span><br><span class="line">        is_array($uri) &amp;&amp; $uri = implode(&apos;/&apos;, $uri);</span><br><span class="line">        return ltrim($uri, &apos;/&apos;);</span><br><span class="line">    &#125;</span><br><span class="line">    elseif (is_array($uri))</span><br><span class="line">    &#123;</span><br><span class="line">        return http_build_query($uri);</span><br><span class="line">    &#125;</span><br><span class="line">    return $uri;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法的作用是格式化$uri，通常只被<code>site_url()</code>和<code>base_url()</code>调用，参数为URL字符串，也可以是一个数组，比如：<code>news/local/123</code>或<code>[&#39;news&#39;, &#39;local&#39;, &#39;123&#39;]</code>。</p>
+<ol>
+<li>如果没用启用查询字符串，即<code>$config[&#39;enable_query_strings&#39;] = FALSE</code>则返回<span class="exturl" data-url="aHR0cHM6Ly9jb2RlaWduaXRlci5vcmcuY24vdXNlcl9ndWlkZS9nZW5lcmFsL3VybHMuaHRtbD9oaWdobGlnaHQ9ZW5hYmxlX3F1ZXJ5X3N0cmluZ3M=" title="https://codeigniter.org.cn/user_guide/general/urls.html?highlight=enable_query_strings">分段URI<i class="fa fa-external-link"></i></span>，即<code>news/local/123</code>格式。</li>
+<li>如果启用了查询字符串，则使用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uaHR0cC1idWlsZC1xdWVyeS5waHA=" title="https://www.php.net/manual/zh/function.http-build-query.php">http_build_query<i class="fa fa-external-link"></i></span>生成 URL-encode 之后的请求字符串，这里为<code>0=news&amp;1=local&amp;2=123</code>格式。</li>
+</ol>
+<hr>
+<h4 id="system-url"><a href="#system-url" class="headerlink" title="system_url()"></a>system_url()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public function system_url()</span><br><span class="line">&#123;</span><br><span class="line">    $x = explode(&apos;/&apos;, preg_replace(&apos;|/*(.+?)/*$|&apos;, &apos;\\1&apos;, BASEPATH));</span><br><span class="line">    return $this-&gt;slash_item(&apos;base_url&apos;).end($x).&apos;/&apos;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法返回system目录的url，不安全，已被废弃。<code>\\1</code>参考<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24ucHJlZy1yZXBsYWNlLnBocA==" title="https://www.php.net/manual/zh/function.preg-replace.php">preg_replace<i class="fa fa-external-link"></i></span>。</p>
+<hr>
+<h4 id="set-item"><a href="#set-item" class="headerlink" title="set_item()"></a>set_item()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function set_item($item, $value)</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;config[$item] = $value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法用于动态的设置或修改某个已存在的配置项。比如：<code>$this-&gt;config-&gt;set_item(&#39;item_name&#39;, &#39;item_value&#39;);</code>。</p>
+<hr>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1poaWh1YV9XL2FydGljbGUvZGV0YWlscy81Mjg1OTgyNA==" title="https://blog.csdn.net/Zhihua_W/article/details/52859824">CI框架源码解析六之配置类文件Config.php<i class="fa fa-external-link"></i></span></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2019/12/31/codeigniter-config/" title="CodeIgniter配置类文件Config.php">https://pureven.cc/2019/12/31/codeigniter-config/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/12/29/codeigniter-hooks/" rel="next" title="CodeIgniter钩子类文件Hooks.php">
+                  <i class="fa fa-chevron-left"></i> CodeIgniter钩子类文件Hooks.php
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/01/13/codeigniter-utf8/" rel="prev" title="CodeIgniter编码类文件Utf8.php">
+                  CodeIgniter编码类文件Utf8.php <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#相关属性"><span class="nav-number">2.</span> <span class="nav-text">相关属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#构造方法"><span class="nav-number">3.</span> <span class="nav-text">构造方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#load"><span class="nav-number">4.</span> <span class="nav-text">load()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#item"><span class="nav-number">5.</span> <span class="nav-text">item()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#slash-item"><span class="nav-number">6.</span> <span class="nav-text">slash_item()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#site-url"><span class="nav-number">7.</span> <span class="nav-text">site_url()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#base-url"><span class="nav-number">8.</span> <span class="nav-text">base_url()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#uri-string"><span class="nav-number">9.</span> <span class="nav-text">_uri_string()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#system-url"><span class="nav-number">10.</span> <span class="nav-text">system_url()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#set-item"><span class="nav-number">11.</span> <span class="nav-text">set_item()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">12.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

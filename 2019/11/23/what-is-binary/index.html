@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="二进制乃是具有世界普遍性的、最完美的逻辑语言  ——莱布尼茨 引言0和1的组合是一种强大的信息编码方式，17世纪的德国数学家戈特弗里德·莱布尼茨则是最早认识到这一点的一个人。他从中国的《易经》——探讨阴阳之间的动态平衡的书籍中得到这一灵感。《易经》包含64卦，用来代表不同的状态或过程，正是这些内容激发了莱布尼茨的灵感，从而创造出二进制的数学理论">
+<meta name="keywords" content="数学,计算机">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二进制学习笔记">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;11&#x2F;23&#x2F;what-is-binary&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="二进制乃是具有世界普遍性的、最完美的逻辑语言  ——莱布尼茨 引言0和1的组合是一种强大的信息编码方式，17世纪的德国数学家戈特弗里德·莱布尼茨则是最早认识到这一点的一个人。他从中国的《易经》——探讨阴阳之间的动态平衡的书籍中得到这一灵感。《易经》包含64卦，用来代表不同的状态或过程，正是这些内容激发了莱布尼茨的灵感，从而创造出二进制的数学理论">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;11&#x2F;23&#x2F;what-is-binary&#x2F;20191123175857.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;11&#x2F;23&#x2F;what-is-binary&#x2F;20191128174916.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;11&#x2F;23&#x2F;what-is-binary&#x2F;20191128174838.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;11&#x2F;23&#x2F;what-is-binary&#x2F;20191129174838.jpg">
+<meta property="og:updated_time" content="2019-11-30T05:36:11.192Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;11&#x2F;23&#x2F;what-is-binary&#x2F;20191123175857.png">
+
+<link rel="canonical" href="https://pureven.cc/2019/11/23/what-is-binary/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>二进制学习笔记 | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/11/23/what-is-binary/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          二进制学习笔记
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-11-23 16:32:33" itemprop="dateCreated datePublished" datetime="2019-11-23T16:32:33+08:00">2019-11-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-30 13:36:11" itemprop="dateModified" datetime="2019-11-30T13:36:11+08:00">2019-11-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E5%AD%A6/" itemprop="url" rel="index">
+                    <span itemprop="name">数学</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/11/23/what-is-binary/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/11/23/what-is-binary/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><code>二进制乃是具有世界普遍性的、最完美的逻辑语言  ——莱布尼茨</code></p>
+<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>0和1的组合是一种强大的信息编码方式，17世纪的德国数学家<span class="exturl" data-url="aHR0cHM6Ly96aC53aWtpcGVkaWEub3JnL3dpa2kvJUU2JTg4JTg4JUU3JTg5JUI5JUU1JUJDJTk3JUU5JTg3JThDJUU1JUJFJUI3JUMyJUI3JUU4JThFJUIxJUU1JUI4JTgzJUU1JUIwJUJDJUU4JThDJUE4" title="https://zh.wikipedia.org/wiki/%E6%88%88%E7%89%B9%E5%BC%97%E9%87%8C%E5%BE%B7%C2%B7%E8%8E%B1%E5%B8%83%E5%B0%BC%E8%8C%A8">戈特弗里德·莱布尼茨<i class="fa fa-external-link"></i></span>则是最早认识到这一点的一个人。他从中国的《易经》——探讨阴阳之间的动态平衡的书籍中得到这一灵感。《易经》包含64卦，用来代表不同的状态或过程，正是这些内容激发了莱布尼茨的灵感，从而创造出二进制的数学理论</p>
+<hr>
+<a id="more"></a>
+
+<h4 id="二进制的由来"><a href="#二进制的由来" class="headerlink" title="二进制的由来"></a>二进制的由来</h4><blockquote>
+<p>通常的算术方法是基于逢十进位的法则。我们使用十个符号，0,1,2,3,4,5,6,7,8,9，来表示零一及随后的数，一直到九的数字。然后当到达十后，再次从一开始循环。十由“10”来表示；十乘十，也就是一百，用“100”表示；十乘一百，也就是一千，用“1000”表示；十乘一千为一万，用“10000”表示；以此类推。<br>然而多年来，我不使用十进制，而是用最简单的进制方式——逢二进位，并发现它对于优化数学科学有重要作用。我只需要<strong>用0和1两个符号，并逢二进位</strong>。在这个系统下，二用“10”表示；二乘二，也就是四，用“100”表示；二乘四为八，用“1000”表示；二乘八为十六，用“10000”表示；以此类推。<br>——摘自《论只使用符号0和1的二进制算术，兼论其用途及它赋予伏羲所使用的古老图形的意义》</p>
+</blockquote>
+<p>莱布尼兹认为易经中的卦象与二进制算术密不可分。莱布尼兹解读了易经中的卦象，并认为这是其作为二进制算术的证据。</p>
+<p>六十四卦，记载于《<span class="exturl" data-url="aHR0cHM6Ly96aC53aWtpcGVkaWEub3JnL3dpa2kvJUU2JTk4JTkzJUU3JUJCJThG" title="https://zh.wikipedia.org/wiki/%E6%98%93%E7%BB%8F">易经<i class="fa fa-external-link"></i></span>》，每一卦的图像均由两个<span class="exturl" data-url="aHR0cHM6Ly96aC53aWtpcGVkaWEub3JnL3dpa2kvJUU1JTg1JUFCJUU1JThEJUE2" title="https://zh.wikipedia.org/wiki/%E5%85%AB%E5%8D%A6">八卦<i class="fa fa-external-link"></i></span>上下组合而成，每一卦各有六个<span class="exturl" data-url="aHR0cHM6Ly96aC53aWtpcGVkaWEub3JnL3dpa2kvJUU3JTg4JUJC" title="https://zh.wikipedia.org/wiki/%E7%88%BB">爻<i class="fa fa-external-link"></i></span>。见下图：<br><img src="/2019/11/23/what-is-binary/20191123175857.png" class="nofancybox"><br>上卦下卦中每个卦由三个爻组成，<code>- -</code>为阴爻，表示二进制中的0；<code>——</code>为阳爻，表示二进制中的1，则八个单卦由二进制表示为：</p>
+<table>
+<thead>
+<tr>
+<th align="center">坤（地）</th>
+<th align="center">艮（山）</th>
+<th align="center">坎（水）</th>
+<th align="center">巽（风）</th>
+<th align="center">震（雷）</th>
+<th align="center">离（火）</th>
+<th align="center">兑（泽）</th>
+<th align="center">乾（天）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">000</td>
+<td align="center">100</td>
+<td align="center">010</td>
+<td align="center">110</td>
+<td align="center">001</td>
+<td align="center">101</td>
+<td align="center">011</td>
+<td align="center">111</td>
+</tr>
+</tbody></table>
+<p>六十四卦由上卦和下卦组成，这里列举八个卦位：</p>
+<table>
+<thead>
+<tr>
+<th align="center">坤为地</th>
+<th align="center">山天大畜</th>
+<th align="center">水泽节</th>
+<th align="center">风雷益</th>
+<th align="center">雷水解</th>
+<th align="center">火地晋</th>
+<th align="center">泽风大过</th>
+<th align="center">乾为天</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">000000</td>
+<td align="center">010111</td>
+<td align="center">010011</td>
+<td align="center">110001</td>
+<td align="center">001010</td>
+<td align="center">101000</td>
+<td align="center">011110</td>
+<td align="center">111111</td>
+</tr>
+</tbody></table>
+<p>由此会发现六位二进制数从000000到111111共有$2^6$即64种组合方法，正好对应八卦图中64个卦位。</p>
+<p>德国哲学家及数学家莱布尼茨在法国传教士白晋的介绍之下，得到邵雍的伏羲先天六十四卦〈方圆四分四层图〉，认为与他在1679年所创的二进制记数系统相符合并在1703年发表论文《<span class="exturl" data-url="aHR0cHM6Ly96aC53aWtpc291cmNlLm9yZy96aC1oYW5zL1RyYW5zbGF0aW9uOiVFOCVBRSVCQSVFNSU4RiVBQSVFNCVCRCVCRiVFNyU5NCVBOCVFNyVBQyVBNiVFNSU4RiVCNzAlRTUlOTIlOEMxJUU3JTlBJTg0JUU0JUJBJThDJUU4JUJGJTlCJUU1JTg4JUI2JUU3JUFFJTk3JUU2JTlDJUFG" title="https://zh.wikisource.org/zh-hans/Translation:%E8%AE%BA%E5%8F%AA%E4%BD%BF%E7%94%A8%E7%AC%A6%E5%8F%B70%E5%92%8C1%E7%9A%84%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%AE%97%E6%9C%AF">论只使用符号0和1的二进制算术，兼论其用途及它赋予伏羲所使用的古老图形的意义<i class="fa fa-external-link"></i></span>》，由此二进制诞生！</p>
+<hr>
+<h4 id="二进制与十进制"><a href="#二进制与十进制" class="headerlink" title="二进制与十进制"></a>二进制与十进制</h4><p>二进制与十进制是如何相互转换的呢？下面首先说明二进制数如何转换为十进制数。</p>
+<h5 id="位权"><a href="#位权" class="headerlink" title="位权"></a>位权</h5><p>首先介绍一下位权，<span class="exturl" data-url="aHR0cHM6Ly9iYWlrZS5iYWlkdS5jb20vaXRlbS8lRTQlQkQlOEQlRTYlOUQlODM=" title="https://baike.baidu.com/item/%E4%BD%8D%E6%9D%83">百度百科<i class="fa fa-external-link"></i></span>对<code>位权</code>的定义是<strong>位权，是指数制中每一固定位置对应的单位值</strong>，计算方法为<strong>数码本身乘以与它数位有关的常数</strong>。</p>
+<p>例如，十进制数39，9表示的是<code>9 * 1</code>，3表示的是<code>3 * 10</code>。这里和各个数位的数值相乘的<code>1</code>和<code>10</code>，就是位权。数字的位数不同，位权也就不同，第一位的位权是$10^0 = 1$，第二位的位权是$10^1 = 10$，第三位的位权是$10^2 = 100$，以此类推第n位的位权是$10^{n - 1}$。二进制是同样的，第一位的位权是$2^0 = 1$，第二位的位权是$2^1 = 2$，第三位的位权是$2^2 = 4$，以此类推第n位的位权是$2^{n - 1}$。</p>
+<hr>
+<h5 id="二进制转换为十进制"><a href="#二进制转换为十进制" class="headerlink" title="二进制转换为十进制"></a>二进制转换为十进制</h5><p>二进制数转换成十进制数，<code>只需将二进制数的各数位的值和位权相乘，然后将相乘的结果相加即可</code>。这里以<code>00100111</code>为例，如下图：<br><img src="/2019/11/23/what-is-binary/20191128174916.jpg" class="nofancybox"></p>
+<p>二进制同样可以表示<code>小数</code>的，由上文了解到二进制的位权位于数位的关系为$2^{n - 1}$，n表示数位，因此第一位为$2^{1 - 1}$，也就是$2^0$；第二位的位权为$2^{2 - 1}$，也就是$2^1$。那么表示小数也是一样的，小数点后面的位权也是跟位数相关联的，小数点后面的<code>位权</code>跟<code>位数</code>的关系为$w = 2^{-n}$，其中<code>w</code>表示位权，<code>n</code>表示小数点后面第<code>n</code>位，即小数点后面第一位的位权为$2^{- 1}$，这里<code>n = 1</code>；小数点后面第二位的位权为$2^{-2}$，这里<code>n = 2</code>，因此将二进制小数转换为十进制时原理是一样的。下面以二进制数<code>1011.0011</code>为例说明转换方法，如下图：<br><img src="/2019/11/23/what-is-binary/20191128174838.jpg" class="nofancybox"><br>需要注意的是：<b><font color="#891717">二进制整数部分的位权与数位的关系是$2^{n - 1}$，此时n表示小数点左边第n位。小数部分的位权与数位的关系是$2^{-n}$，此时n表示小数点右边第n位。</font></b></p>
+<hr>
+<h5 id="十进制转换为二进制"><a href="#十进制转换为二进制" class="headerlink" title="十进制转换为二进制"></a>十进制转换为二进制</h5><p>十进制数转换成二进制数，有两句口诀：<b><font color="#891717">整数采用”除2取余，逆序排列”法</font>、<font color="#ea36ec">小数采用”乘2取整，顺序排列”法</font></b>。</p>
+<p>下面是<span class="exturl" data-url="aHR0cHM6Ly9iYWlrZS5iYWlkdS5jb20vaXRlbS8lRTUlOEQlODElRTglQkYlOUIlRTUlODglQjYlRTglQkQlQUMlRTQlQkElOEMlRTglQkYlOUIlRTUlODglQjY=" title="https://baike.baidu.com/item/%E5%8D%81%E8%BF%9B%E5%88%B6%E8%BD%AC%E4%BA%8C%E8%BF%9B%E5%88%B6">百度百科<i class="fa fa-external-link"></i></span>的证明方法：</p>
+<ol>
+<li><p>假设十进制整数<code>w</code>转换位二进制数为<code>abcde</code>，<code>abcde Ɛ [0,1]</code>,即:<br>$w_{(十进制)} = abcde_{(二进制)}$<br>$w = e * 2^0 + d * 2^1 + c * 2^2 + b * 2^3 + a * 2^4$<br>$w * 2^{-1} = e/2 + d * 2^0 + c * 2^1 + b * 2^2 + a * 2^3$，因为<code>e</code>只能取值<code>0、1</code>，所以这里不能被2整除，即此处余数 <code>e</code>，同理<br>$w * 2^{-2} = d/2 + c * 2^0 + b * 2^1 + a * 2^2$，此处余数<code>d</code><br>$w * 2^{-3} = c/2 + b * 2^0 + a * 2^1$,此处余数<code>c</code><br>$w * 2^{-4} = b/2 + a * 2^0$，此处余数<code>b</code><br>$w * 2^{-5} = a/2$，此处余数<code>a</code><br><b><font color="#891717">然后将余数按顺序反过来排列，正好是abcde，整数转换方法”除2取余，逆序排列”证明完成。</font></b></p>
+</li>
+<li><p>假设十进制小数<code>s</code>转换为二进制数为<code>mnxyz</code>, <code>mnxyz Ɛ [0,1]</code>，即:<br>$s_{(十进制)} = mnxyz_{(二进制)}$<br>$s = m * 2^{-1} + n * 2^{-2} + x * 2^{-3} + y * 2^{-4} + z * 2^{-5}$<br>$s * 2^1 = m + n * 2^{-1} + x * 2^{-2} + y * 2^{-3} + z * 2^{-4}$，因为m只能取值<code>0、1</code>，所以这里拿出整数<code>m</code>，同理<br>$s * 2^2 = n + x * 2^{-1} + y * 2^{-2} + z * 2^{-3}$，拿出整数<code>n</code><br>$s * 2^3 = x + y * 2^{-1} + z * 2^{-2}$，拿出整数<code>x</code><br>$s * 2^4 = y + z * 2^{-1}$，拿出整数<code>y</code><br>$s * 2^5 = z$，拿出整数<code>z</code><br><b><font color="#ea36ec">然后将整数按顺序排列，正好是mnxyz，小数转换方法”乘2取整，顺序排列”证明完成。</font></b></p>
+</li>
+</ol>
+<hr>
+<h4 id="二进制与八进制"><a href="#二进制与八进制" class="headerlink" title="二进制与八进制"></a>二进制与八进制</h4><p>将二进制数转八进制数的方法为<strong>取三合一法</strong>，即从二进制的小数点为分界点，向左（向右）每三位取成一位，接着将这三位二进制按权相加，然后，按顺序进行排列，小数点的位置不变，得到的数字就是我们所求的八进制数。如果向左（向右）取三位后，取到最高（最低）位时候，如果无法凑足三位，可以在小数点最左边（最右边），即整数的最高位（最低位）添0，凑足三位。</p>
+<p>下面以<code>11010111.0100111</code>为例进行说明,将二进制数<code>11010111.0100111</code>按照取三合一法进行分割后得</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">11010111.010011</span><br><span class="line"></span><br><span class="line">011 010 111.010 011 100</span><br></pre></td></tr></table></figure>
+<p>根据八卦图所得应该为<code>兑坎乾.坎兑艮</code>，当然这是开玩笑的，将每组二进制转换为十进制为<code>327.234</code>，即<font color="#891717">$11010111.0100111_b = 327.234_o$</font></p>
+<hr>
+<h4 id="二进制与十六进制"><a href="#二进制与十六进制" class="headerlink" title="二进制与十六进制"></a>二进制与十六进制</h4><p>将二进制数转十六进制数的方法跟将二进制转换为八进制的方法类似，只不过将<code>三</code>位改为<code>四</code>位，即<strong>取四合一法</strong>，即从二进制的小数点为分界点，向左（向右）每四位取成一位，接着将这四位二进制按权相加，然后，按顺序进行排列，小数点的位置不变，得到的数字就是我们所求的八进制数。如果向左（向右）取四位后，取到最高（最低）位时候，如果无法凑足四位，可以在小数点最左边（最右边），即整数的最高位（最低位）添0，凑足四位。</p>
+<p>下面仍以<code>11010111.0100111</code>为例进行说明,将二进制数<code>11010111.0100111</code>按照取四合一法进行分割后得</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">11010111.0100111</span><br><span class="line"></span><br><span class="line">1101 0111.0100 1110</span><br></pre></td></tr></table></figure>
+<p>将每组二进制转换为十进制为<code>13 7 . 4 14</code>，当然这是不对的，十六进制由<code>0 1 2 3 4 5 6 7 8 9 A B C D E F</code>组成，<code>13 14对应十六进制中D E</code>，即<font color="#891717">$11010111.0100111_b = D7.4E_h$</font></p>
+<hr>
+<h4 id="二进制与计算机"><a href="#二进制与计算机" class="headerlink" title="二进制与计算机"></a>二进制与计算机</h4><h5 id="计算机为什么使用二进制"><a href="#计算机为什么使用二进制" class="headerlink" title="计算机为什么使用二进制"></a>计算机为什么使用二进制</h5><p>计算机进行指令解析和处理数据的设备是CPU，即<code>中央处理器</code>，CPU是一种大规模集成电路，如图：<br><img src="/2019/11/23/what-is-binary/20191129174838.jpg" class="nofancybox"><br>CPU中的逻辑门或晶体管只有<code>通电</code>和<code>断电</code>两个状态，即一个晶体管只能表示两个状态。这个特性决定了计算机的信息数据只能用二进制数来处理。虽然二进制不是专门为CPU设计的，但是和CPU的特性非常吻合。</p>
+<p>计算机处理信息的最小单位——<code>位</code>，英文名bit是二进制数位<code>(binary digit)</code>的缩写。二进制数的位数一般是8bit、16bit、32bit、64bit……也就是8的倍数，这是因为计算机所处理的信息的基本单位是8位二进制数。8bit二进制数被称为一个<code>字节(byte)</code>，<code>字节是最基本的信息计量单位</code>。<code>位是最小单位</code>，<code>字节是基本单位</code>。内存和磁盘都使用字节单位来存储和读写数据，使用位单位则无法读写数据，因此字节是信息的基本单位。</p>
+<p>core i7处理器是64位的，有64个引脚用于信息的输入和输出，因此酷睿i7处理器一次可以处理64位(64位 = 8字节)的二进制信息，倘若数据只有8位则高位56位补<code>0</code>，程序中使用十进制数和文字等记述信息在编译后也会转换成二进制数的值，所以程序运行时计算机内部处理的也是用二进制表示的信息。</p>
+<hr>
+<h5 id="计算机如何使用二进制"><a href="#计算机如何使用二进制" class="headerlink" title="计算机如何使用二进制"></a>计算机如何使用二进制</h5><p>计算机在处理运算时时如何通过二进制进行表示的呢？</p>
+<p>下面介绍二进制的三种表示方法：<code>原码</code>、<code>反码</code>、<code>补码</code>。</p>
+<blockquote>
+<p>原码：是一种计算机中对数字的二进制定点表示方法。原码表示法在数值前面增加了一位符号位（即最高位为符号位）：正数该位为0，负数该位为1（0有两种表示：+0和-0），其余位表示数值的大小。<br>反码：正数的反码与其原码相同；负数的反码是原码符号位不变，其他位按位取反。<br>补码：正数的补码与其原码相同；负数的补码是在其反码的末位加1。</p>
+</blockquote>
+<p><strong>为什么要使用原码、反码和补码呢？</strong></p>
+<p>原码很容易理解，比如8位二进制数来表示1和-1：</p>
+<blockquote>
+<p>$+1 = 00000001_{原码} $<br>$-1 = 10000001_{原码} $</p>
+</blockquote>
+<p>原码最为符合我们的思考习惯，但是计算机只会做加法运算，不会减法运算，换言之，计算机会将减法转换成加法进行运算。比如<code>1 - 1</code>，计算机会通过<code>1 + (-1)</code>来进行计算。那么使用原码进行计算1 - 1可行吗？<br>$1 - 1 = 1 + (-1) = 00000001 + 10000001$，看出问题了吧，结果为<code>10000010</code>，总之结果不为0是不对的，看来符合我们的思考习惯的运算方法不适合计算机。</p>
+<p><strong>反码</strong>通常是用来由原码求补码或者由补码求原码的过渡码。根据定义：<code>正数的反码与其原码相同；负数的反码是原码符号位不变，其他位按位取反</code>。</p>
+<blockquote>
+<p>$+1 = 00000001_{反码} $<br>$-1 = 11111110_{反码} $</p>
+</blockquote>
+<p>反码是一种<strong>过渡码</strong>，将反码进行加法运算$1 - 1 = 1 + (-1) = 00000001 + 11111110 = 11111111$，结果不为零，也是不正确的，下面看下补码</p>
+<p><strong>补码</strong> 根据定义，<code>正数的补码与其原码相同；负数的补码是在其反码的末位加1</code>，即：</p>
+<blockquote>
+<p>$+1 = 00000001_{补码}$<br>$-1 = 11111111_{补码}$</p>
+</blockquote>
+<p>使用补码相加$1 - 1 = 1 + (-1) = 00000001 + 11111111 =$ <code>1</code> 00000000。对于溢出的位，计算机会直接忽略掉，即00000001 + 11111111 = <code>00000000</code>。从结果可以看出使用补码进行运算逻辑更为严谨，也更为符合计算机。</p>
+<hr>
+<h5 id="计算机中二进制移位运算"><a href="#计算机中二进制移位运算" class="headerlink" title="计算机中二进制移位运算"></a>计算机中二进制移位运算</h5><p>和十进制数一样，四则运算同样也可以使用在二进制数中，只要注意逢2进位即可。下面，我们就来重点看一下二进制数所特有的运算。二进制数所特有的运算——<code>移位运算</code>。移位运算指的是将二进制数值的各数位进行左右移位（shift=移位）的运算。移位有左移（向高位方向）和右移（向低位方向）两种。在一次运算中，可以进行多个数位的移位操作。</p>
+<p>无论程序中使用的是几进制，计算机内部都会将其转换成二进制数来处理，因此都能进行移位操作。但是左移跟右移不同，下面分开说明。</p>
+<p><strong>左移</strong>是向高位方向移动且空出来的低位要进行补0操作，移位操作使最高位或最低位溢出的数字，直接丢弃。左移一位即表示乘2操作。</p>
+<blockquote>
+<p>0 0 1 0 0 1 1 1$_{移位前} = 1 * 2^0 + 1 * 2^1 + 1 * 2^2 + 1 * 2^5 = 39$</p>
+<p>1 0 0 1 1 1 <code>0 0</code>$_{左移两位} = 1 * 2^2 + 1 * 2^3 + 1 * 2^4 + 1 * 2^7 = 156$</p>
+</blockquote>
+<p><strong>右移</strong>则向低位移动，空出来的高位根据标志位进行正数左补0，负数左补1的操作。右移一位即表示除2操作。</p>
+<blockquote>
+<p>0 0 1 0 0 1 1 1$_{移位前} = 1 * 2^0 + 1 * 2^1 + 1 * 2^2 + 1 * 2^5 = 39$</p>
+<p>0 0 1 0 0 1 . <code>1 1</code>$_{移位后} = 1 * 2^{-2} + 1 * 2^{-1} + 1 * 2^0 + 1 * 2^3 = 9.75$</p>
+<p>$1 0 1 0 0 1 1 1_{移位前} =&gt; 1 1 0 1 1 0 0 0_{反码} =&gt; 1 1 0 1 1 0 0 1_{补码} =&gt; -39$ </p>
+<p><code>11</code>$1 1 0 1 1 0 . 0 1_{移位后} =&gt; 1 0 0 0 1 0 0 1 . 1 0_{反码} =&gt; 1 0 0 0 1 0 0 1 . 1 1_{原码} =&gt; -9.75$</p>
+</blockquote>
+<p><strong>注意:</strong>负数的补码转为原码也是通过<code>取反加一</code>。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2019/11/23/what-is-binary/" title="二进制学习笔记">https://pureven.cc/2019/11/23/what-is-binary/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E5%AD%A6/" rel="tag"><i class="fa fa-tag"></i> 数学</a>
+              <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA/" rel="tag"><i class="fa fa-tag"></i> 计算机</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/11/17/docker-nginx-phpfpm/" rel="next" title="使用docker创建nginx容器">
+                  <i class="fa fa-chevron-left"></i> 使用docker创建nginx容器
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/11/27/codeigniter-modify-table-not-null/" rel="prev" title="codeIgniter将字段类型改为null">
+                  codeIgniter将字段类型改为null <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二进制的由来"><span class="nav-number">2.</span> <span class="nav-text">二进制的由来</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二进制与十进制"><span class="nav-number">3.</span> <span class="nav-text">二进制与十进制</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#位权"><span class="nav-number">3.1.</span> <span class="nav-text">位权</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#二进制转换为十进制"><span class="nav-number">3.2.</span> <span class="nav-text">二进制转换为十进制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#十进制转换为二进制"><span class="nav-number">3.3.</span> <span class="nav-text">十进制转换为二进制</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二进制与八进制"><span class="nav-number">4.</span> <span class="nav-text">二进制与八进制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二进制与十六进制"><span class="nav-number">5.</span> <span class="nav-text">二进制与十六进制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二进制与计算机"><span class="nav-number">6.</span> <span class="nav-text">二进制与计算机</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#计算机为什么使用二进制"><span class="nav-number">6.1.</span> <span class="nav-text">计算机为什么使用二进制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#计算机如何使用二进制"><span class="nav-number">6.2.</span> <span class="nav-text">计算机如何使用二进制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#计算机中二进制移位运算"><span class="nav-number">6.3.</span> <span class="nav-text">计算机中二进制移位运算</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

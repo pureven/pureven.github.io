@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言2017年5月17日是一个特殊的日子，在这一天我第一次提交代码。这个时期的编码使用的是原生php，每个功能文件开头都需要require(dirname(__FILE__) . &amp;#39;&#x2F;..&#x2F;config.php&amp;#39;);，config.php的作用主要有: 内存上限、设置cookie为httponly、参数安全过滤及拦截、数据库相关设置、语言文件加载等等。基本每个文件开头都是先进行re">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter之Loader类原码学习笔记">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;09&#x2F;codeigniter-loader-learn&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言2017年5月17日是一个特殊的日子，在这一天我第一次提交代码。这个时期的编码使用的是原生php，每个功能文件开头都需要require(dirname(__FILE__) . &amp;#39;&#x2F;..&#x2F;config.php&amp;#39;);，config.php的作用主要有: 内存上限、设置cookie为httponly、参数安全过滤及拦截、数据库相关设置、语言文件加载等等。基本每个文件开头都是先进行re">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.318Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2019/12/09/codeigniter-loader-learn/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter之Loader类原码学习笔记 | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/12/09/codeigniter-loader-learn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter之Loader类原码学习笔记
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-09 21:00:44" itemprop="dateCreated datePublished" datetime="2019-12-09T21:00:44+08:00">2019-12-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/12/09/codeigniter-loader-learn/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/09/codeigniter-loader-learn/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>8.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>2017年5月17日是一个特殊的日子，在这一天我第一次提交代码。这个时期的编码使用的是原生php，每个功能文件开头都需要<code>require(dirname(__FILE__) . &#39;/../config.php&#39;);</code>，<code>config.php</code>的作用主要有: <code>内存上限</code>、<code>设置cookie为httponly</code>、<code>参数安全过滤及拦截</code>、<code>数据库相关设置</code>、<code>语言文件加载</code>等等。基本每个文件开头都是先进行require/require_once/include/include_once等操作。2019年3月首次接触公司重构的业务代码，使用的是CodeIniger + Vue前后端分离架构设计，我负责部分后端API的开发及维护工作。下面是在工作中对CodeIgniter框架中Loader类的原码学习笔记。</p><a id="more"></a>
+<hr>
+<p><marquee direction="left"><font color="#891717" face="隶书" size="+5" behavior="alternate" scrollamount="10" scrolldelay="100">CodeIgniter Loader</font></marquee></p>
+<hr>
+<h4 id="流程控制中加载文件的语句"><a href="#流程控制中加载文件的语句" class="headerlink" title="流程控制中加载文件的语句"></a>流程控制中加载文件的语句</h4><p>工作中常用到加载文件相关的<code>语句</code>有: <code>include</code>、<code>require</code>、<code>include_once</code>、<code>require_once</code>等。下面时<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uaW5jbHVkZS5waHA=" title="https://www.php.net/manual/zh/function.include.php">官网<i class="fa fa-external-link"></i></span>的相关解释：</p>
+<p><strong>include require 语句包含并运行指定文件</strong></p>
+<p>被包含文件先按参数给出的路径寻找，如果没有给出目录（只有文件名）时则按照 <code>include_path</code> 指定的目录寻找。如果在 include_path 下没找到该文件则 include 最后才在调用脚本文件所在的目录和当前工作目录下寻找。如果最后仍未找到文件则 include 结构会发出一条<b><font color="#891717">警告</font></b>。</p>
+<p><strong>如果定义了路径——不管是绝对路径（在 Windows 下以盘符或者 \ 开头，在 Unix/Linux 下以 / 开头）还是当前目录的相对路径（以 . 或者 .. 开头）——include_path 都会被完全忽略。例如一个文件以 ../ 开头，则解析器会在当前目录的父目录下寻找该文件。</strong></p>
+<p><code>当一个文件被包含时，其中所包含的代码继承了 include 所在行的变量范围。从该处开始，调用文件在该行处可用的任何变量在被调用的文件中也都可用。不过所有在包含文件中定义的函数和类都具有全局作用域。</code></p>
+<p><strong>require</strong> 和 include 几乎完全一样，除了处理失败的方式不同之外。require 在出错时产生 E_COMPILE_ERROR 级别的错误。换句话说<code>require将导致脚本中止</code> <strong>而</strong> <code>include 只产生警告（E_WARNING），脚本会继续运行。</code></p>
+<p><strong>include_once require_once</strong></p>
+<p>include_once/require_once语句在脚本执行期间包含并运行指定文件。此行为和 include/require 语句唯一区别是如果该文件中已经被包含过，则不会再次包含。如同此语句名字暗示的那样，只会包含一次。</p>
+<p>include_once/require_once可以用于在脚本执行期间同一个文件有可能被包含超过一次的情况下，想确保它只被包含一次以避免函数重定义，变量重新赋值等问题。</p>
+<p><strong>include_path</strong></p>
+<p>指定目录列表，其中 <code>require</code>，<code>include</code>， <code>fopen（）</code>，<code>file（）</code>， <code>readfile（）</code>和<code>file_get_contents（）</code> 函数在其中查找文件。格式类似于系统的 PATH环境变量：在Unix中用<code>冒号</code>或在Windows中用<code>分号</code>分隔的目录列表。</p>
+<p>当寻找要包含的文件时，PHP会分别考虑包含路径中的每个条目。它将检查第一个路径，如果找不到，请检查下一个路径，直到找到包含的文件或返回警告 或错误为止 。您可以在运行时使用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uc2V0LWluY2x1ZGUtcGF0aC5waHA=" title="https://www.php.net/manual/zh/function.set-include-path.php">set_include_path（）<i class="fa fa-external-link"></i></span>修改或设置包含路径。</p>
+<hr>
+<h4 id="CodeIgniter框架中的加载类"><a href="#CodeIgniter框架中的加载类" class="headerlink" title="CodeIgniter框架中的加载类"></a>CodeIgniter框架中的加载类</h4><p>CodeIgniter框架有专门的Loader类专门用于文件加载， 让我们在编程过程中更专注与业务逻辑，从而提高效率。下面是Loader类的学习笔记。</p>
+<h5 id="construct"><a href="#construct" class="headerlink" title="__construct()"></a>__construct()</h5><p>从构造方法开始，下面是构造方法的定义：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public function __construct()</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;_ci_ob_level = ob_get_level();</span><br><span class="line">    $this-&gt;_ci_classes =&amp; is_loaded();</span><br><span class="line">    log_message('info', 'Loader Class Initialized');</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里主要干了两件事：</p>
+<ul>
+<li>获取输出缓冲机制的嵌套级别并赋值给<code>_ci_ob_level</code>属性。关于<code>ob系列函数</code>有一篇文章可以细细品味<span class="exturl" data-url="aHR0cHM6Ly93d3cuY25ibG9ncy5jb20vZGVhbmNob3BwZXIvcC80Njg4NjY3Lmh0bWw=" title="https://www.cnblogs.com/deanchopper/p/4688667.html">《结合php ob函数理解缓冲机制》<i class="fa fa-external-link"></i></span>;</li>
+<li><code>_ci_classes</code>引用Common函数<code>is_loaded()</code>表示<code>_ci_classes</code>存放已加载的类。</li>
+</ul>
+<h6 id="Common中的is-loaded-函数"><a href="#Common中的is-loaded-函数" class="headerlink" title="Common中的is_loaded()函数"></a>Common中的is_loaded()函数</h6><p>下面来看<code>is_loaded()</code>函数的定义：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function &amp;is_loaded($class = '')</span><br><span class="line">&#123;</span><br><span class="line">    static $_is_loaded = array();</span><br><span class="line"></span><br><span class="line">    if ($class !== '')</span><br><span class="line">    &#123;</span><br><span class="line">        $_is_loaded[strtolower($class)] = $class;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return $_is_loaded;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第一次调用该函数时会初始化一个静态数组<code>$_is_loaded</code>，若指定了参数$class然后则将参数中给的类名$class<strong>小写</strong>形式作为<code>key</code>、$class作为<code>value</code>保存到数组中，最后返回静态数组$_is_loaded。比如传入一个参数’Test’，则静态数组中会产生一个关于Test类的映射<code>$_is_loaded[&#39;test&#39;] = &#39;Test&#39;;</code>，is_loaded()<b><font color="#891717">函数负责记录哪些类被加载过，返回的是已加载类的集合</font></b>。<b>此处构造函数中并没有指定类名，因此只是获取已加载类的集合。</b></p>
+<p>由此可以判断Loader类构造方法的作用是：</p>
+<ul>
+<li>属性<code>_ci_ob_level</code>表示输出缓冲机制的嵌套级别。</li>
+<li>属性<code>_ci_classes</code>表示已加载类的映射集合。</li>
+</ul>
+<hr>
+<h5 id="initialize"><a href="#initialize" class="headerlink" title="initialize()"></a>initialize()</h5><p>initialize()方法在<code>CI_Controller类</code>中调用，负责将<strong>autoload.php</strong>文件中指定的默认加载项进行加载。其定义为：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function initialize()</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;_ci_autoloader();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着看下_ci_autoloader()的实现，看看_ci_autoloader()是如何将autoload.php文件中指定的默认加载项进行加载的。</p>
+<h6 id="ci-autoloader"><a href="#ci-autoloader" class="headerlink" title="_ci_autoloader()"></a>_ci_autoloader()</h6><ol>
+<li><p>引入autoload.php文件</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">if (file_exists(APPPATH.'config/autoload.php'))</span><br><span class="line">&#123;</span><br><span class="line">    include(APPPATH.'config/autoload.php');</span><br><span class="line">&#125;		</span><br><span class="line">if (file_exists(APPPATH.'config/'.ENVIRONMENT.'/autoload.php'))</span><br><span class="line">&#123;</span><br><span class="line">    include(APPPATH.'config/'.ENVIRONMENT.'/autoload.php');</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>autoload.php文件结构为：</p>
+<blockquote>
+<p>$autoload = [<br> ‘packages’ =&gt; [APPPATH . ‘third_party/MX’],<br> ‘libraries’ =&gt; [‘my_class’, ‘database’],<br> ‘drivers’ =&gt; [],<br> ‘helper’ =&gt; [‘array’, ‘language’],<br> ‘config’ =&gt; [‘codeigniter’],<br> ‘language’ =&gt; [],<br> ‘model’ =&gt; [],<br>]</p>
+</blockquote>
+</li>
+<li><p>判断是否存在$autoload，也就是如果不存在autoload.php文件，直接return</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if ( ! isset($autoload))</span><br><span class="line">&#123;</span><br><span class="line">    return;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<hr>
+<ol start="3">
+<li>根据$autoload的分类即keys分别进行加载，首先加载<strong>packages</strong>，代码如下：<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">if (isset($autoload['packages']))</span><br><span class="line">&#123;</span><br><span class="line">    foreach ($autoload['packages'] as $package_path)</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;add_package_path($package_path);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<code>add_package_path()</code>方法代码如下：<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public function add_package_path($path, $view_cascade = TRUE)</span><br><span class="line">&#123;</span><br><span class="line">    $path = rtrim($path, '/').'/';</span><br><span class="line">    array_unshift($this-&gt;_ci_library_paths, $path);</span><br><span class="line">    array_unshift($this-&gt;_ci_model_paths, $path);</span><br><span class="line">    array_unshift($this-&gt;_ci_helper_paths, $path);</span><br><span class="line">    $this-&gt;_ci_view_paths = array($path.'views/' =&gt; $view_cascade) + $this-&gt;_ci_view_paths;</span><br><span class="line">    $config =&amp; $this-&gt;_ci_get_component('config');</span><br><span class="line">    $config-&gt;_config_paths[] = $path;</span><br><span class="line">    return $this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+其中_ci_get_component()方法的作用是获取CI实例，CodeIgniter在CI_Controller类中通过<code>self::$instance</code>实现<code>单例化</code>，在第一次实例时，通过静态变量$instance引用了这个实例。 以后都可以通过&amp;get_instance();来获得这个单一实例。构成这样的单例模式的好处就是单例类不会重复占用内存和系统资源而是让应用程序的其他部分更好的使用这些资源。此处通过全局函数get_instance()拿到CI实例。<br>其代码如下：<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">protected function &amp;_ci_get_component($component)</span><br><span class="line">&#123;</span><br><span class="line">    $CI =&amp; get_instance();</span><br><span class="line">    return $CI-&gt;$component;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>总结add_package_path()的作用如下：</p>
+<ul>
+<li>将$package_path分别加入<code>_ci_library_paths</code>、<code>_ci_model_paths</code>、<code>_ci_helper_paths</code>这几个属性中，<code>array_unshift()</code>的作用是在数组的开头加入新元素。</li>
+<li>使用数组相加的方式将最先出现的值作为结果将$package_path . ‘views/‘加入到<code>_ci_view_paths</code>中。</li>
+<li>获取CI实例，通过CI实例将$package_path加入到<code>$CI-&gt;config-&gt;_config_paths</code>数组中。</li>
+</ul>
+<hr>
+<ol start="4">
+<li>加载autoload.php中配置的config文件，即$autoload[‘config’]中的内容：<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">if (count($autoload['config']) &gt; 0)</span><br><span class="line">&#123;</span><br><span class="line">    foreach ($autoload['config'] as $val)</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;config($val);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+config()方法：<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function config($file, $use_sections = FALSE, $fail_gracefully = FALSE)</span><br><span class="line">&#123;</span><br><span class="line">    return get_instance()-&gt;config-&gt;load($file, $use_sections, $fail_gracefully);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这里<code>get_instance()-&gt;config</code>即<code>CI_Config</code>，在<code>CI_Controller</code>类中已执行过<code>$this-&gt;config = new CI_Config();</code>。 此处$autoload[‘config’] = [‘codeigniter’]，因此此处执行的是CI_Config-&gt;load(‘codeigniter’)进行加载codeigniter.php文件，即<code>include(&#39;codeigniter.php&#39;)</code>。然后将文件名记入CI_Config-&gt;is_loaded数组，方便检查文件是否已加载。</li>
+</ol>
+<hr>
+<ol start="5">
+<li><p>加载helper、language文件</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">foreach (array('helper', 'language') as $type)</span><br><span class="line">&#123;</span><br><span class="line">    if (isset($autoload[$type]) &amp;&amp; count($autoload[$type]) &gt; 0)</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;$type($autoload[$type]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里以变量函数的形式调用了helper()和language()方法：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public function language($files, $lang = '')</span><br><span class="line">&#123;</span><br><span class="line">    get_instance()-&gt;lang-&gt;load($files, $lang);</span><br><span class="line">    return $this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里执行的时CI_Lang-&gt;load()加载指定的语言包。本例通过helpers()加载[‘array’, ‘language’]</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function helpers($helpers = array())</span><br><span class="line">&#123;</span><br><span class="line">    return $this-&gt;helper($helpers);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>helper()的执行流程：<br>①构造helper文件名：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$filename = basename($helper);</span><br><span class="line">$filepath = ($filename === $helper) ? '' : substr($helper, 0, strlen($helper) - strlen($filename));</span><br><span class="line">$filename = strtolower(preg_replace('<span class="comment">#(_helper)?(\.php)?$#i', '', $filename)).'_helper';// 加后缀 _helper,比如 array_helper</span></span><br><span class="line">$helper   = $filepath.$filename;</span><br></pre></td></tr></table></figure>
+<p>②若已包含则继续下一个</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if (isset($this-&gt;_ci_helpers[$helper]))</span><br><span class="line">&#123;</span><br><span class="line">    continue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>③检查是否有前缀，比如<code>MY_array_helper</code>，前面<code>add_package_path()</code>方法将依赖包依次赋值给$this-&gt;<strong>_ci_helper_paths</strong>属性，此处用到了！</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ext_helper = config_item('subclass_prefix').$filename;</span><br><span class="line">$ext_loaded = FALSE;</span><br><span class="line">foreach ($this-&gt;_ci_helper_paths as $path)</span><br><span class="line">&#123;</span><br><span class="line">    if (file_exists($path.'helpers/'.$ext_helper.'.php'))</span><br><span class="line">    &#123;</span><br><span class="line">        include_once($path.'helpers/'.$ext_helper.'.php');</span><br><span class="line">        $ext_loaded = TRUE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>④如果MY_array_helper.php存在，但是array_helper.php不存在则报错，这里可理解为扩展类存在，基类不存在报错。</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">if ($ext_loaded === TRUE)</span><br><span class="line">&#123;</span><br><span class="line">    $base_helper = BASEPATH.'helpers/'.$helper.'.php';</span><br><span class="line">    if ( ! file_exists($base_helper))</span><br><span class="line">    &#123;</span><br><span class="line">        show_error('Unable to load the requested file: helpers/'.$helper.'.php');</span><br><span class="line">    &#125;</span><br><span class="line">    include_once($base_helper);</span><br><span class="line">    $this-&gt;_ci_helpers[$helper] = TRUE;</span><br><span class="line">    log_message('info', 'Helper loaded: '.$helper);</span><br><span class="line">    continue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>⑤如果前缀文件不存在则加载默认目录下的helper文件，不存在则不成功则报错。如果存在则通过<code>include_once</code>进行加载，然后将helper文件名放入<code>$this-&gt;_ci_helper</code>数组里方便后面加载前判断是否存在。</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">foreach ($this-&gt;_ci_helper_paths as $path)</span><br><span class="line">&#123;</span><br><span class="line">    if (file_exists($path.'helpers/'.$helper.'.php'))</span><br><span class="line">    &#123;</span><br><span class="line">        include_once($path.'helpers/'.$helper.'.php');</span><br><span class="line">        $this-&gt;_ci_helpers[$helper] = TRUE;</span><br><span class="line">        log_message('info', 'Helper loaded: '.$helper);</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">// unable to load the helper</span><br><span class="line">if ( ! isset($this-&gt;_ci_helpers[$helper]))</span><br><span class="line">&#123;</span><br><span class="line">    show_error('Unable to load the requested file: helpers/'.$helper.'.php');</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>加载drivers 数据库驱动器</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if (isset($autoload['drivers']))</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;driver($autoload['drivers']);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>driver()</code>方法有三个参数<code>$library</code> <code>$params</code> <code>$object_name</code>， 具体加载流程如下：<br>① $library如果为数组则走递归，为空则直接return false。默认$autoload并没有指定drivers，因此到这就返回了。<br>② $library不为数组也不为空则判断是否存在<code>CI_Driver_Library</code>类，不存在则<code>require BASEPATH . &#39;libraries/Driver.php&#39;;</code>。这里不是实例化对象，只是使基类可用。<br>③执行<code>$library = ucfirst($library) . &#39;/&#39; . $library;</code>，原因是<code>驱动器位于 system/libraries/ 目录，每个驱动器都有一个独立的目录，目录名和 驱动器父类的类名一致，在该目录下还有一个子目录，命名为 drivers，用于存放所有子类的文件。</code>。<br>④执行<code>return $this-&gt;library($library, $params, $object_name);</code>。library()方法执行的是<code>_ci_load_library()</code>方法进行加载。下面来看_ci_load_library()：</p>
+</li>
+</ol>
+<hr>
+<p><strong>_ci_load_library($class, $params = NULL, $object_name = NULL)</strong></p>
+<ul>
+<li>若$class字符串中存在.php，将其去掉。<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$class = str_replace('.php', '', trim($class, '/'));</span><br></pre></td></tr></table></figure></li>
+<li>$class去掉末尾/后发现还有/就说明在子目录下了，这时要获取子目录<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">if (($last_slash = strrpos($class, '/')) !== FALSE)</span><br><span class="line">&#123;</span><br><span class="line">    // Extract the path</span><br><span class="line">    $subdir = substr($class, 0, ++$last_slash);</span><br><span class="line">    // Get the filename from the path</span><br><span class="line">    $class = substr($class, $last_slash);</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">    $subdir = '';</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>确保类名首字母大写<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$class = ucfirst($class);</span><br></pre></td></tr></table></figure></li>
+<li></li>
+</ul>
+<hr>
+<h4 id="挑战：不要使用include-once"><a href="#挑战：不要使用include-once" class="headerlink" title="挑战：不要使用include_once"></a>挑战：不要使用include_once</h4><p>读过<span class="exturl" data-url="aHR0cHM6Ly9iYWlrZS5iYWlkdS5jb20vaXRlbS8lRTYlODMlQTAlRTYlOTYlQjAlRTUlQUUlQjg=" title="https://baike.baidu.com/item/%E6%83%A0%E6%96%B0%E5%AE%B8">laruence<i class="fa fa-external-link"></i></span>前辈的一篇博文<span class="exturl" data-url="aHR0cDovL3d3dy5sYXJ1ZW5jZS5jb20vMjAxMi8wOS8xMi8yNzY1Lmh0bWw=" title="http://www.laruence.com/2012/09/12/2765.html">《再一次, 不要使用(include/require)_once》<i class="fa fa-external-link"></i></span>。其中指出了不要使用include_once的原因并讲解了include_once对文件加载流程：</p>
+<ol>
+<li>尝试解析文件的绝对路径, 如果能解析成功, 则检查EG(included_files), 存在则返回,不存在继续。</li>
+<li>打开文件, 得到文件的打开路径(opened path)。</li>
+<li>拿opened path去EG(included_files)查找, 是否存在, 如果存在则返回, 不存在继续。</li>
+<li>编译文件(compile_file)。</li>
+</ol>
+<p>也就是说include_once需要查询一遍已加载的文件列表, 确认是否存在, 然后再加载。文章最后说<code>你使用include_once, 只能证明, 你对自己的代码没信心.</code>，确实很激励人的！继续加油啦！！</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2019/12/09/codeigniter-loader-learn/" title="CodeIgniter之Loader类原码学习笔记">https://pureven.cc/2019/12/09/codeigniter-loader-learn/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/12/05/simple-wireshark-tcp-flags/" rel="next" title="Wireshark抓包分析TCP的三次握手与四次挥手">
+                  <i class="fa fa-chevron-left"></i> Wireshark抓包分析TCP的三次握手与四次挥手
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/12/16/codeigniter-index/" rel="prev" title="CodeIgniter入口文件index.php">
+                  CodeIgniter入口文件index.php <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#流程控制中加载文件的语句"><span class="nav-number">2.</span> <span class="nav-text">流程控制中加载文件的语句</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CodeIgniter框架中的加载类"><span class="nav-number">3.</span> <span class="nav-text">CodeIgniter框架中的加载类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#construct"><span class="nav-number">3.1.</span> <span class="nav-text">__construct()</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#Common中的is-loaded-函数"><span class="nav-number">3.1.1.</span> <span class="nav-text">Common中的is_loaded()函数</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#initialize"><span class="nav-number">3.2.</span> <span class="nav-text">initialize()</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#ci-autoloader"><span class="nav-number">3.2.1.</span> <span class="nav-text">_ci_autoloader()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#挑战：不要使用include-once"><span class="nav-number">4.</span> <span class="nav-text">挑战：不要使用include_once</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

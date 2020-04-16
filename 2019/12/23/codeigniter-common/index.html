@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言Common.php文件定义了一系列的全局函数，CI引导文件CodeIgniter.php开头加载完常量后最先加载的就是Common.php文件，然后使用全局函数加载后面的组件、判断PHP版本等等一系列操作。全局函数库文件中的函数有: is_php()、is_really_writable()、load_class()、is_loaded()、get_config()、config_item(">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter全局函数库文件Common.php">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;23&#x2F;codeigniter-common&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言Common.php文件定义了一系列的全局函数，CI引导文件CodeIgniter.php开头加载完常量后最先加载的就是Common.php文件，然后使用全局函数加载后面的组件、判断PHP版本等等一系列操作。全局函数库文件中的函数有: is_php()、is_really_writable()、load_class()、is_loaded()、get_config()、config_item(">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.030Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2019/12/23/codeigniter-common/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter全局函数库文件Common.php | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/12/23/codeigniter-common/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter全局函数库文件Common.php
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-23 18:30:37" itemprop="dateCreated datePublished" datetime="2019-12-23T18:30:37+08:00">2019-12-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/12/23/codeigniter-common/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/23/codeigniter-common/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>15 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>Common.php文件定义了一系列的全局函数，CI引导文件<b>CodeIgniter.php</b>开头加载完常量后最先加载的就是Common.php文件，然后使用全局函数加载后面的组件、判断PHP版本等等一系列操作。全局函数库文件中的函数有: <code>is_php()</code>、<code>is_really_writable()</code>、<code>load_class()</code>、<code>is_loaded()</code>、<code>get_config()</code>、<code>config_item()</code>、<code>get_mimes()</code>、<code>is_https()</code>、<code>is_cli()</code>、<code>show_error()</code>、<code>show_404()</code>、<code>log_message()</code>、<code>set_status_header()</code>、<code>_error_handler()</code>、<code>_exception_handler()</code>、<code>_shutdown_handler()</code>、<code>remove_invisible_characters()</code>、<code>html_escape()</code>、<code>_stringify_attributes()</code>、<code>function_usable()</code>等，下面进行逐一分析。</p><a id="more"></a>
+<hr>
+<h4 id="is-php"><a href="#is-php" class="headerlink" title="is_php()"></a>is_php()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'is_php'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">is_php</span><span class="params">($version)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">static</span> $_is_php;</span><br><span class="line">		$version = (string) $version;</span><br><span class="line">		<span class="keyword">if</span> ( ! <span class="keyword">isset</span>($_is_php[$version]))</span><br><span class="line">		&#123;</span><br><span class="line">			$_is_php[$version] = version_compare(PHP_VERSION, $version, <span class="string">'&gt;='</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> $_is_php[$version];</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数的作用是判断当前环境的PHP版本是否是指定版本<code>$version</code>或更高版本。<font color="#891717">因为CI框架中有一些配置依赖于PHP的版本和行为（如magic_quotes，PHP5.3版本之前，该特性用于指定是否开启转义，而PHP5.3之后，该特性已经被废弃），为了向后兼容，当遇到magic_quotes、register_globals等后来版本已删除的功能时需要先进行版本判断，当运行环境PHP版本小于指定版本时禁用这些功能。在CodeIgniter.php文件中就是这么做的。</font><br>功能实现: </p>
+<ol>
+<li>定义一个静态数组变量<code>$_is_php</code>，用于存放比较结果。当下此再调用该方法比较PHP版本时会先遍历<code>$_is_php</code>数组，如果有记录则直接返回，没用则继续。</li>
+<li>版本比较： 通过<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24udmVyc2lvbi1jb21wYXJlLnBocA==" title="https://www.php.net/manual/zh/function.version-compare.php">version_compare()<i class="fa fa-external-link"></i></span>方法比较当前版本和指定版本的大小关系，并将结果存入<code>$_is_php</code>数组。</li>
+<li>返回比较结果，这里直接返回数组中对应的结果。</li>
+</ol>
+<hr>
+<h4 id="is-really-writable"><a href="#is-really-writable" class="headerlink" title="is_really_writable()"></a>is_really_writable()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'is_really_writable'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">is_really_writable</span><span class="params">($file)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (DIRECTORY_SEPARATOR === <span class="string">'/'</span> &amp;&amp; (is_php(<span class="string">'5.4'</span>) <span class="keyword">OR</span> ! ini_get(<span class="string">'safe_mode'</span>)))</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> is_writable($file);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (is_dir($file))</span><br><span class="line">		&#123;</span><br><span class="line">			$file = rtrim($file, <span class="string">'/'</span>).<span class="string">'/'</span>.md5(mt_rand());</span><br><span class="line">			<span class="keyword">if</span> (($fp = @fopen($file, <span class="string">'ab'</span>)) === <span class="keyword">FALSE</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="keyword">FALSE</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			fclose($fp);</span><br><span class="line">			@chmod($file, <span class="number">0777</span>);</span><br><span class="line">			@unlink($file);</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">TRUE</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">elseif</span> ( ! is_file($file) <span class="keyword">OR</span> ($fp = @fopen($file, <span class="string">'ab'</span>)) === <span class="keyword">FALSE</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">FALSE</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		fclose($fp);</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">TRUE</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数用于判断文件或者目录是否真实可写，一般情况下，通过内置函数<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uaXMtd3JpdGFibGU=" title="https://www.php.net/manual/zh/function.is-writable">is_writable()<i class="fa fa-external-link"></i></span>返回的结果是比较可靠的，但是也有一些例外，比如:</p>
+<ol>
+<li>Windows中，如果对文件或者目录设置了只读属性，则is_writable返回结果是true,但是却无法写入。</li>
+<li>Linux系统中，如果开启了Safe Mode，则也会影响is_writable的结果。<br>因此，本函数的处理是：如果是一般的Linux系统且没有开启safe mode，则直接调用is_writable；否则如果是目录则尝试在目录中创建一个文件来检查目录是否可写，如果是文件，则尝试以写入模式打开文件，如果无法打开，则返回false，最后调用fclose关闭句柄。</li>
+</ol>
+<hr>
+<h4 id="load-class"><a href="#load-class" class="headerlink" title="load_class()"></a>load_class()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'load_class'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> &amp;<span class="title">load_class</span><span class="params">($class, $directory = <span class="string">'libraries'</span>, $param = NULL)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">	    <span class="comment">// 定义静态数组`$_classes`，用于存放类的实例。</span></span><br><span class="line">		<span class="keyword">static</span> $_classes = <span class="keyword">array</span>();</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//  判断`$_classes`中是否存在该类的实例，如果存在则返回，该方法避免重复加载类实例，类似于单例模式。</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">isset</span>($_classes[$class]))</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> $_classes[$class];</span><br><span class="line">		&#125;</span><br><span class="line">		$name = <span class="keyword">FALSE</span>;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 如果APPPATH目录下存在则加载APPPATH目录下的，如果没有再加载BASEPATH目录下的</span></span><br><span class="line">		<span class="keyword">foreach</span> (<span class="keyword">array</span>(APPPATH, BASEPATH) <span class="keyword">as</span> $path)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (file_exists($path.$directory.<span class="string">'/'</span>.$class.<span class="string">'.php'</span>))</span><br><span class="line">			&#123;</span><br><span class="line">				$name = <span class="string">'CI_'</span>.$class;</span><br><span class="line">				<span class="keyword">if</span> (class_exists($name, <span class="keyword">FALSE</span>) === <span class="keyword">FALSE</span>)</span><br><span class="line">				&#123;</span><br><span class="line">					<span class="keyword">require_once</span>($path.$directory.<span class="string">'/'</span>.$class.<span class="string">'.php'</span>);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 有前缀则加载带前缀的类，比如MY_Loader，MY_Router等，HMVC实现过程中便是加载的MY_Loader MY_Router</span></span><br><span class="line">		<span class="keyword">if</span> (file_exists(APPPATH.$directory.<span class="string">'/'</span>.config_item(<span class="string">'subclass_prefix'</span>).$class.<span class="string">'.php'</span>))</span><br><span class="line">		&#123;</span><br><span class="line">			$name = config_item(<span class="string">'subclass_prefix'</span>).$class;</span><br><span class="line">			<span class="keyword">if</span> (class_exists($name, <span class="keyword">FALSE</span>) === <span class="keyword">FALSE</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">require_once</span>(APPPATH.$directory.<span class="string">'/'</span>.$name.<span class="string">'.php'</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> ($name === <span class="keyword">FALSE</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			set_status_header(<span class="number">503</span>);</span><br><span class="line">			<span class="keyword">echo</span> <span class="string">'Unable to locate the specified class: '</span>.$class.<span class="string">'.php'</span>;</span><br><span class="line">			<span class="keyword">exit</span>(<span class="number">5</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 调用is_loaded()方法将类名存入静态数组$_is_loaded</span></span><br><span class="line">		is_loaded($class);</span><br><span class="line">		$_classes[$class] = <span class="keyword">isset</span>($param)</span><br><span class="line">			? <span class="keyword">new</span> $name($param)</span><br><span class="line">			: <span class="keyword">new</span> $name();</span><br><span class="line">		<span class="keyword">return</span> $_classes[$class];</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>功能实现：</p>
+<ol>
+<li>定义静态数组<code>$_classes</code>，用于存放类的实例。</li>
+<li>判断<code>$_classes</code>中是否存在该类的实例，如果存在则返回，该方法避免重复加载类实例，类似于单例模式。</li>
+<li>分别从<b>APPPATH</b>和<b>BASEPATH</b>目录下寻找指定目录<code>$directory</code>，然后找<code>$class . &#39;php&#39;</code>文件，如果找到则将类名设置为<b color="#891717">‘CI_’.$class</b>，加载该类文件并退出当前循环。</li>
+<li>从<b>APPPATH</b>目录下寻找指定目录<code>$directory</code>，然后寻找带有前缀的<code>config_item(&#39;subclass_prefix&#39;).$class.&#39;.php&#39;</code>文件，也叫扩展类文件，找到后将类名<font color="#891717">重新</font>设置为<b>扩展类文件名</b>并加载该扩展类文件。<b><font color="#891717">注意: 如果找到扩展类文件，后面是对该扩展类进行实例化的，即CI加载的实际上是该扩展类。这意味着，可以对CI的核心进行修改或者扩展。</font></b></li>
+<li>如果不曾找到要加载的类文件，即$name依然为<b>FALSE</b>，则报错退出。</li>
+<li>调用<code>is_loaded()</code>方法将类名存入静态数组<code>$_is_loaded</code>。</li>
+<li>实例化该类并将该实例存入静态数组<code>$_classes</code>。</li>
+</ol>
+<p><b><font color="#891717">注意: 该函数返回的是一个class实例的引用. 对该实例的任何改变，都会影响下一次函数调用的结果。</font></b></p>
+<hr>
+<h4 id="is-loaded"><a href="#is-loaded" class="headerlink" title="is_loaded()"></a>is_loaded()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'is_loaded'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> &amp;<span class="title">is_loaded</span><span class="params">($class = <span class="string">''</span>)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">static</span> $_is_loaded = <span class="keyword">array</span>();</span><br><span class="line">		<span class="keyword">if</span> ($class !== <span class="string">''</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			$_is_loaded[strtolower($class)] = $class;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> $_is_loaded;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数定义静态数组<code>$_is_loaded</code>并将<code>load_class()</code>函数实例化后的对象名放入此数组中，最后返回所有已加载的类，在控制器类中使用过此函数获取所有已加载的类。此函数通常用于追踪所有已加载的类。</p>
+<hr>
+<h4 id="get-config"><a href="#get-config" class="headerlink" title="get_config()"></a>get_config()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'get_config'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> &amp;<span class="title">get_config</span><span class="params">(Array $replace = array<span class="params">()</span>)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">static</span> $config;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">empty</span>($config))</span><br><span class="line">		&#123;</span><br><span class="line">			$file_path = APPPATH.<span class="string">'config/config.php'</span>;</span><br><span class="line">			$found = <span class="keyword">FALSE</span>;</span><br><span class="line">			<span class="keyword">if</span> (file_exists($file_path))</span><br><span class="line">			&#123;</span><br><span class="line">				$found = <span class="keyword">TRUE</span>;</span><br><span class="line">				<span class="keyword">require</span>($file_path);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> (file_exists($file_path = APPPATH.<span class="string">'config/'</span>.ENVIRONMENT.<span class="string">'/config.php'</span>))</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">require</span>($file_path);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">elseif</span> ( ! $found)</span><br><span class="line">			&#123;</span><br><span class="line">				set_status_header(<span class="number">503</span>);</span><br><span class="line">				<span class="keyword">echo</span> <span class="string">'The configuration file does not exist.'</span>;</span><br><span class="line">				<span class="keyword">exit</span>(<span class="number">3</span>);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> ( ! <span class="keyword">isset</span>($config) <span class="keyword">OR</span> ! is_array($config))</span><br><span class="line">			&#123;</span><br><span class="line">				set_status_header(<span class="number">503</span>);</span><br><span class="line">				<span class="keyword">echo</span> <span class="string">'Your config file does not appear to be formatted correctly.'</span>;</span><br><span class="line">				<span class="keyword">exit</span>(<span class="number">3</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">foreach</span> ($replace <span class="keyword">as</span> $key =&gt; $val)</span><br><span class="line">		&#123;</span><br><span class="line">			$config[$key] = $val;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> $config;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>功能实现:</p>
+<ol>
+<li>定义静态数组<code>$config</code>。</li>
+<li>如果数组为空则加载配置文件<code>APPPATH.&#39;config/config.php&#39;</code>，由于这里是静态数组，这意味着该函数支持动态运行的过程中修改Config.php中的条目。</li>
+<li>如果有根据当前运行环境自定义的配置文件则加载对应的配置文件。</li>
+<li>如果没找到配置文件则报错退出，同时由于CI的配置文件中是通过数组形式进行配置的，如:<code>$config[&#39;index_page&#39;] = &#39;index.php&#39;;</code>，因此如果发现<code>$config</code>不是数组同样报错退出。</li>
+<li>这里比较给力，对于配置文件中的配置是可以覆盖的，比如CodeIgniter.php文件中的<code>get_config(array(&#39;subclass_prefix&#39; =&gt; $assign_to_config[&#39;subclass_prefix&#39;]));</code>就是通过这里将子类前缀进行覆盖。</li>
+<li>返回静态数组<code>$config</code>。</li>
+</ol>
+<p><b><font color="#891717">注意: 该函数返回的是config文件中$config的引用。若运行过程中改变了Config的配置文件，由于该函数的缓存原因，无法读取最新的配置。</font></b></p>
+<hr>
+<h4 id="config-item"><a href="#config-item" class="headerlink" title="config_item()"></a>config_item()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'config_item'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">config_item</span><span class="params">($item)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">static</span> $_config;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">empty</span>($_config))</span><br><span class="line">		&#123;</span><br><span class="line">			$_config[<span class="number">0</span>] =&amp; get_config();</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">isset</span>($_config[<span class="number">0</span>][$item]) ? $_config[<span class="number">0</span>][$item] : <span class="keyword">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数的作用是返回相应的设置条目。需要注意两个地方:</p>
+<ol>
+<li><code>$_config[0] =&amp; get_config();</code>中<code>&amp;</code>不能省略，引用返回需要两边都用<code>&amp;</code>。详见<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvbGFuZ3VhZ2UucmVmZXJlbmNlcy5yZXR1cm4ucGhw" title="https://www.php.net/manual/zh/language.references.return.php">引用返回<i class="fa fa-external-link"></i></span>。</li>
+<li><code>$_config[0] =&amp; get_config();</code> 这里官方的解释是引用不能直接赋值给静态变量，因此使用的是数组的形式。其实原因是引用不是静态存储的，具体可参考<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvbGFuZ3VhZ2UudmFyaWFibGVzLnNjb3BlLnBocCNsYW5ndWFnZS52YXJpYWJsZXMuc2NvcGUuc3RhdGlj" title="https://www.php.net/manual/zh/language.variables.scope.php#language.variables.scope.static">变量范围<i class="fa fa-external-link"></i></span>。</li>
+</ol>
+<hr>
+<h4 id="get-mimes"><a href="#get-mimes" class="headerlink" title="get_mimes()"></a>get_mimes()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'get_mimes'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> &amp;<span class="title">get_mimes</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">static</span> $_mimes;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">empty</span>($_mimes))</span><br><span class="line">		&#123;</span><br><span class="line">			$_mimes = file_exists(APPPATH.<span class="string">'config/mimes.php'</span>)</span><br><span class="line">				? <span class="keyword">include</span>(APPPATH.<span class="string">'config/mimes.php'</span>)</span><br><span class="line">				: <span class="keyword">array</span>();</span><br><span class="line">			<span class="keyword">if</span> (file_exists(APPPATH.<span class="string">'config/'</span>.ENVIRONMENT.<span class="string">'/mimes.php'</span>))</span><br><span class="line">			&#123;</span><br><span class="line">				$_mimes = array_merge($_mimes, <span class="keyword">include</span>(APPPATH.<span class="string">'config/'</span>.ENVIRONMENT.<span class="string">'/mimes.php'</span>));</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> $_mimes;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此函数跟get_config()类似，加载配置目录下mime.php文件并返回静态数组$_mimes的引用。</p>
+<hr>
+<h4 id="is-https"><a href="#is-https" class="headerlink" title="is_https()"></a>is_https()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'is_https'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">is_https</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">if</span> ( ! <span class="keyword">empty</span>($_SERVER[<span class="string">'HTTPS'</span>]) &amp;&amp; strtolower($_SERVER[<span class="string">'HTTPS'</span>]) !== <span class="string">'off'</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">TRUE</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">elseif</span> (<span class="keyword">isset</span>($_SERVER[<span class="string">'HTTP_X_FORWARDED_PROTO'</span>]) &amp;&amp; strtolower($_SERVER[<span class="string">'HTTP_X_FORWARDED_PROTO'</span>]) === <span class="string">'https'</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">TRUE</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">elseif</span> ( ! <span class="keyword">empty</span>($_SERVER[<span class="string">'HTTP_FRONT_END_HTTPS'</span>]) &amp;&amp; strtolower($_SERVER[<span class="string">'HTTP_FRONT_END_HTTPS'</span>]) !== <span class="string">'off'</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">TRUE</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">FALSE</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里满足三个条件中的任何一个就说明是通过请求为https请求:</p>
+<ol>
+<li>$_SERVER[‘HTTPS’]不为空且值不为’off’。</li>
+<li>$_SERVER[‘HTTP_X_FORWARDED_PROTO’]存在且值为’https’。</li>
+<li>$_SERVER[‘HTTP_FRONT_END_HTTPS’]不为空且值不为’off’。</li>
+</ol>
+<hr>
+<h4 id="is-cli"><a href="#is-cli" class="headerlink" title="is_cli()"></a>is_cli()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'is_cli'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">is_cli</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> (PHP_SAPI === <span class="string">'cli'</span> <span class="keyword">OR</span> defined(<span class="string">'STDIN'</span>));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此函数通过<code>PHP_SAPI</code>和是否定义常量<code>STDIN</code>来判断当前运行模式是否为cli模式。</p>
+<hr>
+<h4 id="show-error"><a href="#show-error" class="headerlink" title="show_error()"></a>show_error()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'show_error'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">show_error</span><span class="params">($message, $status_code = <span class="number">500</span>, $heading = <span class="string">'An Error Was Encountered'</span>)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		$status_code = abs($status_code);</span><br><span class="line">		<span class="keyword">if</span> ($status_code &lt; <span class="number">100</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			$exit_status = $status_code + <span class="number">9</span>;</span><br><span class="line">			$status_code = <span class="number">500</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		&#123;</span><br><span class="line">			$exit_status = <span class="number">1</span>; </span><br><span class="line">		&#125;</span><br><span class="line">		$_error =&amp; load_class(<span class="string">'Exceptions'</span>, <span class="string">'core'</span>);</span><br><span class="line">		<span class="keyword">echo</span> $_error-&gt;show_error($heading, $message, <span class="string">'error_general'</span>, $status_code);</span><br><span class="line">		<span class="keyword">exit</span>($exit_status);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数用来展示错误信息并终止运行，功能实现</p>
+<ul>
+<li>设置状态码。</li>
+<li>加载<code>Exceptions</code>组件，并使用其中的<code>show_error()</code>方法打印错误信息。</li>
+<li>终止程序运行。 </li>
+</ul>
+<hr>
+<h4 id="show-404"><a href="#show-404" class="headerlink" title="show_404()"></a>show_404()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'show_404'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">show_404</span><span class="params">($page = <span class="string">''</span>, $log_error = TRUE)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		$_error =&amp; load_class(<span class="string">'Exceptions'</span>, <span class="string">'core'</span>);</span><br><span class="line">		$_error-&gt;show_404($page, $log_error);</span><br><span class="line">		<span class="keyword">exit</span>(<span class="number">4</span>); </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数加载<code>Exceptions</code>组件，并使用其中的<code>show_404()</code>方法返回404页面。</p>
+<hr>
+<h4 id="log-message"><a href="#log-message" class="headerlink" title="log_message()"></a>log_message()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'log_message'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">log_message</span><span class="params">($level, $message)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">static</span> $_log;</span><br><span class="line">		<span class="keyword">if</span> ($_log === <span class="keyword">NULL</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			$_log[<span class="number">0</span>] =&amp; load_class(<span class="string">'Log'</span>, <span class="string">'core'</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		$_log[<span class="number">0</span>]-&gt;write_log($level, $message);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数调用Log组件的write_log方法记录信息。<font color="#891717">注意: 如果主配置文件中log_threshold被设置为0，则不会记录任何Log信息。</font></p>
+<hr>
+<h4 id="set-status-header"><a href="#set-status-header" class="headerlink" title="set_status_header()"></a>set_status_header()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'set_status_header'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">set_status_header</span><span class="params">($code = <span class="number">200</span>, $text = <span class="string">''</span>)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (is_cli())</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">empty</span>($code) <span class="keyword">OR</span> ! is_numeric($code))</span><br><span class="line">		&#123;</span><br><span class="line">			show_error(<span class="string">'Status codes must be numeric'</span>, <span class="number">500</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">empty</span>($text))</span><br><span class="line">		&#123;</span><br><span class="line">			is_int($code) <span class="keyword">OR</span> $code = (int) $code;</span><br><span class="line">			$stati = <span class="keyword">array</span>(</span><br><span class="line">				<span class="number">100</span>	=&gt; <span class="string">'Continue'</span>,</span><br><span class="line">				<span class="number">101</span>	=&gt; <span class="string">'Switching Protocols'</span>,</span><br><span class="line">				<span class="number">200</span>	=&gt; <span class="string">'OK'</span>,</span><br><span class="line">				<span class="number">201</span>	=&gt; <span class="string">'Created'</span>,</span><br><span class="line">				<span class="number">202</span>	=&gt; <span class="string">'Accepted'</span>,</span><br><span class="line">				<span class="number">203</span>	=&gt; <span class="string">'Non-Authoritative Information'</span>,</span><br><span class="line">				<span class="number">204</span>	=&gt; <span class="string">'No Content'</span>,</span><br><span class="line">				<span class="number">205</span>	=&gt; <span class="string">'Reset Content'</span>,</span><br><span class="line">				<span class="number">206</span>	=&gt; <span class="string">'Partial Content'</span>,</span><br><span class="line">				<span class="number">300</span>	=&gt; <span class="string">'Multiple Choices'</span>,</span><br><span class="line">				<span class="number">301</span>	=&gt; <span class="string">'Moved Permanently'</span>,</span><br><span class="line">				<span class="number">302</span>	=&gt; <span class="string">'Found'</span>,</span><br><span class="line">				<span class="number">303</span>	=&gt; <span class="string">'See Other'</span>,</span><br><span class="line">				<span class="number">304</span>	=&gt; <span class="string">'Not Modified'</span>,</span><br><span class="line">				<span class="number">305</span>	=&gt; <span class="string">'Use Proxy'</span>,</span><br><span class="line">				<span class="number">307</span>	=&gt; <span class="string">'Temporary Redirect'</span>,</span><br><span class="line">				<span class="number">400</span>	=&gt; <span class="string">'Bad Request'</span>,</span><br><span class="line">				<span class="number">401</span>	=&gt; <span class="string">'Unauthorized'</span>,</span><br><span class="line">				<span class="number">402</span>	=&gt; <span class="string">'Payment Required'</span>,</span><br><span class="line">				<span class="number">403</span>	=&gt; <span class="string">'Forbidden'</span>,</span><br><span class="line">				<span class="number">404</span>	=&gt; <span class="string">'Not Found'</span>,</span><br><span class="line">				<span class="number">405</span>	=&gt; <span class="string">'Method Not Allowed'</span>,</span><br><span class="line">				<span class="number">406</span>	=&gt; <span class="string">'Not Acceptable'</span>,</span><br><span class="line">				<span class="number">407</span>	=&gt; <span class="string">'Proxy Authentication Required'</span>,</span><br><span class="line">				<span class="number">408</span>	=&gt; <span class="string">'Request Timeout'</span>,</span><br><span class="line">				<span class="number">409</span>	=&gt; <span class="string">'Conflict'</span>,</span><br><span class="line">				<span class="number">410</span>	=&gt; <span class="string">'Gone'</span>,</span><br><span class="line">				<span class="number">411</span>	=&gt; <span class="string">'Length Required'</span>,</span><br><span class="line">				<span class="number">412</span>	=&gt; <span class="string">'Precondition Failed'</span>,</span><br><span class="line">				<span class="number">413</span>	=&gt; <span class="string">'Request Entity Too Large'</span>,</span><br><span class="line">				<span class="number">414</span>	=&gt; <span class="string">'Request-URI Too Long'</span>,</span><br><span class="line">				<span class="number">415</span>	=&gt; <span class="string">'Unsupported Media Type'</span>,</span><br><span class="line">				<span class="number">416</span>	=&gt; <span class="string">'Requested Range Not Satisfiable'</span>,</span><br><span class="line">				<span class="number">417</span>	=&gt; <span class="string">'Expectation Failed'</span>,</span><br><span class="line">				<span class="number">422</span>	=&gt; <span class="string">'Unprocessable Entity'</span>,</span><br><span class="line">				<span class="number">426</span>	=&gt; <span class="string">'Upgrade Required'</span>,</span><br><span class="line">				<span class="number">428</span>	=&gt; <span class="string">'Precondition Required'</span>,</span><br><span class="line">				<span class="number">429</span>	=&gt; <span class="string">'Too Many Requests'</span>,</span><br><span class="line">				<span class="number">431</span>	=&gt; <span class="string">'Request Header Fields Too Large'</span>,</span><br><span class="line">				<span class="number">500</span>	=&gt; <span class="string">'Internal Server Error'</span>,</span><br><span class="line">				<span class="number">501</span>	=&gt; <span class="string">'Not Implemented'</span>,</span><br><span class="line">				<span class="number">502</span>	=&gt; <span class="string">'Bad Gateway'</span>,</span><br><span class="line">				<span class="number">503</span>	=&gt; <span class="string">'Service Unavailable'</span>,</span><br><span class="line">				<span class="number">504</span>	=&gt; <span class="string">'Gateway Timeout'</span>,</span><br><span class="line">				<span class="number">505</span>	=&gt; <span class="string">'HTTP Version Not Supported'</span>,</span><br><span class="line">				<span class="number">511</span>	=&gt; <span class="string">'Network Authentication Required'</span>,</span><br><span class="line">			);</span><br><span class="line">			<span class="keyword">if</span> (<span class="keyword">isset</span>($stati[$code]))</span><br><span class="line">			&#123;</span><br><span class="line">				$text = $stati[$code];</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				show_error(<span class="string">'No status text available. Please check your status code number or supply your own message text.'</span>, <span class="number">500</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (strpos(PHP_SAPI, <span class="string">'cgi'</span>) === <span class="number">0</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			header(<span class="string">'Status: '</span>.$code.<span class="string">' '</span>.$text, <span class="keyword">TRUE</span>);</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		$server_protocol = (<span class="keyword">isset</span>($_SERVER[<span class="string">'SERVER_PROTOCOL'</span>]) &amp;&amp; in_array($_SERVER[<span class="string">'SERVER_PROTOCOL'</span>], <span class="keyword">array</span>(<span class="string">'HTTP/1.0'</span>, <span class="string">'HTTP/1.1'</span>, <span class="string">'HTTP/2'</span>), <span class="keyword">TRUE</span>))</span><br><span class="line">			? $_SERVER[<span class="string">'SERVER_PROTOCOL'</span>] : <span class="string">'HTTP/1.1'</span>;</span><br><span class="line">		header($server_protocol.<span class="string">' '</span>.$code.<span class="string">' '</span>.$text, <span class="keyword">TRUE</span>, $code);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数功能是自定义HTTP协议头信息。功能实现：</p>
+<ol>
+<li>命令行环境下直接退出。</li>
+<li>如果状态码即<code>$code</code>为空或不是数组则设置为<code>500</code>并说明状态码必须为整数。</li>
+<li>如果信息即<code>$text</code>为空则使用默认信息，CI默认支持的状态码。</li>
+<li>如果参数状态码没有出现在表格中则报错500并提示<code>No status text available. Please check your status code number or supply your own message text.</code>。</li>
+<li>检查web服务器和PHP之间的<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24ucGhwLXNhcGktbmFtZS5waHA=" title="https://www.php.net/manual/zh/function.php-sapi-name.php">接口类型<i class="fa fa-external-link"></i></span>，如果检测到<code>cgi</code>则根据参数<code>$code</code>、<code>$text</code>设置HTTP头信息；否则从$_SERVER中获取协议信息并输出HTTP头。<table>
+<caption style="text-align:center">CI支持的默认状态码及描述信息</caption>
+<tr><th width="80" style="text-align:center">code</th><th>text</th></tr>
+<tr>
+<td>100</td>
+<td>Continue</td>
+</tr>
+<tr>
+<td>101</td>
+<td>Switching Protocols</td>
+</tr>
+<tr>
+<td>200</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>201</td>
+<td>Created</td>
+</tr>
+<tr>
+<td>202</td>
+<td>Accepted</td>
+</tr>
+<tr>
+<td>203</td>
+<td>Non-Authoritative Information</td>
+</tr>
+<tr>
+<td>204</td>
+<td>No Content</td>
+</tr>
+<tr>
+<td>205</td>
+<td>Reset Content</td>
+</tr>
+<tr>
+<td>206</td>
+<td>Partial Content</td>
+</tr>
+<tr>
+<td>300</td>
+<td>Multiple Choices</td>
+</tr>
+<tr>
+<td>301</td>
+<td>Moved Permanently</td>
+</tr>
+<tr>
+<td>302</td>
+<td>Found</td>
+</tr>
+<tr>
+<td>303</td>
+<td>See Other</td>
+</tr>
+<tr>
+<td>304</td>
+<td>Not Modified</td>
+</tr>
+<tr>
+<td>305</td>
+<td>Use Proxy</td>
+</tr>
+<tr>
+<td>307</td>
+<td>Temporary Redirect</td>
+</tr>
+<tr>
+<td>400</td>
+<td>Bad Request</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Unauthorized</td>
+</tr>
+<tr>
+<td>402</td>
+<td>Payment Required</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Forbidden</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Not Found</td>
+</tr>
+<tr>
+<td>405</td>
+<td>Method Not Allowed</td>
+</tr>
+<tr>
+<td>406</td>
+<td>Not Acceptable</td>
+</tr>
+<tr>
+<td>407</td>
+<td>Proxy Authentication Required</td>
+</tr>
+<tr>
+<td>408</td>
+<td>Request Timeout</td>
+</tr>
+<tr>
+<td>409</td>
+<td>Conflict</td>
+</tr>
+<tr>
+<td>410</td>
+<td>Gone</td>
+</tr>
+<tr>
+<td>411</td>
+<td>Length Required</td>
+</tr>
+<tr>
+<td>412</td>
+<td>Precondition Failed</td>
+</tr>
+<tr>
+<td>413</td>
+<td>Request Entity Too Large</td>
+</tr>
+<tr>
+<td>414</td>
+<td>Request-URI Too Long</td>
+</tr>
+<tr>
+<td>415</td>
+<td>Unsupported Media Type</td>
+</tr>
+<tr>
+<td>416</td>
+<td>Requested Range Not Satisfiable</td>
+</tr>
+<tr>
+<td>417</td>
+<td>Expectation Failed</td>
+</tr>
+<tr>
+<td>422</td>
+<td>Unprocessable Entity</td>
+</tr>
+<tr>
+<td>426</td>
+<td>Upgrade Required</td>
+</tr>
+<tr>
+<td>428</td>
+<td>Precondition Required</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Too Many Requests</td>
+</tr>
+<tr>
+<td>431</td>
+<td>Request Header Fields Too Large</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Internal Server Error</td>
+</tr>
+<tr>
+<td>501</td>
+<td>Not Implemented</td>
+</tr>
+<tr>
+<td>502</td>
+<td>Bad Gateway</td>
+</tr>
+<tr>
+<td>503</td>
+<td>Service Unavailable</td>
+</tr>
+<tr>
+<td>504</td>
+<td>Gateway Timeout</td>
+</tr>
+<tr>
+<td>505</td>
+<td>HTTP Version Not Supported</td>
+</tr>
+<tr>
+<td>511</td>
+<td>Network Authentication Required</td>
+</tr>
+</table>
+
+</li>
+</ol>
+<hr>
+<h4 id="error-handler"><a href="#error-handler" class="headerlink" title="_error_handler()"></a>_error_handler()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'_error_handler'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">_error_handler</span><span class="params">($severity, $message, $filepath, $line)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		$is_error = (((E_ERROR | E_PARSE | E_COMPILE_ERROR | E_CORE_ERROR | E_USER_ERROR) &amp; $severity) === $severity);</span><br><span class="line">		<span class="keyword">if</span> ($is_error)</span><br><span class="line">		&#123;</span><br><span class="line">			set_status_header(<span class="number">500</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (($severity &amp; error_reporting()) !== $severity)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		$_error =&amp; load_class(<span class="string">'Exceptions'</span>, <span class="string">'core'</span>);</span><br><span class="line">		$_error-&gt;log_exception($severity, $message, $filepath, $line);</span><br><span class="line">		<span class="keyword">if</span> (str_ireplace(<span class="keyword">array</span>(<span class="string">'off'</span>, <span class="string">'none'</span>, <span class="string">'no'</span>, <span class="string">'false'</span>, <span class="string">'null'</span>), <span class="string">''</span>, ini_get(<span class="string">'display_errors'</span>)))</span><br><span class="line">		&#123;</span><br><span class="line">			$_error-&gt;show_php_error($severity, $message, $filepath, $line);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> ($is_error)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">exit</span>(<span class="number">1</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数作为<code>set_error_handler</code>的回调函数来处理PHP脚本中出现的错误。功能实现:</p>
+<ol>
+<li>当错误类型为<code>E_ERROR</code>、<code>E_EPARSE</code>、<code>E_COMPILE_ERROR</code>、<code>E_CORE_ERROR</code>、<code>E_USER_ERROR</code>时，HTTP头设置为500。相关错误说明请参考<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZXJyb3JmdW5jLmNvbnN0YW50cy5waHA=" title="https://www.php.net/manual/zh/errorfunc.constants.php">PHP预定义常量<i class="fa fa-external-link"></i></span></li>
+<li>错误类型低于错误报告的级别则退出，否则加载<code>Exceptions</code>组件并调用show_php_error()方法显示错误。</li>
+<li>错误类型符合过滤条件则退出。</li>
+</ol>
+<p><font color="#891717"><b>注意</b>: 官网在set_error_handler()函数说明说明以下级别的错误不能由用户定义的函数来处理： E_ERROR、 E_PARSE、 E_CORE_ERROR、 E_CORE_WARNING、 E_COMPILE_ERROR、 E_COMPILE_WARNING，和在 调用 set_error_handler() 函数所在文件中产生的大多数 E_STRICT。即set_error_handler()用来自定义用户级错误 E_USER_ERROR、E_USER_WARNING 、E_USER_NOTICE、E_USER_DEPRECATED 和 部分运行时系统错误、E_WARING、E_NOTICE、E_DEPRECATED 的捕获器</font></p>
+<hr>
+<h4 id="exception-handler"><a href="#exception-handler" class="headerlink" title="_exception_handler()"></a>_exception_handler()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'_exception_handler'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">_exception_handler</span><span class="params">($exception)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		$_error =&amp; load_class(<span class="string">'Exceptions'</span>, <span class="string">'core'</span>);</span><br><span class="line">		$_error-&gt;log_exception(<span class="string">'error'</span>, <span class="string">'Exception: '</span>.$exception-&gt;getMessage(), $exception-&gt;getFile(), $exception-&gt;getLine());</span><br><span class="line">		is_cli() <span class="keyword">OR</span> set_status_header(<span class="number">500</span>);</span><br><span class="line">		<span class="keyword">if</span> (str_ireplace(<span class="keyword">array</span>(<span class="string">'off'</span>, <span class="string">'none'</span>, <span class="string">'no'</span>, <span class="string">'false'</span>, <span class="string">'null'</span>), <span class="string">''</span>, ini_get(<span class="string">'display_errors'</span>)))</span><br><span class="line">		&#123;</span><br><span class="line">			$_error-&gt;show_exception($exception);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">exit</span>(<span class="number">1</span>); <span class="comment">// EXIT_ERROR</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数用来记录并显示php异常的信息。功能实现:</p>
+<ol>
+<li>加载Exceptions组件，调用log_exception()方法打印异常信息。</li>
+<li>如果不是命令行环境下则设置500HTTP头信息。</li>
+<li>如果开启了display_errors则通过<code>show_exception()</code>方法显示异常信息，最后退出。</li>
+</ol>
+<hr>
+<h4 id="shutdown-handler"><a href="#shutdown-handler" class="headerlink" title="_shutdown_handler()"></a>_shutdown_handler()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'_shutdown_handler'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">_shutdown_handler</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		$last_error = error_get_last();</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">isset</span>($last_error) &amp;&amp;</span><br><span class="line">			($last_error[<span class="string">'type'</span>] &amp; (E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING)))</span><br><span class="line">		&#123;</span><br><span class="line">			_error_handler($last_error[<span class="string">'type'</span>], $last_error[<span class="string">'message'</span>], $last_error[<span class="string">'file'</span>], $last_error[<span class="string">'line'</span>]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数在php脚本执行完成或exit()后被调用，用来处理中止后的一些操作。功能实现:</p>
+<ol>
+<li>获取最后法生的错误信息，得到一个数组。该错误的<strong>type</strong>、<strong>message</strong>、<strong>file</strong>、<strong>line</strong>为数组的键。</li>
+<li>如果错误类型为<b>E_ERROR</b>、<b>E_PARSE</b>、<strong>E_CORE_ERROR</strong>、<strong>E_CORE_WARNING</strong>、<strong>E_COMPILE_ERROR</strong>、<strong>E_COMPILE_WARNING</strong>时调用<code>_error_handler</code>函数进行错误处理。</li>
+</ol>
+<hr>
+<h4 id="remove-invisible-characters"><a href="#remove-invisible-characters" class="headerlink" title="remove_invisible_characters()"></a>remove_invisible_characters()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'remove_invisible_characters'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">remove_invisible_characters</span><span class="params">($str, $url_encoded = TRUE)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		$non_displayables = <span class="keyword">array</span>();</span><br><span class="line">		<span class="keyword">if</span> ($url_encoded)</span><br><span class="line">		&#123;</span><br><span class="line">			$non_displayables[] = <span class="string">'/%0[0-8bcef]/i'</span>;	<span class="comment">// url encoded 00-08, 11, 12, 14, 15</span></span><br><span class="line">			$non_displayables[] = <span class="string">'/%1[0-9a-f]/i'</span>;	<span class="comment">// url encoded 16-31</span></span><br><span class="line">			$non_displayables[] = <span class="string">'/%7f/i'</span>;	<span class="comment">// url encoded 127</span></span><br><span class="line">		&#125;</span><br><span class="line">		$non_displayables[] = <span class="string">'/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S'</span>;	<span class="comment">// 00-08, 11, 12, 14-31, 127</span></span><br><span class="line">		<span class="keyword">do</span></span><br><span class="line">		&#123;</span><br><span class="line">			$str = preg_replace($non_displayables, <span class="string">''</span>, $str, <span class="number">-1</span>, $count);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">while</span> ($count);</span><br><span class="line">		<span class="keyword">return</span> $str;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数的作用是除去字符串中的不可见字符。功能实现:</p>
+<ul>
+<li>构造过滤条件，即整理一个不可见字符的集合，用于字符串过滤。不可见字符有: 00-08 11 12 14 15 16-31 127，注意过滤时过滤的是对应<span class="exturl" data-url="aHR0cHM6Ly96aC53aWtpcGVkaWEub3JnL3dpa2kvQVNDSUk=" title="https://zh.wikipedia.org/wiki/ASCII">ASCII码<i class="fa fa-external-link"></i></span>表中的十六进制形式。</li>
+<li>使用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24ucHJlZy1yZXBsYWNl" title="https://www.php.net/manual/zh/function.preg-replace">preg_replace()<i class="fa fa-external-link"></i></span>函数将搜索并将不可见字符替换为空的方式去除不可见字符。$count为匹配的个数，当字符串中没有不可见字符时停止匹配。</li>
+</ul>
+<hr>
+<h4 id="html-escape"><a href="#html-escape" class="headerlink" title="html_escape()"></a>html_escape()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'html_escape'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">html_escape</span><span class="params">($var, $double_encode = TRUE)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">empty</span>($var))</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> $var;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (is_array($var))</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">foreach</span> (array_keys($var) <span class="keyword">as</span> $key)</span><br><span class="line">			&#123;</span><br><span class="line">				$var[$key] = html_escape($var[$key], $double_encode);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span> $var;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> htmlspecialchars($var, ENT_QUOTES, config_item(<span class="string">'charset'</span>), $double_encode);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数的作用时对数组中的元素$var递归调用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uaHRtbHNwZWNpYWxjaGFycw==" title="https://www.php.net/manual/zh/function.htmlspecialchars">htmlspecialchars<i class="fa fa-external-link"></i></span>函数<code>将特殊字符转为HTML实体</code>。<code>ENT_QUOTES</code>表示既转换双引号也转换单引号。</p>
+<hr>
+<h4 id="stringify-attributes"><a href="#stringify-attributes" class="headerlink" title="_stringify_attributes()"></a>_stringify_attributes()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'_stringify_attributes'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">_stringify_attributes</span><span class="params">($attributes, $js = FALSE)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		$atts = <span class="keyword">NULL</span>;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">empty</span>($attributes))</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> $atts;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (is_string($attributes))</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="string">' '</span>.$attributes;</span><br><span class="line">		&#125;</span><br><span class="line">		$attributes = (<span class="keyword">array</span>) $attributes;</span><br><span class="line">		<span class="keyword">foreach</span> ($attributes <span class="keyword">as</span> $key =&gt; $val)</span><br><span class="line">		&#123;</span><br><span class="line">			$atts .= ($js) ? $key.<span class="string">'='</span>.$val.<span class="string">','</span> : <span class="string">' '</span>.$key.<span class="string">'="'</span>.$val.<span class="string">'"'</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> rtrim($atts, <span class="string">','</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数用于将HTML标签熟悉、JavaScript，将字符串、数组或属性的对象转换为字符串。</p>
+<hr>
+<h4 id="function-usable"><a href="#function-usable" class="headerlink" title="function_usable()"></a>function_usable()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ! function_exists(<span class="string">'function_usable'</span>))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">function_usable</span><span class="params">($function_name)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">static</span> $_suhosin_func_blacklist;</span><br><span class="line">		<span class="keyword">if</span> (function_exists($function_name))</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> ( ! <span class="keyword">isset</span>($_suhosin_func_blacklist))</span><br><span class="line">			&#123;</span><br><span class="line">				$_suhosin_func_blacklist = extension_loaded(<span class="string">'suhosin'</span>)</span><br><span class="line">					? explode(<span class="string">','</span>, trim(ini_get(<span class="string">'suhosin.executor.func.blacklist'</span>)))</span><br><span class="line">					: <span class="keyword">array</span>();</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span> ! in_array($function_name, $_suhosin_func_blacklist, <span class="keyword">TRUE</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">FALSE</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>改函数用来判断PHP的内置函数是否可用，如果php启用了<span class="exturl" data-url="aHR0cHM6Ly9zdWhvc2luLm9yZy9zdG9yaWVzL2luZGV4Lmh0bWw=" title="https://suhosin.org/stories/index.html">Subosin扩展<i class="fa fa-external-link"></i></span>，则可以通过<code>suhosin.executor.func.blacklist</code>禁用某些内置函数，如:<code>suhosin.executor.eval.blacklist=phpinfo,fputs,fopen,fwrite</code>。</p>
+<hr>
+<h4 id="参考连接"><a href="#参考连接" class="headerlink" title="参考连接"></a>参考连接</h4><p><span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1poaWh1YV9XL2FydGljbGUvZGV0YWlscy81MjgzODM1OA==" title="https://blog.csdn.net/Zhihua_W/article/details/52838358">CI框架源码解析三之全局函数库文件Common.php<i class="fa fa-external-link"></i></span></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2019/12/23/codeigniter-common/" title="CodeIgniter全局函数库文件Common.php">https://pureven.cc/2019/12/23/codeigniter-common/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/12/19/codeigniter-codeigniter/" rel="next" title="CodeIgniter引导文件CodeIgniter.php">
+                  <i class="fa fa-chevron-left"></i> CodeIgniter引导文件CodeIgniter.php
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/12/29/codeigniter-benchmark/" rel="prev" title="CodeIgniter基准测试类文件Benchmark.php">
+                  CodeIgniter基准测试类文件Benchmark.php <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#is-php"><span class="nav-number">2.</span> <span class="nav-text">is_php()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#is-really-writable"><span class="nav-number">3.</span> <span class="nav-text">is_really_writable()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#load-class"><span class="nav-number">4.</span> <span class="nav-text">load_class()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#is-loaded"><span class="nav-number">5.</span> <span class="nav-text">is_loaded()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get-config"><span class="nav-number">6.</span> <span class="nav-text">get_config()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#config-item"><span class="nav-number">7.</span> <span class="nav-text">config_item()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get-mimes"><span class="nav-number">8.</span> <span class="nav-text">get_mimes()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#is-https"><span class="nav-number">9.</span> <span class="nav-text">is_https()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#is-cli"><span class="nav-number">10.</span> <span class="nav-text">is_cli()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#show-error"><span class="nav-number">11.</span> <span class="nav-text">show_error()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#show-404"><span class="nav-number">12.</span> <span class="nav-text">show_404()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#log-message"><span class="nav-number">13.</span> <span class="nav-text">log_message()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#set-status-header"><span class="nav-number">14.</span> <span class="nav-text">set_status_header()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#error-handler"><span class="nav-number">15.</span> <span class="nav-text">_error_handler()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#exception-handler"><span class="nav-number">16.</span> <span class="nav-text">_exception_handler()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#shutdown-handler"><span class="nav-number">17.</span> <span class="nav-text">_shutdown_handler()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#remove-invisible-characters"><span class="nav-number">18.</span> <span class="nav-text">remove_invisible_characters()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#html-escape"><span class="nav-number">19.</span> <span class="nav-text">html_escape()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#stringify-attributes"><span class="nav-number">20.</span> <span class="nav-text">_stringify_attributes()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#function-usable"><span class="nav-number">21.</span> <span class="nav-text">function_usable()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考连接"><span class="nav-number">22.</span> <span class="nav-text">参考连接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

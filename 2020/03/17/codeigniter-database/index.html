@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言PHP操作数据库如MySQL的流程分为连接数据库、设置字符编码、选择数据库、构造sql语句、执行sql语句、获取执行结果、关闭数据库连接等。如下面一个分页的例子">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter数据库相关功能的实现机制">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;17&#x2F;codeigniter-database&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言PHP操作数据库如MySQL的流程分为连接数据库、设置字符编码、选择数据库、构造sql语句、执行sql语句、获取执行结果、关闭数据库连接等。如下面一个分页的例子">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.047Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2020/03/17/codeigniter-database/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter数据库相关功能的实现机制 | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/03/17/codeigniter-database/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter数据库相关功能的实现机制
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-17 11:02:50" itemprop="dateCreated datePublished" datetime="2020-03-17T11:02:50+08:00">2020-03-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/03/17/codeigniter-database/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/17/codeigniter-database/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>13k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>12 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p><code>PHP</code>操作数据库<code>如MySQL</code>的流程分为<strong>连接数据库</strong>、<strong>设置字符编码</strong>、<strong>选择数据库</strong>、<strong>构造sql语句</strong>、<strong>执行sql语句</strong>、<strong>获取执行结果</strong>、<strong>关闭数据库连接</strong>等。如下面一个分页的例子</p>
+<a id="more"></a>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 连接数据库</span></span><br><span class="line">$link = mysqli_connect(<span class="string">'localhost'</span>,<span class="string">'root'</span>,<span class="string">'xxxxxx'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!$link) &#123;</span><br><span class="line">    <span class="keyword">exit</span>(<span class="string">'connect database faild!'</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 设置字符编码</span></span><br><span class="line">mysqli_set_charset($link,<span class="string">'utf8'</span>);</span><br><span class="line"><span class="comment">// 选择数据库</span></span><br><span class="line">mysqli_select_db($link,<span class="string">'bbs'</span>);</span><br><span class="line"><span class="comment">// 构造sql</span></span><br><span class="line">$get_count_sql = <span class="string">'select count(*) as count from user'</span>;</span><br><span class="line"><span class="comment">// 执行sql</span></span><br><span class="line">$count = mysqli_fetch_assoc(mysqli_query($link,$get_count_sql));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 分页</span></span><br><span class="line">$page = (<span class="keyword">isset</span>($_GET[<span class="string">'page'</span>]) &amp;&amp; $_GET[<span class="string">'page'</span>] &gt; <span class="number">1</span>) ? $_GET[<span class="string">'page'</span>] : <span class="number">1</span>;</span><br><span class="line">$num = <span class="number">4</span>;</span><br><span class="line">$start = ($page - <span class="number">1</span>) * $num;</span><br><span class="line">$end = ceil($count[<span class="string">'count'</span>]/$num);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构造sql</span></span><br><span class="line">$sql = <span class="string">"select * from user limit $start , $num"</span>;</span><br><span class="line"><span class="comment">// 执行</span></span><br><span class="line">$ret = mysqli_query($link,$sql);</span><br><span class="line"></span><br><span class="line"><span class="comment">// html呈现</span></span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;html&gt;&lt;table width='800' border='2'&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;th&gt;编号&lt;/th&gt;&lt;th&gt;用户名&lt;/th&gt;&lt;th&gt;地址&lt;/th&gt;&lt;th&gt;性别&lt;/th&gt;&lt;th&gt;年龄&lt;/th&gt;"</span>;</span><br><span class="line"><span class="keyword">while</span>($result = mysqli_fetch_assoc($ret)) &#123;    $sex = $result[<span class="string">'sex'</span>] ? <span class="string">"男"</span> : <span class="string">"女"</span>;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"&lt;tr&gt;&lt;td&gt;"</span>.$result[<span class="string">'id'</span>].<span class="string">"&lt;/td&gt;&lt;td&gt;"</span>.$result[<span class="string">'username'</span>].<span class="string">"&lt;/td&gt;&lt;td&gt;"</span>.$result[<span class="string">'address'</span>].<span class="string">"&lt;/td&gt;&lt;td&gt;"</span>.$sex.<span class="string">"&lt;/td&gt;&lt;td&gt;"</span>.$result[<span class="string">'age'</span>].<span class="string">"&lt;/td&gt;&lt;/tr&gt;"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;/table&gt;"</span>;</span><br><span class="line">$prev = ($page &gt; <span class="number">1</span>) ? $page - <span class="number">1</span> : <span class="number">1</span>;</span><br><span class="line">$next = ($page &lt; $end) ?  $page + <span class="number">1</span> : $end;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;a href='page.php?page=1'&gt;首页&lt;/a&gt; &lt;a href='page.php?page=$prev'&gt;上页&lt;/a&gt; &lt;a href='page.php?page=$next'&gt;下页&lt;/a&gt; &lt;a href='page.php?page=$end'&gt;尾页&lt;/a&gt;"</span>;</span><br><span class="line"><span class="keyword">for</span> ($i = <span class="number">1</span>; $i &lt;= $end; $i++) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">" &lt;a href='page.php?page=$i'&gt;$i&lt;/a&gt;"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;/html&gt;"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 关闭连接</span></span><br><span class="line">mysqli_close($link);</span><br></pre></td></tr></table></figure>
+<p>这个例子有很多不足之处，比如分页不是从sql里分页而是拿出数据后使用php的逻辑来分页肯定有效率问题，这里不做讨论，主要是用来显示<code>PHP</code>操作<code>MySQL</code>的流程。明白了上面的流程就可以看CodeIgniter对数据库操作的实现机制了。详细的介绍可参考官网<span class="exturl" data-url="aHR0cHM6Ly9jb2RlaWduaXRlci5vcmcuY24vdXNlcl9ndWlkZS9kYXRhYmFzZS9pbmRleC5odG1s" title="https://codeigniter.org.cn/user_guide/database/index.html">数据库参考<i class="fa fa-external-link"></i></span>。下面从<code>代码</code>的角度学习这部分。</p>
+<hr>
+<h4 id="数据库配置"><a href="#数据库配置" class="headerlink" title="数据库配置"></a>数据库配置</h4><p>APPPATH . ‘config/database.php’为数据库的配置文件</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">$db[<span class="string">'default'</span>] = <span class="keyword">array</span>(</span><br><span class="line">	<span class="string">'dsn'</span>	=&gt; <span class="string">''</span>,</span><br><span class="line">	<span class="string">'hostname'</span> =&gt; <span class="string">'localhost'</span>,</span><br><span class="line">	<span class="string">'port'</span> =&gt; <span class="number">3306</span>,</span><br><span class="line">	<span class="string">'username'</span> =&gt; <span class="string">'root'</span>,</span><br><span class="line">	<span class="string">'password'</span> =&gt; <span class="string">'root'</span>,</span><br><span class="line">	<span class="string">'database'</span> =&gt; <span class="string">''</span>,</span><br><span class="line">	<span class="string">'dbdriver'</span> =&gt; <span class="string">'mysqli'</span>,</span><br><span class="line">	<span class="string">'dbprefix'</span> =&gt; <span class="string">''</span>,</span><br><span class="line">	<span class="string">'pconnect'</span> =&gt; <span class="keyword">FALSE</span>,</span><br><span class="line">	<span class="string">'db_debug'</span> =&gt; (ENVIRONMENT !== <span class="string">'production'</span>),</span><br><span class="line">	<span class="string">'cache_on'</span> =&gt; <span class="keyword">FALSE</span>,</span><br><span class="line">	<span class="string">'cachedir'</span> =&gt; <span class="string">''</span>,</span><br><span class="line">	<span class="string">'char_set'</span> =&gt; <span class="string">'utf8'</span>,</span><br><span class="line">	<span class="string">'dbcollat'</span> =&gt; <span class="string">'utf8_general_ci'</span>,</span><br><span class="line">	<span class="string">'swap_pre'</span> =&gt; <span class="string">''</span>,</span><br><span class="line">	<span class="string">'encrypt'</span> =&gt; <span class="keyword">FALSE</span>,</span><br><span class="line">	<span class="string">'compress'</span> =&gt; <span class="keyword">FALSE</span>,</span><br><span class="line">	<span class="string">'stricton'</span> =&gt; <span class="keyword">FALSE</span>,</span><br><span class="line">	<span class="string">'failover'</span> =&gt; <span class="keyword">array</span>(),</span><br><span class="line">	<span class="string">'save_queries'</span> =&gt; <span class="keyword">TRUE</span></span><br><span class="line">);</span><br><span class="line">$db[<span class="string">'codeigniter'</span>] = <span class="keyword">array</span>(</span><br><span class="line">    <span class="string">'dsn'</span>	=&gt; <span class="string">''</span>,                   <span class="comment">// DNS连接字符串（该字符串包含了所有的数据库配置信息）</span></span><br><span class="line">    <span class="string">'hostname'</span> =&gt; <span class="string">'localhost'</span>,     <span class="comment">// 数据库的主机名</span></span><br><span class="line">    <span class="string">'port'</span> =&gt; <span class="number">3306</span>,                 <span class="comment">// 数据库端口号</span></span><br><span class="line">    <span class="string">'username'</span> =&gt; <span class="string">'codeigniter'</span>,  <span class="comment">// 需要连接到数据库的用户名</span></span><br><span class="line">    <span class="string">'password'</span> =&gt; <span class="string">'helloworld'</span>,   <span class="comment">// 登录数据库的密码</span></span><br><span class="line">    <span class="string">'database'</span> =&gt; <span class="string">'codeigniter'</span>,  <span class="comment">// 需要连接的数据库名</span></span><br><span class="line">    <span class="string">'dbdriver'</span> =&gt; <span class="string">'mysqli'</span>,       <span class="comment">// 数据库类型: mysqli postgres odbc</span></span><br><span class="line">    <span class="string">'dbprefix'</span> =&gt; <span class="string">''</span>,             <span class="comment">// 当使用查询构造器查询时，可以选择性的为表加个前缀</span></span><br><span class="line">    <span class="string">'pconnect'</span> =&gt; <span class="keyword">FALSE</span>,          <span class="comment">// 是否使用持续连接</span></span><br><span class="line">    <span class="string">'db_debug'</span> =&gt; (ENVIRONMENT !== <span class="string">'production'</span>), <span class="comment">// 是否显示数据库错误信息</span></span><br><span class="line">    <span class="string">'cache_on'</span> =&gt; <span class="keyword">FALSE</span>,             <span class="comment">// 是否开启数据库查询缓存</span></span><br><span class="line">    <span class="string">'cachedir'</span> =&gt; <span class="string">''</span>,                <span class="comment">// 数据库查询缓存目录所在服务器的绝对路径</span></span><br><span class="line">    <span class="string">'char_set'</span> =&gt; <span class="string">'utf8'</span>,           <span class="comment">// 与数据库通信时所使用的字符集</span></span><br><span class="line">    <span class="string">'dbcollat'</span> =&gt; <span class="string">'utf8_general_ci'</span>,<span class="comment">// 只是用与mysql和mysqli数据库驱动</span></span><br><span class="line">    <span class="string">'swap_pre'</span> =&gt; <span class="string">''</span>,     <span class="comment">// 替换默认的 dbprefix 表前缀，该项设置对于分布式应用是非常有用的， 可以在查询中使用由最终用户定制的表前缀。</span></span><br><span class="line">    <span class="string">'encrypt'</span> =&gt; <span class="keyword">FALSE</span>,  <span class="comment">// 是否使用加密连接</span></span><br><span class="line">    <span class="string">'compress'</span> =&gt; <span class="keyword">FALSE</span>, <span class="comment">// 是否使用客户端压缩协议（只用于MySQL）</span></span><br><span class="line">    <span class="string">'stricton'</span> =&gt; <span class="keyword">FALSE</span>, <span class="comment">// 是否强制使用 "Strict Mode" 连接, 在开发程序时，使用 strict SQL 是一个好习惯。</span></span><br><span class="line">    <span class="string">'failover'</span> =&gt; <span class="keyword">array</span>(),</span><br><span class="line">    <span class="string">'save_queries'</span> =&gt; <span class="keyword">TRUE</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">$active_group = <span class="string">'codeigniter'</span>; <span class="comment">// 告訴系统要使用codeigniter数据库</span></span><br><span class="line">$query_builder = <span class="keyword">TRUE</span>;         <span class="comment">// 数据库初始化时对查询构造器类进行全局设定</span></span><br></pre></td></tr></table></figure>
+<p>使用哪款<strong>数据库</strong>，使用哪个<strong>端口</strong>会根据项目需求具体情况具体分析，CodeIgniter将这些信息整合到具体的配置文件中来统一配置。然后根据配置信息选择对应的<code>数据库适配器</code>、<code>查询构造类</code>等。各类数据库适配器目录结构如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">H:\CodeIgniter-3.1.11\system&gt;tree</span><br><span class="line">卷 test 的文件夹 PATH 列表</span><br><span class="line">卷序列号为 AC46-F491</span><br><span class="line">H:.</span><br><span class="line">├─core</span><br><span class="line">│  └─compat</span><br><span class="line">├─database</span><br><span class="line">│  └─drivers</span><br><span class="line">│      ├─cubrid</span><br><span class="line">│      ├─ibase</span><br><span class="line">│      ├─mssql</span><br><span class="line">│      ├─mysql</span><br><span class="line">│      ├─mysqli</span><br><span class="line">│      │      index.html</span><br><span class="line">│      │      mysqli_driver.php</span><br><span class="line">│      │      mysqli_forge.php</span><br><span class="line">│      │      mysqli_result.php</span><br><span class="line">│      │      mysqli_utility.php</span><br><span class="line">│      ├─oci8</span><br><span class="line">│      ├─odbc</span><br><span class="line">│      ├─pdo</span><br><span class="line">│      │  └─subdrivers</span><br><span class="line">│      ├─postgre</span><br><span class="line">│      ├─sqlite</span><br><span class="line">│      ├─sqlite3</span><br><span class="line">│      └─sqlsrv</span><br><span class="line">├─fonts</span><br><span class="line">├─...</span><br></pre></td></tr></table></figure>
+<p>限于篇幅，上面仅<strong>手动</strong>加上了<code>mysqli</code>目录下的文件，其实每个数据库都有相对应的<code>driver</code>, <code>forge</code>, <code>result</code>, <code>utility</code>等文件。CodeIgniter根据配置文件中的数据库信息加载对应的文件。</p>
+<h4 id="连接数据库"><a href="#连接数据库" class="headerlink" title="连接数据库"></a>连接数据库</h4><p>连接数据库有<code>自动连接</code>和<code>手动连接</code>两种方式，其中在加载<code>model</code>时可以设置同时连接数据库，在加载<code>dbutilh</code>和<code>dbforge</code>时则会间接的连接数据库。这里的连接数据库都是执行的<code>$this-&gt;load-&gt;database()</code>语句。</p>
+<h5 id="自动连接"><a href="#自动连接" class="headerlink" title="自动连接"></a>自动连接</h5><p><code>自动连接</code>特性将在每一个页面加载时自动实例化数据库类。要启用<code>自动连接</code>， 可在 <code>application/config/autoload.php</code>中的<code>library</code>数组里添加<code>database</code>:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$autoload[<span class="string">'libraries'</span>] = <span class="keyword">array</span>(<span class="string">'database'</span>);</span><br></pre></td></tr></table></figure>
+<p>配置好后会在<code>初始化Loader类</code>时完成数据库的连接，可参考<a href="https://pureven.cc/2020/02/17/codeigniter-loader/">Loader类</a>中<code>initialize()</code>的方法。通过该方法间接执行了<code>this-&gt;load-&gt;database()</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($autoload[<span class="string">'libraries'</span>]) &amp;&amp; count($autoload[<span class="string">'libraries'</span>]) &gt; <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Load the database driver. 此处是指初始化时就加载数据库</span></span><br><span class="line">    <span class="keyword">if</span> (in_array(<span class="string">'database'</span>, $autoload[<span class="string">'libraries'</span>]))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 加载DB类，只有加载了才能使用$this-&gt;db-&gt;...</span></span><br><span class="line">        <span class="keyword">$this</span>-&gt;database();</span><br><span class="line">        <span class="comment">// 返回不包含'database'的数组</span></span><br><span class="line">        $autoload[<span class="string">'libraries'</span>] = array_diff($autoload[<span class="string">'libraries'</span>], <span class="keyword">array</span>(<span class="string">'database'</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Load all other libraries</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;library($autoload[<span class="string">'libraries'</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="手动连接"><a href="#手动连接" class="headerlink" title="手动连接"></a>手动连接</h5><p><code>手动连接</code>是指可以手动执行<code>$this-&gt;load-&gt;database()</code>语句来连接数据库，详见<span class="exturl" data-url="aHR0cHM6Ly9jb2RlaWduaXRlci5vcmcuY24vdXNlcl9ndWlkZS9kYXRhYmFzZS9jb25uZWN0aW5nLmh0bWwjaWQ1" title="https://codeigniter.org.cn/user_guide/database/connecting.html#id5">手动连接到数据库<i class="fa fa-external-link"></i></span>。</p>
+<hr>
+<h4 id="连接过程分析"><a href="#连接过程分析" class="headerlink" title="连接过程分析"></a>连接过程分析</h4><p>当执行<code>$this-&gt;load-&gt;database()</code>语句时实际上执行的是<code>Loader类</code>中的<code>database()</code>方法，在<a href>Loader类</a>中有相关分析，这里单独拿出database()方法的代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* <span class="doctag">@params</span> - 数据库组名称或配置选项</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span> - 是否返回加载的数据库对象，false表示将数据库类加载到超级对象，true表示直接返回数据库类实例</span></span><br><span class="line"><span class="comment">* <span class="doctag">@query</span>_builder 是否加载查询构造器</span></span><br><span class="line"><span class="comment">**/</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">database</span><span class="params">($params = <span class="string">''</span>, $return = FALSE, $query_builder = NULL)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 获取超级对象</span></span><br><span class="line">    $CI =&amp; get_instance();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果要求返回数据库类实例，但是超级对象中已经加载并建立了到数据库的连接则直接返回false</span></span><br><span class="line">    <span class="keyword">if</span> ($return === <span class="keyword">FALSE</span> &amp;&amp; $query_builder === <span class="keyword">NULL</span> &amp;&amp; <span class="keyword">isset</span>($CI-&gt;db) &amp;&amp; is_object($CI-&gt;db) &amp;&amp; ! <span class="keyword">empty</span>($CI-&gt;db-&gt;conn_id))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">FALSE</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重点： 加载DB.php文件，该文件中只有一个DB方法，加载数据库类和加载构造器都是通过这个方法来加载的</span></span><br><span class="line">    <span class="keyword">require_once</span>(BASEPATH.<span class="string">'database/DB.php'</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 这里判断如果要求返回数据库类的实例则直接通过DB()方法返回</span></span><br><span class="line">    <span class="keyword">if</span> ($return === <span class="keyword">TRUE</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> DB($params, $query_builder);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Initialize the db variable. Needed to prevent</span></span><br><span class="line">    <span class="comment">// reference errors with some configurations</span></span><br><span class="line">    $CI-&gt;db = <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Load the DB class</span></span><br><span class="line">    $CI-&gt;db =&amp; DB($params, $query_builder);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面再来看看DB方法，该方法也就是<code>BASEPATH . &#39;database/DB.php&#39;</code>的内容</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* <span class="doctag">@params</span> - 数据库连接值，一般为数据库组名称或配置选项</span></span><br><span class="line"><span class="comment">* <span class="doctag">@query</span>_builder_override - 是否加载查询构造器</span></span><br><span class="line"><span class="comment">**/</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> &amp;<span class="title">DB</span><span class="params">($params = <span class="string">''</span>, $query_builder_override = NULL)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// 如果数据连接值不是DSN字符串则加载配置文件database.php</span></span><br><span class="line">    <span class="keyword">if</span> (is_string($params) &amp;&amp; strpos($params, <span class="string">'://'</span>) === <span class="keyword">FALSE</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// database.php文件不存在则报错</span></span><br><span class="line">        <span class="keyword">if</span> ( ! file_exists($file_path = APPPATH.<span class="string">'config/'</span>.ENVIRONMENT.<span class="string">'/database.php'</span>)</span><br><span class="line">            &amp;&amp; ! file_exists($file_path = APPPATH.<span class="string">'config/database.php'</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            show_error(<span class="string">'The configuration file database.php does not exist.'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">// 加载database.php文件</span></span><br><span class="line">        <span class="keyword">include</span>($file_path);</span><br><span class="line">    </span><br><span class="line">        <span class="comment">// CI_Controller类中会调用$this-&gt;load-&gt;initialize();语句将autoload.php文件设置的默认加载项加载了</span></span><br><span class="line">        <span class="comment">// 因此如果存在CI_Controller说明已经加载了默认加载项</span></span><br><span class="line">        <span class="keyword">if</span> (class_exists(<span class="string">'CI_Controller'</span>, <span class="keyword">FALSE</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 如果默认加载项包含package，则需要判断package目录下有没有database.php配置文件，有则加载</span></span><br><span class="line">            <span class="keyword">foreach</span> (get_instance()-&gt;load-&gt;get_package_paths() <span class="keyword">as</span> $path)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> ($path !== APPPATH)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span> (file_exists($file_path = $path.<span class="string">'config/'</span>.ENVIRONMENT.<span class="string">'/database.php'</span>))</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">include</span>($file_path);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">elseif</span> (file_exists($file_path = $path.<span class="string">'config/database.php'</span>))</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">include</span>($file_path);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">// database.php文件中定义了$db数组，加载完database.php文件后如果不存在$db数组保存退出</span></span><br><span class="line">        <span class="keyword">if</span> ( ! <span class="keyword">isset</span>($db) <span class="keyword">OR</span> count($db) === <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            show_error(<span class="string">'No database connection settings were found in the database config file.'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">// $active_group表示要使用哪个数据库组</span></span><br><span class="line">        <span class="comment">// 如果指定了数据库组就使用指定的，不指定就使用默认的，通常在database.php文件中会通过$active_group = 'default';语句来设置</span></span><br><span class="line">        <span class="keyword">if</span> ($params !== <span class="string">''</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            $active_group = $params;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">// 如果不存在则说明没有指定要连接的数据库，保存退出</span></span><br><span class="line">        <span class="keyword">if</span> ( ! <span class="keyword">isset</span>($active_group))</span><br><span class="line">        &#123;</span><br><span class="line">            show_error(<span class="string">'You have not specified a database connection group via $active_group in your config/database.php file.'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">elseif</span> ( ! <span class="keyword">isset</span>($db[$active_group]))</span><br><span class="line">        &#123;   <span class="comment">// 如果指定了数据库组，但是这个组内没有连接数据库的相关信息也会报错退出</span></span><br><span class="line">            show_error(<span class="string">'You have specified an invalid database connection group ('</span>.$active_group.<span class="string">') in your config/database.php file.'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">// 将连接数据库需要的信息赋值给$params， 这里的信息包括hostname、username、password、database、dbdriver、char_set...</span></span><br><span class="line">        $params = $db[$active_group];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">elseif</span> (is_string($params))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * DSNs必须有以下属性: $dsn = 'driver://username:password<span class="doctag">@hostname</span>/database';</span></span><br><span class="line"><span class="comment">         * 例如： $dsn = 'pgsql:host=localhost;port=5432;dbname=database_name';</span></span><br><span class="line"><span class="comment">         * 使用parse_url方法解析dsn，并将解析后的关联数组赋值给$dsn，对于严重不合格的URL，将返回false</span></span><br><span class="line"><span class="comment">         * 下面会看到解析失败则报错退出</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">if</span> (($dsn = @parse_url($params)) === <span class="keyword">FALSE</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            show_error(<span class="string">'Invalid DB Connection String'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        $params = <span class="keyword">array</span>(</span><br><span class="line">            <span class="string">'dbdriver'</span>	=&gt; $dsn[<span class="string">'scheme'</span>],</span><br><span class="line">            <span class="comment">// 这里要注意rawurldecode()方法对已编码的URL字符串进行解码</span></span><br><span class="line">            <span class="string">'hostname'</span>	=&gt; <span class="keyword">isset</span>($dsn[<span class="string">'host'</span>]) ? rawurldecode($dsn[<span class="string">'host'</span>]) : <span class="string">''</span>,</span><br><span class="line">            <span class="string">'port'</span>		=&gt; <span class="keyword">isset</span>($dsn[<span class="string">'port'</span>]) ? rawurldecode($dsn[<span class="string">'port'</span>]) : <span class="string">''</span>,</span><br><span class="line">            <span class="string">'username'</span>	=&gt; <span class="keyword">isset</span>($dsn[<span class="string">'user'</span>]) ? rawurldecode($dsn[<span class="string">'user'</span>]) : <span class="string">''</span>,</span><br><span class="line">            <span class="string">'password'</span>	=&gt; <span class="keyword">isset</span>($dsn[<span class="string">'pass'</span>]) ? rawurldecode($dsn[<span class="string">'pass'</span>]) : <span class="string">''</span>,</span><br><span class="line">            <span class="string">'database'</span>	=&gt; <span class="keyword">isset</span>($dsn[<span class="string">'path'</span>]) ? rawurldecode(substr($dsn[<span class="string">'path'</span>], <span class="number">1</span>)) : <span class="string">''</span></span><br><span class="line">        );</span><br><span class="line">    </span><br><span class="line">        <span class="comment">// 解析问号？之后的参数，如get请求后跟的参数</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">isset</span>($dsn[<span class="string">'query'</span>]))</span><br><span class="line">        &#123;</span><br><span class="line">            parse_str($dsn[<span class="string">'query'</span>], $extra);</span><br><span class="line">    </span><br><span class="line">            <span class="keyword">foreach</span> ($extra <span class="keyword">as</span> $key =&gt; $val)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> (is_string($val) &amp;&amp; in_array(strtoupper($val), <span class="keyword">array</span>(<span class="string">'TRUE'</span>, <span class="string">'FALSE'</span>, <span class="string">'NULL'</span>)))</span><br><span class="line">                &#123;</span><br><span class="line">                    $val = var_export($val, <span class="keyword">TRUE</span>);</span><br><span class="line">                &#125;</span><br><span class="line">    </span><br><span class="line">                $params[$key] = $val;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 没有指定数据库报错退出</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">empty</span>($params[<span class="string">'dbdriver'</span>]))</span><br><span class="line">    &#123;</span><br><span class="line">        show_error(<span class="string">'You have not selected a database type to connect to.'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// $query_builder表示是否加载数据库构造类，一般从database.php定义好，不过可以动态的改变，</span></span><br><span class="line">    <span class="comment">// 比如这里通过$query_builder_override的值来覆盖</span></span><br><span class="line">    <span class="keyword">if</span> ($query_builder_override !== <span class="keyword">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        $query_builder = $query_builder_override;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// $active_record变量在CodeIgniter2版本中设置，CodeIgniter3中删除了，这里做兼容处理</span></span><br><span class="line">    <span class="keyword">elseif</span> ( ! <span class="keyword">isset</span>($query_builder) &amp;&amp; <span class="keyword">isset</span>($active_record))</span><br><span class="line">    &#123;</span><br><span class="line">        $query_builder = $active_record;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 重点： 加载DB_driver.php文件，这个文件是一个抽象类CI_DB_driver</span></span><br><span class="line">    <span class="comment">// 定义了数据库的连接、选择、字符集设置、sql语句执行...一个基本的方法。</span></span><br><span class="line">    <span class="keyword">require_once</span>(BASEPATH.<span class="string">'database/DB_driver.php'</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> ( ! <span class="keyword">isset</span>($query_builder) <span class="keyword">OR</span> $query_builder === <span class="keyword">TRUE</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 如果需要加载数据库构造类则加载BASEPATH.'database/DB_query_builer.php'文件</span></span><br><span class="line">        <span class="comment">// 该文件定义了一个抽象类CI_DB_query_builder，继承自CI_DB_driver</span></span><br><span class="line">        <span class="comment">// 查询构造类增加了查询有关的条件方法，使用起来灰常方便</span></span><br><span class="line">        <span class="comment">// 详情参考官网: https://codeigniter.org.cn/user_guide/database/query_builder.html</span></span><br><span class="line">        <span class="keyword">require_once</span>(BASEPATH.<span class="string">'database/DB_query_builder.php'</span>);</span><br><span class="line">        <span class="keyword">if</span> ( ! class_exists(<span class="string">'CI_DB'</span>, <span class="keyword">FALSE</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 这里很明确了，如果加载查询构造类，则CI_DB继承CI_DB_query_builder</span></span><br><span class="line">            <span class="class"><span class="keyword">class</span> <span class="title">CI_DB</span> <span class="keyword">extends</span> <span class="title">CI_DB_query_builder</span> </span>&#123; &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">elseif</span> ( ! class_exists(<span class="string">'CI_DB'</span>, <span class="keyword">FALSE</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 如果不加载查询构造类则直接继承CI_DB_driver</span></span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">CI_DB</span> <span class="keyword">extends</span> <span class="title">CI_DB_driver</span> </span>&#123; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 根据配置信息加载对应的driver文件，比如BASEPATH . 'database/drivers/mysqli/mysqli_driver.php'文件</span></span><br><span class="line">    <span class="comment">// 该文件继承自CI_DB，具体实现了数据库的连接、选择、字符集设置、事务相关操作等等重要方法，</span></span><br><span class="line">    <span class="comment">// 因为每种数据库的这些方法不一样需要具体数据库具体设置</span></span><br><span class="line">    $driver_file = BASEPATH.<span class="string">'database/drivers/'</span>.$params[<span class="string">'dbdriver'</span>].<span class="string">'/'</span>.$params[<span class="string">'dbdriver'</span>].<span class="string">'_driver.php'</span>;</span><br><span class="line">    </span><br><span class="line">    file_exists($driver_file) <span class="keyword">OR</span> show_error(<span class="string">'Invalid DB driver'</span>); <span class="comment">// 每种driver文件只能加载一次，重复加载则报错退出</span></span><br><span class="line">    <span class="keyword">require_once</span>($driver_file);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 实例化DB适配器</span></span><br><span class="line">    $driver = <span class="string">'CI_DB_'</span>.$params[<span class="string">'dbdriver'</span>].<span class="string">'_driver'</span>;</span><br><span class="line">    $DB = <span class="keyword">new</span> $driver($params);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 如果存在subdrivers目录则加载subdrivers目录下的driver文件，比如pdo_mysql_driver.php文件</span></span><br><span class="line">    <span class="keyword">if</span> ( ! <span class="keyword">empty</span>($DB-&gt;subdriver))</span><br><span class="line">    &#123;</span><br><span class="line">        $driver_file = BASEPATH.<span class="string">'database/drivers/'</span>.$DB-&gt;dbdriver.<span class="string">'/subdrivers/'</span>.$DB-&gt;dbdriver.<span class="string">'_'</span>.$DB-&gt;subdriver.<span class="string">'_driver.php'</span>;</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">if</span> (file_exists($driver_file))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">require_once</span>($driver_file);</span><br><span class="line">            $driver = <span class="string">'CI_DB_'</span>.$DB-&gt;dbdriver.<span class="string">'_'</span>.$DB-&gt;subdriver.<span class="string">'_driver'</span>;</span><br><span class="line">            $DB = <span class="keyword">new</span> $driver($params);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 重要： 初始化函数完成了数据库的连接和字符集的设置</span></span><br><span class="line">    $DB-&gt;initialize();</span><br><span class="line">    <span class="keyword">return</span> $DB;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从代码中得知，<strong>首</strong>先通过<code>require_once(BASEPATH.&#39;database/DB_driver.php&#39;);</code>语句加载了抽象类<code>CI_DB_driver</code>，该类中定义了数据库连接、选择、字符集设置、sql语句执行等基本方法，这些方法在数据库适配类中完整实现。<strong>然</strong>后如果加载查询构造器则通过<code>require_once(BASEPATH.&#39;database/DB_query_builder.php&#39;);</code>语句加载<code>CI_DB_query_builder</code>抽象类，该类继承<code>CI_DB_driver</code>并定义了查询有关的方法，使用起来非常方便，<strong>然</strong>后根据是否加载查询构造器来定义<code>CI_DB</code>，<strong>最</strong>后实例化<code>CI_DB</code>。</p>
+<p>如果加载了查询构造器就可以使用<code>$this-&gt;db-&gt;select()-&gt;where()-&gt;like()</code>等方法了，这是因为查询构造器中定义了这类方法。下面再来看看另一个常用数据库类<code>dbforge</code>。</p>
+<hr>
+<h4 id="数据库工厂类"><a href="#数据库工厂类" class="headerlink" title="数据库工厂类"></a>数据库工厂类</h4><p>在migrate文件中经常会用的<code>dbforge</code>，该类默认在迁移类(<code>CI_Migration</code>)中加载，用来对数据表做一些操作，这里的<code>dbforge</code>即<span class="exturl" data-url="aHR0cHM6Ly9jb2RlaWduaXRlci5vcmcuY24vdXNlcl9ndWlkZS9kYXRhYmFzZS9mb3JnZS5odG1sI2lkMQ==" title="https://codeigniter.org.cn/user_guide/database/forge.html#id1">数据库工厂类<i class="fa fa-external-link"></i></span>，该类主要完成一下功能：</p>
+<ul>
+<li>创建和删除数据库</li>
+<li>创建和删除数据表，包括添加字段、添加键、创建表、删除表、重命名表等</li>
+<li>修改表，包括给表添加列、从表中删除列、修改表中的某个列等</li>
+</ul>
+<p>下面来看代码实现：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">dbforge</span><span class="params">($db = NULL, $return = FALSE)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $CI =&amp; get_instance();</span><br><span class="line">    <span class="keyword">if</span> ( ! is_object($db) <span class="keyword">OR</span> ! ($db <span class="keyword">instanceof</span> CI_DB))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 先要连接数据库才能后续操作</span></span><br><span class="line">        class_exists(<span class="string">'CI_DB'</span>, <span class="keyword">FALSE</span>) <span class="keyword">OR</span> <span class="keyword">$this</span>-&gt;database();</span><br><span class="line">        $db =&amp; $CI-&gt;db;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 加载BASEPATH . 'database/DB_forge.php'文件，即抽象类CI_DB_forge</span></span><br><span class="line">    <span class="keyword">require_once</span>(BASEPATH.<span class="string">'database/DB_forge.php'</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 根据选择的数据库从适配器目录下加载对应的forge类，比如CI_DB_mysqli_forge类，该类继承自CI_DB_forge</span></span><br><span class="line">    <span class="keyword">require_once</span>(BASEPATH.<span class="string">'database/drivers/'</span>.$db-&gt;dbdriver.<span class="string">'/'</span>.$db-&gt;dbdriver.<span class="string">'_forge.php'</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( ! <span class="keyword">empty</span>($db-&gt;subdriver))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 例如pdo方式操作mysql，则要加载BASEPATH . 'database/drivers/pdo/subdrivers/pdo_mysql_forge.php'</span></span><br><span class="line">        $driver_path = BASEPATH.<span class="string">'database/drivers/'</span>.$db-&gt;dbdriver.<span class="string">'/subdrivers/'</span>.$db-&gt;dbdriver.<span class="string">'_'</span>.$db-&gt;subdriver.<span class="string">'_forge.php'</span>;</span><br><span class="line">        <span class="keyword">if</span> (file_exists($driver_path))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">require_once</span>($driver_path);</span><br><span class="line">            $class = <span class="string">'CI_DB_'</span>.$db-&gt;dbdriver.<span class="string">'_'</span>.$db-&gt;subdriver.<span class="string">'_forge'</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        $class = <span class="string">'CI_DB_'</span>.$db-&gt;dbdriver.<span class="string">'_forge'</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果返回对象则返回CI_DB_mysqli_forge类的实例</span></span><br><span class="line">    <span class="keyword">if</span> ($return === <span class="keyword">TRUE</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> $class($db);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 否则将该实例加入超级对象$CI中</span></span><br><span class="line">    $CI-&gt;dbforge = <span class="keyword">new</span> $class($db);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当执行<code>$this-&gt;load-&gt;dbforge();</code>语句后就可以通过<code>$this-&gt;dbforge-&gt;...</code>来管理数据库了。</p>
+<h4 id="数据库工具类"><a href="#数据库工具类" class="headerlink" title="数据库工具类"></a>数据库工具类</h4><p>数据库工具类暂时未用到，后续补上。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2020/03/17/codeigniter-database/" title="CodeIgniter数据库相关功能的实现机制">https://pureven.cc/2020/03/17/codeigniter-database/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/03/15/codeigniter-migration/" rel="next" title="CodeIgniter迁移类文件Migration.php">
+                  <i class="fa fa-chevron-left"></i> CodeIgniter迁移类文件Migration.php
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/03/27/codeigniter-phpmailer/" rel="prev" title="使用PHPMailer发送邮件">
+                  使用PHPMailer发送邮件 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据库配置"><span class="nav-number">2.</span> <span class="nav-text">数据库配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#连接数据库"><span class="nav-number">3.</span> <span class="nav-text">连接数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#自动连接"><span class="nav-number">3.1.</span> <span class="nav-text">自动连接</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#手动连接"><span class="nav-number">3.2.</span> <span class="nav-text">手动连接</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#连接过程分析"><span class="nav-number">4.</span> <span class="nav-text">连接过程分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据库工厂类"><span class="nav-number">5.</span> <span class="nav-text">数据库工厂类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据库工具类"><span class="nav-number">6.</span> <span class="nav-text">数据库工具类</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

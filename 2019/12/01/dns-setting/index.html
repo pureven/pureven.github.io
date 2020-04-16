@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言在阿里云上注册了一个域名pureven.cc，选择.cc是因为感觉有个性吧。但是注册完成后紧跟着有几个问题：①如何将域名跟我的网站联系起来呢？②我的博客是放到github上面的，并给仓库取名pureven.github.io，如何将注册的域名跟我的博客仓库连接起来，实现当我访问pureven.cc的时候直接访问我的博客？">
+<meta name="keywords" content="网络">
+<meta property="og:type" content="article">
+<meta property="og:title" content="域名解析">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;01&#x2F;dns-setting&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言在阿里云上注册了一个域名pureven.cc，选择.cc是因为感觉有个性吧。但是注册完成后紧跟着有几个问题：①如何将域名跟我的网站联系起来呢？②我的博客是放到github上面的，并给仓库取名pureven.github.io，如何将注册的域名跟我的博客仓库连接起来，实现当我访问pureven.cc的时候直接访问我的博客？">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;01&#x2F;dns-setting&#x2F;20191201145557.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;01&#x2F;dns-setting&#x2F;20191204103633.png">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.112Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;01&#x2F;dns-setting&#x2F;20191201145557.png">
+
+<link rel="canonical" href="https://pureven.cc/2019/12/01/dns-setting/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>域名解析 | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/12/01/dns-setting/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          域名解析
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-01 12:32:04" itemprop="dateCreated datePublished" datetime="2019-12-01T12:32:04+08:00">2019-12-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/12/01/dns-setting/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/01/dns-setting/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>13k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>12 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>在阿里云上注册了一个域名<code>pureven.cc</code>，选择<code>.cc</code>是因为感觉有个性吧。但是注册完成后紧跟着有几个问题：①如何将域名跟我的网站联系起来呢？②我的博客是放到github上面的，并给仓库取名<code>pureven.github.io</code>，如何将注册的域名跟我的博客仓库连接起来，实现当我访问<code>pureven.cc</code>的时候直接访问我的博客？</p>
+<a id="more"></a>
+
+<h4 id="什么是域名解析"><a href="#什么是域名解析" class="headerlink" title="什么是域名解析"></a>什么是域名解析</h4><p>为了解决上述问题，这里引入域名解析的概念。<code>域名解析</code><strong>就是把域名指向网站所在服务器的IP，让人们通过注册的域名可以访问到网站</strong>。IP地址是网络上标识服务器的数字地址，为了方便记忆，使用域名来代替IP地址。域名解析就是域名到IP地址的转换过程，域名的解析工作由DNS服务器完成。DNS服务器会把域名解析到一个IP地址，然后在此IP地址的主机上将一个子目录与域名绑定。域名解析时会添加解析记录，这些记录有：A记录、AAAA记录、CNAME记录、MX记录、NS记录、TXT记录、SRV记录、URL转发。</p>
+<hr>
+<h4 id="添加记录各选项说明"><a href="#添加记录各选项说明" class="headerlink" title="添加记录各选项说明"></a>添加记录各选项说明</h4><p>以阿里云域名解析记录类型为例，一条记录由<code>记录类型</code>、<code>主机记录</code>、<code>解析线路</code>、<code>记录值</code>和<code>TTL</code>组成，如图：<br><img src="/2019/12/01/dns-setting/20191201145557.png" class="nofancybox"></p>
+<h5 id="记录类型"><a href="#记录类型" class="headerlink" title="记录类型"></a>记录类型</h5><p>记录类型有以下几种：</p>
+<table>
+<thead>
+<tr>
+<th align="right">记录类型</th>
+<th align="right">介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">A</td>
+<td align="right">地址记录，用来指定域名的 IPv4 地址（例如 8.8.8.8），如果需要将域名指向一个 IP 地址（外网地址）</td>
+</tr>
+<tr>
+<td align="right">CNAME</td>
+<td align="right">将域名指向另一个域名，即用来定义域名的别名，方便实现将多个域名解析到同一个 IP 地址</td>
+</tr>
+<tr>
+<td align="right">AAAA</td>
+<td align="right">用来指定主机名（或域名）对应的 IPv6 地址（例如 ff06:0:0:0:0:0:0:c3）记录<code>注意：截止到11月25号，IPV4已经用完</code></td>
+</tr>
+<tr>
+<td align="right">NS</td>
+<td align="right">用来指定域名由哪个DNS服务器进行解析，比如把域名<code>blog.pureven.cc</code>交给<code>12.34.56.78</code>这台服务器进行解析，则需要设置<code>blog.pureven.cc</code>的NS记录，需要注意的是<code>NS的优先级比A/CNAME的高</code></td>
+</tr>
+<tr>
+<td align="right">MX</td>
+<td align="right">用来指定收件人域名的邮件服务器，SMTP 协议会根据 MX 记录的值来决定邮件的路由过程，例如用户所用的邮件是以域名<code>pureven.com</code>为结尾的，则需要在管理界面中添加该域名的MX记录来处理所有以<code>@pureven.com</code>结尾的邮件</td>
+</tr>
+<tr>
+<td align="right">SRV</td>
+<td align="right">记录提供特定的服务的服务器</td>
+</tr>
+<tr>
+<td align="right">SOA</td>
+<td align="right">称为起始授权机构记录，不同于 NS 记录用于标识多台域名解析服务器，SOA 记录用于在多台 NS 记录中哪一台是主 DNS 服务器</td>
+</tr>
+<tr>
+<td align="right">PTR</td>
+<td align="right">常用于反向地址解析，将 IP 地址解析到对应的名称</td>
+</tr>
+<tr>
+<td align="right">TXT</td>
+<td align="right">文本长度限制512，通常做SPF记录(反垃圾邮件)</td>
+</tr>
+<tr>
+<td align="right">CAA</td>
+<td align="right">CA证书颁发机构授权校验</td>
+</tr>
+<tr>
+<td align="right">显性URL</td>
+<td align="right">将域名重定向到另外一个地址，比如将<code>www.pureven.cc</code>显性转发到<code>www.pureven.com</code>后，当访问<code>www.pureven.cc</code>时，地址栏显示的地址是<code>www.pureven.com</code></td>
+</tr>
+<tr>
+<td align="right">隐性URL</td>
+<td align="right">与显性URL类似，但是会隐藏真实目标地址，比如将<code>www.pureven.cc</code>隐性转发到<code>www.pureven.com</code>后，当访问<code>www.pureven.cc</code>时，地址栏显示的是<code>www.pureven.cc</code>，实际访问的是<code>www.pureven.com</code></td>
+</tr>
+</tbody></table>
+<p><strong>说明：</strong> A记录就是把一个域名解析到一个IP地址（Address，特制数字IP地址），而CNAME记录就是把域名解析到另外一个域名。其功能是差不多，CNAME将几个主机名指向一个别名，其实跟指向IP地址是一样的，因为这个别名也要做一个A记录的。但是使用CNAME记录可以很方便地变更IP地址。如果一台服务器有100个网站，他们都做了别名，该台服务器变更IP时，只需要变更别名的A记录就可以了。</p>
+<hr>
+<h5 id="主机记录"><a href="#主机记录" class="headerlink" title="主机记录"></a>主机记录</h5><p>主机记录就是域名前缀，常见用法有：</p>
+<table>
+<thead>
+<tr>
+<th align="center">主机记录</th>
+<th align="center">用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">www</td>
+<td align="center">解析后的域名为<code>www.pureven.com</code></td>
+</tr>
+<tr>
+<td align="center">@</td>
+<td align="center">直接解析主域名 <code>pureven.com</code></td>
+</tr>
+<tr>
+<td align="center">*</td>
+<td align="center">泛解析，匹配其他所有域名 <code>*.pureven.com</code></td>
+</tr>
+<tr>
+<td align="center">mail</td>
+<td align="center">将域名解析为<code>mail.pureven.com</code>，通常用于解析邮箱服务器</td>
+</tr>
+<tr>
+<td align="center">二级域名</td>
+<td align="center">如：<code>abc.pureven.com</code>，填写abc</td>
+</tr>
+<tr>
+<td align="center">手机网站</td>
+<td align="center">如：<code>m.pureven.com</code>，填写m</td>
+</tr>
+<tr>
+<td align="center">显性URL</td>
+<td align="center">不支持泛解析（泛解析：将所有子域名解析到同一地址）</td>
+</tr>
+</tbody></table>
+<hr>
+<h5 id="解析线路"><a href="#解析线路" class="headerlink" title="解析线路"></a>解析线路</h5><p>不同套餐支持的解析线路，本域名使用的免费的版，因此支持<strong>默认、境外、移动、电信、联通、教育网、百度、必应、谷歌</strong></p>
+<p>下面时<span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kb2N1bWVudC9wcm9kdWN0LzMwMi84NjQz" title="https://cloud.tencent.com/document/product/302/8643">腾讯<i class="fa fa-external-link"></i></span>的说明：</p>
+<blockquote>
+<p>例如，将 cloud.tencent.com 设置【默认】线路解析到8.8.8.8，【广东】线路解析到9.9.9.9，【广东电信】线路解析到10.10.10.10，则广东的电信运营商用户访问将返回10.10.10.10的 IP 地址，广东非电信运营商用户访问将返回9.9.9.9的 IP 地址，非广东地区用户访问将返回8.8.8.8的 IP 地址。<br>此时若暂停广东电信线路或广东线路的解析，全国地区的解析都不会受到影响，将全部返回8.8.8.8的 IP 地址。所以无论是否添加地区或者运营商的线路，一定需要先添加好【默认】线路的解析。</p>
+<p>搜索引擎线路使用说明<br>搜索引擎线路可以设置百度、谷歌等的蜘蛛抓取不同的 IP 地址。例如，将 cloud.tencent.com 设置【默认】线路解析到8.8.8.8；【百度】线路解析到9.9.9.9；【搜狗】线路解析到10.10.10.10，则用户通过搜狗搜索到站点进行访问，将返回10.10.10.10的 IP 地址；通过百度搜索访问，将返回9.9.9.9的 IP 地址；直接访问站点，将返回8.8.8.8的 IP 地址。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>解析线路</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>默认</td>
+<td>若您未设置特定解析线路，则所有线路用户均访问该目标地址</td>
+</tr>
+<tr>
+<td>联通</td>
+<td>单独为用【联通线路】访问的用户指定目标地址，其他用户仍然访问默认的目标地址</td>
+</tr>
+<tr>
+<td>电信</td>
+<td>单独为用【电信线路】访问的用户指定目标地址，其他用户仍然访问默认的目标地址</td>
+</tr>
+<tr>
+<td>移动</td>
+<td>单独为用【移动线路】访问的用户指定目标地址，其他用户仍然访问默认的目标地址</td>
+</tr>
+<tr>
+<td>境外</td>
+<td>单独为用【境外线路】访问的用户指定目标地址，其他用户仍然访问默认的目标地址</td>
+</tr>
+<tr>
+<td>教育网</td>
+<td>单独为用【教育网线路】访问的用户指定目标地址，其他用户仍然访问默认的目标地址</td>
+</tr>
+<tr>
+<td>搜索引擎</td>
+<td>指定一个服务器IP让搜索引擎（谷歌、百度、必应等）蜘蛛抓取</td>
+</tr>
+</tbody></table>
+<hr>
+<h5 id="记录值"><a href="#记录值" class="headerlink" title="记录值"></a>记录值</h5><p><strong>记录值</strong>的设置跟记录类型有关，下面通过表格进行举例：</p>
+<table>
+<thead>
+<tr>
+<th align="center">记录类型</th>
+<th align="center">记录值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">A</td>
+<td align="center">8.8.8.8</td>
+</tr>
+<tr>
+<td align="center">CNAME</td>
+<td align="center"><code>pureven.github.io</code></td>
+</tr>
+<tr>
+<td align="center">AAAA</td>
+<td align="center">ff06:0:0:0:0:0:0:c3</td>
+</tr>
+<tr>
+<td align="center">NS</td>
+<td align="center"><code>ns.pureven.cc</code></td>
+</tr>
+<tr>
+<td align="center">MX</td>
+<td align="center"><code>mail.pureven.cc</code></td>
+</tr>
+<tr>
+<td align="center">SRV</td>
+<td align="center">1 0 9 <code>srv.pureven.cc</code></td>
+</tr>
+<tr>
+<td align="center">TXT</td>
+<td align="center">2018113000666039ccllnqjav9an2l2zu717m10ovdfp5n972hcj9gzeseklbmt1</td>
+</tr>
+<tr>
+<td align="center">CAA</td>
+<td align="center">假如只允许由 <code>symantec.com</code> 来颁发域名 <code>pureven.cc</code> 的证书，并且发送违规通知到邮箱 <code>admin@pureven.cc</code>，则需要设置为 <code>0 issue &quot;symantec.com&quot;</code> 和 <code>0 iodef &quot;mailto:admin@pureven.cc&quot;</code></td>
+</tr>
+<tr>
+<td align="center">显性URL</td>
+<td align="center"><code>www.pureven.com</code></td>
+</tr>
+<tr>
+<td align="center">隐性URL</td>
+<td align="center"><code>www.pureven.com</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h5 id="TTL"><a href="#TTL" class="headerlink" title="TTL"></a>TTL</h5><p>TTL是英语Time-To-Live的简称，意思为一条域名解析记录在DNS服务器中的存留时间。当各地的DNS服务器接受到解析请求时，就会向域名指定的NS服务器发出解析请求从而获得解析记录；在获得这个记录之后，记录会在DNS服务器中保存一段时间，这段时间内如果再接到这个域名的解析请求，DNS服务器将不再向NS服务器发出请求，而是直接返回刚才获得的记录；而这个记录在DNS服务器上保留的时间，就是TTL值。以阿里云为例，可以设置TTL的值为<code>10分钟</code>、<code>30分钟</code>、<code>1小时</code>、<code>12小时</code>、<code>1天</code>。</p>
+<p>选择时根据需求有两种策略：</p>
+<ul>
+<li><p>增大TTL值，减少域名解析时间。<br>一般情况下，域名解析的各个记录可能很长一段时间内都不会有变化。我们可以增大域名记录的TTL值让记录在各地DNS服务器中缓存的时间加长，这样在更长的一段时间内，我们访问这个网站时，本地ISP的DNS服务器就不需要向域名的DNS服务器发出解析请求，而直接从缓存中返回域名解析记录。不过需要注意的是，如果TTL设置的值过大，当您的网站更换空间时，旧的记录要很久才会更新，有时会造成网站的重要变动不能及时更新。</p>
+</li>
+<li><p>减小TTL值，及时更新网络。<br>更换空间99.9%会有DNS记录更改的问题，因为缓存的问题，新的域名记录在有的地方可能生效了，但在有的地方可能等上一两天甚至更久才生效。结果就是有的人可能访问到了新服务器，有的人访问到了旧服务器。这时我们可以减TTL值，让DNS服务器中的缓存尽快刷新。减少TTL值的操作必须在主机调整/网络调整之前提前进行。这样才能保证在主机/网络调整完成后，能够在最小时间内实现更新。不过如果数值设置太小，会使DNS频繁刷新，有时会造成访问不稳定。</p>
+</li>
+</ul>
+<hr>
+<h4 id="添加记录举例"><a href="#添加记录举例" class="headerlink" title="添加记录举例"></a>添加记录举例</h4><p>下面是本站解析记录，仅供参考：</p>
+<table>
+<tr>
+<th style="text-align:center">name</th>
+<th>value</th>
+</tr>
+<tr>
+<td>记录类型</td>
+<td>CNAME</td>
+</tr>
+<tr>
+<td>主机记录</td>
+<td>@</td>
+</tr>
+<tr>
+<td>解析线路</td>
+<td>默认</td>
+</tr>
+<tr>
+<td>记录值</td>
+<td>pureven.github.io</td>
+</tr>
+<tr>
+<td>TTL</td>
+<td>10分钟</td>
+</tr>
+</table>
+
+<hr>
+<p>域名仅仅是为了方便人类的记忆而设计的名称，计算机在网络中进行通讯时不能识别域名，只能识别IP地址，所以计算机在进行网络通讯之前需要先完成域名到IP的转化，我们称之为域名解析。添加完域名解析记录，当访问域名时是什么机制让浏览器显示博客内容的呢，下面是对DNS解析过程的记录</p>
+<h4 id="域名解析过程-腾讯示例"><a href="#域名解析过程-腾讯示例" class="headerlink" title="域名解析过程: 腾讯示例"></a>域名解析过程: 腾讯示例</h4><p>早期接入互联网的设备很少，IP的管理比较简单，最开始是是通过<code>本地Hosts文件</code>的方式对域名和IP的映射关系进行管理；后来为了解决本地Host带来的配置不一致的问题，改为<code>Hosts文件由Ftp统一发布</code>，各个设备定时从Ftp更新Hosts 文件；再到后来出现了<code>中心化的DNS服务集群提供域名解析服务</code>；但随着接入互联网的设备增加，域名解析的请求量暴增，中心化的DNS服务集群开始暴露出明显的缺陷。客户机直接将所有查询请求发往中心化的DNS服务器，同时DNS服务器直接对所有查询客户机做出响应，出现了有单点故障，通信容量，远距离通信延迟，维护开销大等问题。为了解决中心化DNS服务存在的问题，出现了<code>分布式DNS层次架构</code>。</p>
+<p>目前DNS服务器分为三种，即<code>根DNS服务器</code>、<code>顶级DNS服务器</code>、<code>权威DNS服务器</code>。当然还可以假设自己<code>本地的DNS服务器</code>，如图：<br><img src="/2019/12/01/dns-setting/20191204103633.png" title="摘自腾讯开发者手册" class="nofancybox"></p>
+<ol>
+<li>当在浏览器中输入URL时，浏览器会先检查<code>自己的缓存</code>是否有域名IP的映射关系，有则直接使用IP进行通信；</li>
+<li>如果浏览器没有缓存，则操作系统会检查<code>本地Hosts文件</code>是否有域名IP的映射关系，有则使用IP进行通信；</li>
+<li>如果hosts里没有这个域名的映射，则查找<code>本地DNS解析器缓存</code>，是否有映射关系，有则直接返回完成域名解析；</li>
+<li>如果至此还未找到映射关系，首先会找TCP/IP参数中设置的<code>首选DNS服务器</code>，也就是常称的<code>本地DNS服务器</code>，如果服务器已缓存了映射关系，则使用这个IP地址映射返回完成域名解析，<code>此时解析不具有权威性</code>；</li>
+<li>如果本地DNS服务器缓存已经失效(以转发模式为例)，本地DNS服务器就把请求发至13组<code>根DNS服务器</code>，根DNS服务器收到请求后会判断这个.com域名是谁管理，并会返回一个负责该<code>顶级域名服务器</code>。本地DNS服务器收到顶级域名服务器信息后，将会联系负责.com域的服务器。该.com域的服务器收到请求后，如果自己无法解析，它就会找一个管理.com域的下一级.tencent.com域DNS服务器给本地DNS服务器。<code>当本地DNS服务器收到该服务器的信息后，就会找向.tencent.com域服务器查询cloud.tencent.com域名指向的主机地址，返回给浏览器并将映射关系缓存，至此完成域名解析的过程。</code><br>整个迭代查询的过程均通过<code>本地DNS服务器</code>进行，最后都是把结果返回给本地DNS服务器，由此DNS服务器再返回给客户机。</li>
+</ol>
+<h4 id="dig命令跟踪解析过程"><a href="#dig命令跟踪解析过程" class="headerlink" title="dig命令跟踪解析过程"></a>dig命令跟踪解析过程</h4><p>执行命令<code>yum install bind-utils</code>安装<code>dig</code>，也可通过<code>docker pull pureven/yum.centos7</code>下载yum镜像然后在容器中运行<code>dig</code>命令。</p>
+<h5 id="dig-pureven-cc-获取-pureven-cc的A地址"><a href="#dig-pureven-cc-获取-pureven-cc的A地址" class="headerlink" title="dig pureven.cc 获取 pureven.cc的A地址"></a>dig pureven.cc 获取 pureven.cc的A地址</h5><p>执行<code>dig pureven.cc</code>获取<code>pureven.cc</code>的IP地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">[root@884df7c06f10 /]# dig pureven.cc</span><br><span class="line"></span><br><span class="line">; &lt;&lt;&gt;&gt; DiG 9.11.4-P2-RedHat-9.11.4-9.P2.el7 &lt;&lt;&gt;&gt; pureven.cc</span><br><span class="line">;; global options: +cmd</span><br><span class="line">;; Got answer:</span><br><span class="line">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 46662</span><br><span class="line">;; flags: qr rd ra; QUERY: 1, ANSWER: 5, AUTHORITY: 0, ADDITIONAL: 1</span><br><span class="line"></span><br><span class="line">;; OPT PSEUDOSECTION:</span><br><span class="line">; EDNS: version: 0, flags:; udp: 512</span><br><span class="line">;; QUESTION SECTION:</span><br><span class="line">;pureven.cc.			IN	A</span><br><span class="line"></span><br><span class="line">;; ANSWER SECTION:</span><br><span class="line">pureven.cc.		599	IN	CNAME	pureven.github.io.</span><br><span class="line">pureven.github.io.	3599	IN	A	185.199.110.153</span><br><span class="line">pureven.github.io.	3599	IN	A	185.199.108.153</span><br><span class="line">pureven.github.io.	3599	IN	A	185.199.111.153</span><br><span class="line">pureven.github.io.	3599	IN	A	185.199.109.153</span><br><span class="line"></span><br><span class="line">;; Query time: 101 msec</span><br><span class="line">;; SERVER: 8.8.8.8#53(8.8.8.8)</span><br><span class="line">;; WHEN: Wed Dec 04 07:16:57 UTC 2019</span><br><span class="line">;; MSG SIZE  rcvd: 134</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>status</code> 表示查询状态，取值为 <code>NOERROR</code> 表示查询没什么错误；</li>
+<li><code>opcode</code> 表示操作码，取值为 <code>QUERY</code> 表示操作为查询操作；</li>
+<li><code>id</code> 表示查询事务id 46662；</li>
+<li><code>QUERY</code> 表示查询内容的条数，<code>ANSEWER</code> 表示回答内容条数，<code>AUTHORITY</code> 表示权威应答内容的条数，<code>ADDITIONAL</code> 表示附加内容的条数；</li>
+<li><code>QUESTION SECTION</code>：表示需要查询的内容，这里的返回内容表示需要查询域名的 A 记录；</li>
+<li><code>ANSWER SECTION</code> 表示查询结果，包含了五条记录，一条记录表示<code>pureven.cc</code>是 <code>pureven.github.io</code>的别名，第二至五条返回了 A 记录，表明 <code>pureven.github.io</code> 的 IP 地址，其中599和3599分别表示本次查询的缓存时间，分别在这些<code>秒数</code>内容本地 DNS 服务器可以直接从缓存返回结果。</li>
+</ul>
+<h5 id="dig-trace-pureven-cc-查看解析流程"><a href="#dig-trace-pureven-cc-查看解析流程" class="headerlink" title="dig +trace pureven.cc 查看解析流程"></a>dig +trace pureven.cc 查看解析流程</h5><p>执行命令<code>dig +trace pureven.cc</code>跟踪从根名称服务器开始的迭代查询过程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">[root@884df7c06f10 /]# dig +trace pureven.cc</span><br><span class="line"></span><br><span class="line">; &lt;&lt;&gt;&gt; DiG 9.11.4-P2-RedHat-9.11.4-9.P2.el7 &lt;&lt;&gt;&gt; +trace pureven.cc</span><br><span class="line">;; global options: +cmd</span><br><span class="line">.			78407	IN	NS	a.root-servers.net.</span><br><span class="line">.			78407	IN	NS	b.root-servers.net.</span><br><span class="line">.			78407	IN	NS	c.root-servers.net.</span><br><span class="line">.			78407	IN	NS	d.root-servers.net.</span><br><span class="line">.			78407	IN	NS	e.root-servers.net.</span><br><span class="line">.			78407	IN	NS	f.root-servers.net.</span><br><span class="line">.			78407	IN	NS	g.root-servers.net.</span><br><span class="line">.			78407	IN	NS	h.root-servers.net.</span><br><span class="line">.			78407	IN	NS	i.root-servers.net.</span><br><span class="line">.			78407	IN	NS	j.root-servers.net.</span><br><span class="line">.			78407	IN	NS	k.root-servers.net.</span><br><span class="line">.			78407	IN	NS	l.root-servers.net.</span><br><span class="line">.			78407	IN	NS	m.root-servers.net.</span><br><span class="line">.			78407	IN	RRSIG	NS 8 0 518400 20191217020000 20191204010000 22545 . Sv7vE9am31rq4zst2ZI/aF44WyBzwZQXqZUhsGJoOxUoI8a5Qo/78uMK xc1tuK0RcSuvq2Au01QkmXD97blwQ0MKntMy3cshIuxy1k6rmV1QqL97 yB/8rFBlLr/S65/E/lFmyL9omqiuzo/aJq/fuUFI3QKZhvyI7ix4KhIe 1QGM1X840XAR33akPM0zKlRGwvAL7hpml3UDCl9190k0gDZVzpj9hXfX rEOFnuK+pJNZr6OHRtVd+0n6EU+OFMMvNhOysPJihnRDGpj/FsjFNYJD 4Bof3YqyC41QDVGufd22UjwigODNzAu6N2FZ4g2xrZUk9E4HVL5tsgTQ aAZ5JQ==</span><br><span class="line">;; Received 525 bytes from 8.8.8.8#53(8.8.8.8) in 47 ms</span><br><span class="line"></span><br><span class="line">cc.			172800	IN	NS	ac1.nstld.com.</span><br><span class="line">cc.			172800	IN	NS	ac2.nstld.com.</span><br><span class="line">cc.			172800	IN	NS	ac3.nstld.com.</span><br><span class="line">cc.			172800	IN	NS	ac4.nstld.com.</span><br><span class="line">cc.			86400	IN	DS	519 8 1 7285EF05E1B4E679D4F072EEA9B00953E01F3AE2</span><br><span class="line">cc.			86400	IN	DS	519 8 2 E1EC6495ABD34562E6F433DEE201E6C6A52CB10AF69C04D675DA692D 2D566897</span><br><span class="line">cc.			86400	IN	RRSIG	DS 8 1 86400 20191217050000 20191204040000 22545 . Q5gyHPvB2jy6ZeXfbhP5/RQ6fYKLtiM8skXeyZfvKJyvcvkJQHCtzdXc eoLtBIC7QTusjTmpHJemMt4HDnKOx/HcucVHZ8ErYZFWE/LEr/T7+TXE 3q57JS1zyUiAzbccoel4vXdNR4CPkvqFjy5fabKPpGH+h+yoFFe3IAUe +IcBB0kSBp2lDG6MWdLq7NpGy4RCjOCByoEsx1sHfDfflTk+QmkhgBHZ 6hB82AUvYQwSY34MjEXt8nI/LlC8FvuuIfh1nzztYVF1nSC5xWOrGWlO 1/S+QadLGDphnOa5va0UQwcSiCZ/cEarT+sFQsLtjjWrOOi7oeIHeDB/ VISe3w==</span><br><span class="line">;; Received 667 bytes from 198.41.0.4#53(a.root-servers.net) in 245 ms</span><br><span class="line"></span><br><span class="line">pureven.cc.		172800	IN	NS	dns25.hichina.com.</span><br><span class="line">pureven.cc.		172800	IN	NS	dns26.hichina.com.</span><br><span class="line">RQGAP5UF6Q1NGVCKFNO8RANVDN5ILRIN.cc. 86400 IN NSEC3 1 1 0 - RR9VRBALT8EOD9SAK335LVITNSQII5FL NS SOA RRSIG DNSKEY NSEC3PARAM</span><br><span class="line">RQGAP5UF6Q1NGVCKFNO8RANVDN5ILRIN.cc. 86400 IN RRSIG NSEC3 8 2 86400 20191209152154 20191202152154 31648 cc. VqHIOwVsxuJ6fwH54KenuthJ25iPZR+2g8HNYEKkXLzj/YsefVjugjhv 1AitS5r0Y+LSR4Ope8i2D/D+lquu3/S/A2WzqXyreQodwPT/G0YpAVVC twFuAET4lNIxAeaM1+FOBDCc6JhzwhlHFy/cLqW/pNEQD3R9nrWIV5rS BYHPPit8dQR57i5v3yaRUF7iZpLoaI4qNSVWm74aStNiYQ==</span><br><span class="line">647QGA0JFP99RQ6J0THT7LDCEH8L2S09.cc. 86400 IN NSEC3 1 1 0 - 64BGMELNKRMPIIFKC92FM52GH6A42IQQ NS DS RRSIG</span><br><span class="line">647QGA0JFP99RQ6J0THT7LDCEH8L2S09.cc. 86400 IN RRSIG NSEC3 8 2 86400 20191210092032 20191203092032 31648 cc. GxawAkx6GuhivmZBFinOV2wlXYJqpNuEfIRk9DhY7SKPsGYiFbY8lhw2 arVhYsCFqMPJ75nW8WiHMa7e3R/YUrvN3w9DPd6t4xMsLbSNE2bIPj9z b6CqETnreoLD8QXC1dle6KvhL0LHvOou4UsfaWTarrzCu5BD81haLdeP jcVvMgO8IYtiwUnqVwDzr9dixYCPGlX7fgMbm/3/gcMPhA==</span><br><span class="line">;; Received 637 bytes from 192.42.173.30#53(ac1.nstld.com) in 60 ms</span><br><span class="line"></span><br><span class="line">pureven.cc.		600	IN	CNAME	pureven.github.io.</span><br><span class="line">;; Received 70 bytes from 106.11.211.69#53(dns25.hichina.com) in 24 ms</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>第一部分本地DNS(8.8.8.8)内部记录了13台全球<span class="exturl" data-url="ZnRwOi8vZnRwLmludGVybmljLm5ldC9kb21haW4vbmFtZWQucm9vdA==" title="ftp://ftp.internic.net/domain/named.root">根域名服务器的地址<i class="fa fa-external-link"></i></span>，继续向这13台全球根域名服务器请求.cc顶级域名服务器地址，以最先回复的为准。</p>
+</li>
+<li><p>最先回复的根域名服务器是<code>a.root-servers.net</code>(198.41.0.4)，返回7台.cc顶级域名服务器的域名和地址，继续向这些.cc顶级域名服务器请求查询pureven.cc二级域名服务器地址。</p>
+</li>
+<li><p>最先回复的.cc顶级域名服务器是<code>ac1.nstld.com</code>(192.42.173.30)(Network Solutions top level domain的缩写)，返回2台pureven.cc二级域名服务器的域名及域名解析服务器域名，继续向这2个域名解析服务器获取pureven.cc地址。</p>
+</li>
+<li><p>最先回复的pureven.cc二级域名服务器是<code>dns25.hichina.com</code>(106.11.211.69)，返回的结果是<code>pureven.github.io</code>，其中<strong>CNAME记录代表的是<code>pureven.cc</code>的别名，也就是说要想获取pureven.cc的IP，需要继续跟踪<code>pureven.github.io</code></strong>。</p>
+</li>
+</ul>
+<h5 id="dig-trace-pureven-github-io-获取pureven-cc的A地址"><a href="#dig-trace-pureven-github-io-获取pureven-cc的A地址" class="headerlink" title="dig +trace pureven.github.io 获取pureven.cc的A地址"></a>dig +trace pureven.github.io 获取pureven.cc的A地址</h5><p>继续执行命令<code>dig +trace pureven.github.io</code>跟踪从根名称服务器开始的迭代查询过程:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">[root@884df7c06f10 /]# dig +trace pureven.github.io</span><br><span class="line">; &lt;&lt;&gt;&gt; DiG 9.11.4-P2-RedHat-9.11.4-9.P2.el7 &lt;&lt;&gt;&gt; +trace pureven.github.io</span><br><span class="line">;; global options: +cmd</span><br><span class="line">.			75118	IN	NS	a.root-servers.net.</span><br><span class="line">.			75118	IN	NS	b.root-servers.net.</span><br><span class="line">.			75118	IN	NS	c.root-servers.net.</span><br><span class="line">.			75118	IN	NS	d.root-servers.net.</span><br><span class="line">.			75118	IN	NS	e.root-servers.net.</span><br><span class="line">.			75118	IN	NS	f.root-servers.net.</span><br><span class="line">.			75118	IN	NS	g.root-servers.net.</span><br><span class="line">.			75118	IN	NS	h.root-servers.net.</span><br><span class="line">.			75118	IN	NS	i.root-servers.net.</span><br><span class="line">.			75118	IN	NS	j.root-servers.net.</span><br><span class="line">.			75118	IN	NS	k.root-servers.net.</span><br><span class="line">.			75118	IN	NS	l.root-servers.net.</span><br><span class="line">.			75118	IN	NS	m.root-servers.net.</span><br><span class="line">.			75118	IN	RRSIG	NS 8 0 518400 20191217020000 20191204010000 22545 . Sv7vE9am31rq4zst2ZI/aF44WyBzwZQXqZUhsGJoOxUoI8a5Qo/78uMK xc1tuK0RcSuvq2Au01QkmXD97blwQ0MKntMy3cshIuxy1k6rmV1QqL97 yB/8rFBlLr/S65/E/lFmyL9omqiuzo/aJq/fuUFI3QKZhvyI7ix4KhIe 1QGM1X840XAR33akPM0zKlRGwvAL7hpml3UDCl9190k0gDZVzpj9hXfX rEOFnuK+pJNZr6OHRtVd+0n6EU+OFMMvNhOysPJihnRDGpj/FsjFNYJD 4Bof3YqyC41QDVGufd22UjwigODNzAu6N2FZ4g2xrZUk9E4HVL5tsgTQ aAZ5JQ==</span><br><span class="line">;; Received 525 bytes from 8.8.8.8#53(8.8.8.8) in 43 ms</span><br><span class="line"></span><br><span class="line">io.			172800	IN	NS	b0.nic.io.</span><br><span class="line">io.			172800	IN	NS	c0.nic.io.</span><br><span class="line">io.			172800	IN	NS	a0.nic.io.</span><br><span class="line">io.			172800	IN	NS	a2.nic.io.</span><br><span class="line">io.			86400	IN	DS	57355 8 1 434E91E206134F5B3B0AC603B26F5E029346ABC9</span><br><span class="line">io.			86400	IN	DS	57355 8 2 95A57C3BAB7849DBCDDF7C72ADA71A88146B141110318CA5BE672057 E865C3E2</span><br><span class="line">io.			86400	IN	RRSIG	DS 8 1 86400 20191217050000 20191204040000 22545 . cN4eQjUQPI8Osm0qq6YH+nK5RuGI8CUIE9uqX8KH/a3Je/kcUWPgzIAo snHNKsZ26rBwEXs9xhn+QoLsP6QIZBaLlv1Jg/WfPtqMf60gUBHlZdHw TUMrhRTtCAxileEy7DxYo8rUQI5aqApcTmemRYLBU8mKjPA2Qf4IS/hG +2ZpchpO1tvwVK4IaUBInGs2u/lYQ90sTpOF9TS94fhQM/8tqDk92ho3 Mi+QisCyH0iH6vjXY45ruvycfPmfLo3WNs0vk5TGm0OEC5RqHwJDPxdb Y6DCX6qx1QD3oxQLiH5k2V1K4vForADpLkW+dqVifSNyW9JmqnSRx6bO 3otu5A==</span><br><span class="line">;; Received 665 bytes from 202.12.27.33#53(m.root-servers.net) in 55 ms</span><br><span class="line"></span><br><span class="line">github.io.		86400	IN	NS	ns-1339.awsdns-39.org.</span><br><span class="line">github.io.		86400	IN	NS	ns-1622.awsdns-10.co.uk.</span><br><span class="line">github.io.		86400	IN	NS	ns1.p16.dynect.net.</span><br><span class="line">github.io.		86400	IN	NS	ns-692.awsdns-22.net.</span><br><span class="line">github.io.		86400	IN	NS	ns2.p16.dynect.net.</span><br><span class="line">2iui5t1khct6c5o8i2i67rppatgvegqo.io. 900 IN NSEC3 1 1 1 D399EAAB 2IV073DVU92DLMV2H5L9G1PEODM9RDE6 NS SOA RRSIG DNSKEY NSEC3PARAM</span><br><span class="line">2iui5t1khct6c5o8i2i67rppatgvegqo.io. 900 IN RRSIG NSEC3 8 2 900 20191225075606 20191204065606 53658 io. IEHBBraKpWnNEFSKmJLlhPBc3XVfCDIsju/vFg9GlaIlQ0XBfdxAoMNy KPPEEvWY/Qmj4ZLeNQGG1i9hcrDooN+W/ENW0n4WQF2XQWh0vNmJX5Ja eT/EnnXBxGeBtw6Olg5mlWk1zmtMz0ui75Mm50wdo6dM16otHLdyKwWS QdQ=</span><br><span class="line">ldl8iscjau4ngcq5m160b1gbj7je9bj1.io. 900 IN NSEC3 1 1 1 D399EAAB LDN62SC6T38Q0FPNL9L6VNHBR53J840J NS DS RRSIG</span><br><span class="line">ldl8iscjau4ngcq5m160b1gbj7je9bj1.io. 900 IN RRSIG NSEC3 8 2 900 20191222151600 20191201141600 53658 io. T8pm01fOV0JPPkZw/Q7OvR+y9gluPSBLM5j5uOXgkBLe7iSxnM9FOtCL eBBjO53LkLziMcYYXCUkLWT6MiONA5BzX24Ezq4U9EaHOkUQVNxGp/Uo g7S+9uiO3GGAAjIqLBpc4bWi2OR7gphREqmcokfSIYCePfrawIS81NTT lBk=</span><br><span class="line">;; Received 690 bytes from 65.22.162.17#53(c0.nic.io) in 70 ms</span><br><span class="line"></span><br><span class="line">pureven.github.io.	3600	IN	A	185.199.110.153</span><br><span class="line">pureven.github.io.	3600	IN	A	185.199.109.153</span><br><span class="line">pureven.github.io.	3600	IN	A	185.199.108.153</span><br><span class="line">pureven.github.io.	3600	IN	A	185.199.111.153</span><br><span class="line">github.io.		900	IN	NS	ns-1339.awsdns-39.org.</span><br><span class="line">github.io.		900	IN	NS	ns-1622.awsdns-10.co.uk.</span><br><span class="line">github.io.		900	IN	NS	ns-393.awsdns-49.com.</span><br><span class="line">github.io.		900	IN	NS	ns-692.awsdns-22.net.</span><br><span class="line">github.io.		900	IN	NS	ns1.p16.dynect.net.</span><br><span class="line">github.io.		900	IN	NS	ns2.p16.dynect.net.</span><br><span class="line">github.io.		900	IN	NS	ns3.p16.dynect.net.</span><br><span class="line">github.io.		900	IN	NS	ns4.p16.dynect.net.</span><br><span class="line">;; Received 333 bytes from 205.251.198.86#53(ns-1622.awsdns-10.co.uk) in 231 ms</span><br></pre></td></tr></table></figure>
+<ul>
+<li>第一部分本地DNS(8.8.8.8)内部记录了13台全球根域名服务器的地址，继续向这13台全球根域名服务器请求.io顶级域名服务器地址，以最先回复的为准。</li>
+<li>最先回复的根域名服务器是<code>m.root-servers.net</code>(202.12.27.33)，返回5台.io顶级域名服务器的域名及解析服务器域名，继续向这些.io顶级域名服务器请求查询<code>github.io</code>二级域名服务器地址。</li>
+<li>最先回复的.io顶级域名服务器是<code>c0.nic.io</code>(65.22.162.17)，返回5台<code>github.io</code>二级域名服务器的域名和地址，继续向这5个结果请求查询<code>pureven.github.io</code>三级域名服务器。</li>
+<li>最先回复的github.io二级域名服务器是<code>ns-1622.awsdns-10.co.uk</code>(205.251.198.86)，返回的结果包含跟上一步一样的8台二级域名服务器NS记录，另外还有4个A记录，其中A记录就是最终的解析地址。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2019/12/01/dns-setting/" title="域名解析">https://pureven.cc/2019/12/01/dns-setting/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag"><i class="fa fa-tag"></i> 网络</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/11/27/what-happens-aflter-browser-enters-url/" rel="next" title="浏览器输入url后发生了什么？">
+                  <i class="fa fa-chevron-left"></i> 浏览器输入url后发生了什么？
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/12/05/simple-wireshark-tcp-flags/" rel="prev" title="Wireshark抓包分析TCP的三次握手与四次挥手">
+                  Wireshark抓包分析TCP的三次握手与四次挥手 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是域名解析"><span class="nav-number">2.</span> <span class="nav-text">什么是域名解析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#添加记录各选项说明"><span class="nav-number">3.</span> <span class="nav-text">添加记录各选项说明</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#记录类型"><span class="nav-number">3.1.</span> <span class="nav-text">记录类型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#主机记录"><span class="nav-number">3.2.</span> <span class="nav-text">主机记录</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#解析线路"><span class="nav-number">3.3.</span> <span class="nav-text">解析线路</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#记录值"><span class="nav-number">3.4.</span> <span class="nav-text">记录值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#TTL"><span class="nav-number">3.5.</span> <span class="nav-text">TTL</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#添加记录举例"><span class="nav-number">4.</span> <span class="nav-text">添加记录举例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#域名解析过程-腾讯示例"><span class="nav-number">5.</span> <span class="nav-text">域名解析过程: 腾讯示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dig命令跟踪解析过程"><span class="nav-number">6.</span> <span class="nav-text">dig命令跟踪解析过程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#dig-pureven-cc-获取-pureven-cc的A地址"><span class="nav-number">6.1.</span> <span class="nav-text">dig pureven.cc 获取 pureven.cc的A地址</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#dig-trace-pureven-cc-查看解析流程"><span class="nav-number">6.2.</span> <span class="nav-text">dig +trace pureven.cc 查看解析流程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#dig-trace-pureven-github-io-获取pureven-cc的A地址"><span class="nav-number">6.3.</span> <span class="nav-text">dig +trace pureven.github.io 获取pureven.cc的A地址</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言使用迁移类可以很方便的组织和管理数据库的变更，该类包含8个成员变量和11个成员方法。">
+<meta name="keywords" content="PHP,Codeigniter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeIgniter迁移类文件Migration.php">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;15&#x2F;codeigniter-migration&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="引言使用迁移类可以很方便的组织和管理数据库的变更，该类包含8个成员变量和11个成员方法。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.220Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2020/03/15/codeigniter-migration/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CodeIgniter迁移类文件Migration.php | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/03/15/codeigniter-migration/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          CodeIgniter迁移类文件Migration.php
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-15 14:33:32" itemprop="dateCreated datePublished" datetime="2020-03-15T14:33:32+08:00">2020-03-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/03/15/codeigniter-migration/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/15/codeigniter-migration/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>8.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>使用迁移类可以很方便的组织和管理数据库的变更，该类包含8个成员变量和11个成员方法。</p>
+<a id="more"></a>
+
+<hr>
+<h4 id="成员变量"><a href="#成员变量" class="headerlink" title="成员变量"></a>成员变量</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 启用或禁用迁移，默认为禁用</span></span><br><span class="line"><span class="keyword">protected</span> $_migration_enabled = <span class="keyword">FALSE</span>;</span><br><span class="line"><span class="comment">// 迁移文件的命名规则， 默认为'sequential'， 其实'timestamp'更常用一些</span></span><br><span class="line"><span class="keyword">protected</span> $_migration_type = <span class="string">'sequential'</span>;</span><br><span class="line"><span class="comment">// 迁移目录所在位置，默认为APPPATH . 'migrations/'</span></span><br><span class="line"><span class="keyword">protected</span> $_migration_path = <span class="keyword">NULL</span>;</span><br><span class="line"><span class="comment">// 当前数据库所使用的版本，默认0</span></span><br><span class="line"><span class="keyword">protected</span> $_migration_version = <span class="number">0</span>;</span><br><span class="line"><span class="comment">// 用于存储当前版本的数据库表名</span></span><br><span class="line"><span class="keyword">protected</span> $_migration_table = <span class="string">'migrations'</span>;</span><br><span class="line"><span class="comment">// 启用或禁用自动迁移，默认不启用</span></span><br><span class="line"><span class="keyword">protected</span> $_migration_auto_latest = <span class="keyword">FALSE</span>;</span><br><span class="line"><span class="comment">// migrate文件的正则匹配模式，有两种，'/^\d&#123;14&#125;_(\w+)$/'和'/^\d&#123;3&#125;_(\w+)$/'分别对应'timestamp'和'sequential'</span></span><br><span class="line"><span class="keyword">protected</span> $_migration_regex;</span><br><span class="line"><span class="comment">// 表示迁移过程中的错误信息</span></span><br><span class="line"><span class="keyword">protected</span> $_error_string = <span class="string">''</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="construct"><a href="#construct" class="headerlink" title="__construct()"></a>__construct()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($config = array<span class="params">()</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 如果不是CI_Migration类或者CI_Migration类的子类则退出，即只能在CI_Migration类及其子类加载该构造方法</span></span><br><span class="line">    <span class="keyword">if</span> ( ! in_array(get_class(<span class="keyword">$this</span>), <span class="keyword">array</span>(<span class="string">'CI_Migration'</span>, config_item(<span class="string">'subclass_prefix'</span>).<span class="string">'Migration'</span>), <span class="keyword">TRUE</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 可选参数$config用来覆盖成员变量的默认值</span></span><br><span class="line">    <span class="keyword">foreach</span> ($config <span class="keyword">as</span> $key =&gt; $val)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;&#123;<span class="string">'_'</span>.$key&#125; = $val;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    log_message(<span class="string">'info'</span>, <span class="string">'Migrations Class Initialized'</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果迁移功能处于禁用状态则报错退出</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;_migration_enabled !== <span class="keyword">TRUE</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        show_error(<span class="string">'Migrations has been loaded but is disabled or set up incorrectly.'</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取迁移文件路径，默认为APPPATH . 'migrations/'</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;_migration_path !== <span class="string">''</span> <span class="keyword">OR</span> <span class="keyword">$this</span>-&gt;_migration_path = APPPATH.<span class="string">'migrations/'</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 迁移文件路径格式化</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;_migration_path = rtrim(<span class="keyword">$this</span>-&gt;_migration_path, <span class="string">'/'</span>).<span class="string">'/'</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 加载BASEPATH . '/language/english/migration_lang.php'</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;lang-&gt;load(<span class="string">'migration'</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 加载数据库工厂类</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;load-&gt;dbforge();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果数据库中没有migrations表则报错退出</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="keyword">$this</span>-&gt;_migration_table))</span><br><span class="line">    &#123;</span><br><span class="line">        show_error(<span class="string">'Migrations configuration file (migration.php) must have "migration_table" set.'</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据迁移文件的命名规则来确定用哪种正则匹配模式</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;_migration_regex = (<span class="keyword">$this</span>-&gt;_migration_type === <span class="string">'timestamp'</span>)</span><br><span class="line">        ? <span class="string">'/^\d&#123;14&#125;_(\w+)$/'</span></span><br><span class="line">        : <span class="string">'/^\d&#123;3&#125;_(\w+)$/'</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果迁移文件的命名规则既不是'sequential'也不是'timestamp'则报错退出</span></span><br><span class="line">    <span class="keyword">if</span> ( ! in_array(<span class="keyword">$this</span>-&gt;_migration_type, <span class="keyword">array</span>(<span class="string">'sequential'</span>, <span class="string">'timestamp'</span>)))</span><br><span class="line">    &#123;</span><br><span class="line">        show_error(<span class="string">'An invalid migration numbering type was specified: '</span>.<span class="keyword">$this</span>-&gt;_migration_type);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果migrations表不存在则创建</span></span><br><span class="line">    <span class="keyword">if</span> ( ! <span class="keyword">$this</span>-&gt;db-&gt;table_exists(<span class="keyword">$this</span>-&gt;_migration_table))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 一般来说，在调用 create_table() 方法的后面使用 $this-&gt;dbforge-&gt;add_field($fields); 方法来添加字段</span></span><br><span class="line">        <span class="keyword">$this</span>-&gt;dbforge-&gt;add_field(<span class="keyword">array</span>(</span><br><span class="line">            <span class="string">'version'</span> =&gt; <span class="keyword">array</span>(<span class="string">'type'</span> =&gt; <span class="string">'BIGINT'</span>, <span class="string">'constraint'</span> =&gt; <span class="number">20</span>),</span><br><span class="line">        ));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;dbforge-&gt;create_table(<span class="keyword">$this</span>-&gt;_migration_table, <span class="keyword">TRUE</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;db-&gt;insert(<span class="keyword">$this</span>-&gt;_migration_table, <span class="keyword">array</span>(<span class="string">'version'</span> =&gt; <span class="number">0</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果启用了自动迁移，但是发现当前并不是最新版本则报错退出</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;_migration_auto_latest === <span class="keyword">TRUE</span> &amp;&amp; ! <span class="keyword">$this</span>-&gt;latest())</span><br><span class="line">    &#123;</span><br><span class="line">        show_error(<span class="keyword">$this</span>-&gt;error_string());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="version"><a href="#version" class="headerlink" title="version()"></a>version()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">version</span><span class="params">($target_version)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 获取当前版本</span></span><br><span class="line">    $current_version = <span class="keyword">$this</span>-&gt;_get_version();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 格式化目标版本</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;_migration_type === <span class="string">'sequential'</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        $target_version = sprintf(<span class="string">'%03d'</span>, $target_version);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        $target_version = (string) $target_version;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回 migration_path 目录下的所有迁移文件的数组</span></span><br><span class="line">    $migrations = <span class="keyword">$this</span>-&gt;find_migrations();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指定的版本并没有在迁移文件数组中则报错退出</span></span><br><span class="line">    <span class="keyword">if</span> ($target_version &gt; <span class="number">0</span> &amp;&amp; ! <span class="keyword">isset</span>($migrations[$target_version]))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_error_string = sprintf(<span class="keyword">$this</span>-&gt;lang-&gt;line(<span class="string">'migration_not_found'</span>), $target_version);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">FALSE</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ($target_version &gt; $current_version)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 指定的目标版本大于当前版本说明要做升级</span></span><br><span class="line">        $method = <span class="string">'up'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">elseif</span> ($target_version &lt; $current_version)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 小于当前版本说明要做回退</span></span><br><span class="line">        $method = <span class="string">'down'</span>;</span><br><span class="line">        <span class="comment">// 这里按照键名逆向排序， 这里排完序后便于回退处理</span></span><br><span class="line">        krsort($migrations);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 相等则说明不用迁移了</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">TRUE</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 用来存放要迁移的migrate文件</span></span><br><span class="line">    $pending = <span class="keyword">array</span>();</span><br><span class="line">    <span class="keyword">foreach</span> ($migrations <span class="keyword">as</span> $number =&gt; $file)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> ($method === <span class="string">'up'</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 这里要做升级，当$number小于等于当前版本时继续下次循环，大于指定版本时退出，也就是说大于当前版本小于指定版本的$number继续下面的流程</span></span><br><span class="line">            <span class="keyword">if</span> ($number &lt;= $current_version)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">elseif</span> ($number &gt; $target_version)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 这里要做回退，当$number大于当前版本时继续下次循环，小于等于指定版本时退出，也就是说小于当前版本大于指定版本的$number继续下面的流程</span></span><br><span class="line">            <span class="keyword">if</span> ($number &gt; $current_version)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">elseif</span> ($number &lt;= $target_version)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;_migration_type === <span class="string">'sequential'</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 每个迁移文件以数字序列格式递增命名，从 001 开始，每个数字都需要占三位，序列之间不能有间隙。</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">isset</span>($previous) &amp;&amp; abs($number - $previous) &gt; <span class="number">1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;_error_string = sprintf(<span class="keyword">$this</span>-&gt;lang-&gt;line(<span class="string">'migration_sequence_gap'</span>), $number);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">FALSE</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 记录当前序列号，跟下次比较时使用</span></span><br><span class="line">            $previous = $number;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 加载migrate文件</span></span><br><span class="line">        <span class="keyword">include_once</span>($file);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// migrate文件跟类名不一致： 20200315195100_add_user_table ==&gt; Migration_add_user_table</span></span><br><span class="line">        <span class="comment">// 这里$class = Migration_Add_user_table，解释了为什么创建migrate文件时要把Migrate改成时间戳或序列号了</span></span><br><span class="line">        $class = <span class="string">'Migration_'</span>.ucfirst(strtolower(<span class="keyword">$this</span>-&gt;_get_migration_name(basename($file, <span class="string">'.php'</span>))));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 不区分大小写，就上面的例子来说所以Migration_add_user_table也能匹配到</span></span><br><span class="line">        <span class="comment">// 如果匹配不到说明加载的migrate文件不包括指定的类，报错退出</span></span><br><span class="line">        <span class="keyword">if</span> ( ! class_exists($class, <span class="keyword">FALSE</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;_error_string = sprintf(<span class="keyword">$this</span>-&gt;lang-&gt;line(<span class="string">'migration_class_doesnt_exist'</span>), $class);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">FALSE</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">elseif</span> ( ! is_callable(<span class="keyword">array</span>($class, $method)))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 类存在了，但是没有升级(up)或回退(down)对应的方法也要报错</span></span><br><span class="line">            <span class="keyword">$this</span>-&gt;_error_string = sprintf(<span class="keyword">$this</span>-&gt;lang-&gt;line(<span class="string">'migration_missing_'</span>.$method.<span class="string">'_method'</span>), $class);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">FALSE</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果符合条件，将migrate文件加入到$pending数组中</span></span><br><span class="line">        $pending[$number] = <span class="keyword">array</span>($class, $method);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历执行符合条件的migrate文件</span></span><br><span class="line">    <span class="keyword">foreach</span> ($pending <span class="keyword">as</span> $number =&gt; $migration)</span><br><span class="line">    &#123;</span><br><span class="line">        log_message(<span class="string">'debug'</span>, <span class="string">'Migrating '</span>.$method.<span class="string">' from version '</span>.$current_version.<span class="string">' to version '</span>.$number);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// migration数组首元素时类名，这里改成实际的对象然后调用call_user_func()来执行就ok了</span></span><br><span class="line">        $migration[<span class="number">0</span>] = <span class="keyword">new</span> $migration[<span class="number">0</span>];</span><br><span class="line">        call_user_func($migration);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 执行完成后$number即当前版本了，更新到数据库</span></span><br><span class="line">        $current_version = $number;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_update_version($current_version);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行完成后发现当前版本跟指定版本不一致，再次更新数据库，将migrate版本号设置为指定版本</span></span><br><span class="line">    <span class="keyword">if</span> ($current_version &lt;&gt; $target_version)</span><br><span class="line">    &#123;</span><br><span class="line">        $current_version = $target_version;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_update_version($current_version);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    log_message(<span class="string">'debug'</span>, <span class="string">'Finished migrating to '</span>.$current_version);</span><br><span class="line">    <span class="keyword">return</span> $current_version;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>迁移(<code>升级或回退</code>)到指定版本。</p>
+<hr>
+<h4 id="latest"><a href="#latest" class="headerlink" title="latest()"></a>latest()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">latest</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $migrations = <span class="keyword">$this</span>-&gt;find_migrations();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">empty</span>($migrations))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_error_string = <span class="keyword">$this</span>-&gt;lang-&gt;line(<span class="string">'migration_none_found'</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">FALSE</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取migrations最后一个元素，也就是最新版本migrate文件</span></span><br><span class="line">    $last_migration = basename(end($migrations));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 升级到最新版本</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;version(<span class="keyword">$this</span>-&gt;_get_migration_number($last_migration));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="current"><a href="#current" class="headerlink" title="current()"></a>current()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">current</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;version(<span class="keyword">$this</span>-&gt;_migration_version);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>升级到指定版本，默认0，可以在配置文件中指定具体版本来覆盖默认版本即可。</p>
+<hr>
+<h4 id="error-string"><a href="#error-string" class="headerlink" title="error_string()"></a>error_string()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">error_string</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;_error_string;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>返回错误信息。</p>
+<hr>
+<h4 id="find-migrations"><a href="#find-migrations" class="headerlink" title="find_migrations()"></a>find_migrations()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">find_migrations</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $migrations = <span class="keyword">array</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// globglob — 寻找与模式(*_*.php)匹配的文件路径</span></span><br><span class="line">    <span class="keyword">foreach</span> (glob(<span class="keyword">$this</span>-&gt;_migration_path.<span class="string">'*_*.php'</span>) <span class="keyword">as</span> $file)</span><br><span class="line">    &#123;</span><br><span class="line">        $name = basename($file, <span class="string">'.php'</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 拿到文件之后使用migrate文件的正则匹配模式过滤文件</span></span><br><span class="line">        <span class="keyword">if</span> (preg_match(<span class="keyword">$this</span>-&gt;_migration_regex, $name))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 拿到migrate文件的序列号或时间戳</span></span><br><span class="line">            $number = <span class="keyword">$this</span>-&gt;_get_migration_number($name);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 时间戳或序列号不能重复，否则报错退出</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">isset</span>($migrations[$number]))</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;_error_string = sprintf(<span class="keyword">$this</span>-&gt;lang-&gt;line(<span class="string">'migration_multiple_version'</span>), $number);</span><br><span class="line">                show_error(<span class="keyword">$this</span>-&gt;_error_string);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 将过滤后的文件放入$migration数组中，将时间戳或序列号作为key</span></span><br><span class="line">            $migrations[$number] = $file;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据key值排序-顺序排序</span></span><br><span class="line">    ksort($migrations);</span><br><span class="line">    <span class="keyword">return</span> $migrations;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="get-migration-number"><a href="#get-migration-number" class="headerlink" title="_get_migration_number()"></a>_get_migration_number()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">_get_migration_number</span><span class="params">($migration)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> sscanf($migration, <span class="string">'%[0-9]+'</span>, $number)</span><br><span class="line">        ? $number : <span class="string">'0'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从migrate文件名中拿到数字部分。</p>
+<hr>
+<h4 id="get-migration-name"><a href="#get-migration-name" class="headerlink" title="_get_migration_name()"></a>_get_migration_name()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">_get_migration_name</span><span class="params">($migration)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $parts = explode(<span class="string">'_'</span>, $migration);</span><br><span class="line">    array_shift($parts);</span><br><span class="line">    <span class="keyword">return</span> implode(<span class="string">'_'</span>, $parts);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从migrate文件名中去掉数字部分。</p>
+<hr>
+<h4 id="get-version"><a href="#get-version" class="headerlink" title="_get_version()"></a>_get_version()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">_get_version</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $row = <span class="keyword">$this</span>-&gt;db-&gt;select(<span class="string">'version'</span>)-&gt;get(<span class="keyword">$this</span>-&gt;_migration_table)-&gt;row();</span><br><span class="line">    <span class="keyword">return</span> $row ? $row-&gt;version : <span class="string">'0'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>获取数据库中保存的版本号，即当前版本。</p>
+<hr>
+<h4 id="update-version"><a href="#update-version" class="headerlink" title="_update_version()"></a>_update_version()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">_update_version</span><span class="params">($migration)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;db-&gt;update(<span class="keyword">$this</span>-&gt;_migration_table, <span class="keyword">array</span>(</span><br><span class="line">        <span class="string">'version'</span> =&gt; $migration</span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将指定版本更新到数据库中。</p>
+<hr>
+<h4 id="get"><a href="#get" class="headerlink" title="__get()"></a>__get()</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__get</span><span class="params">($var)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> get_instance()-&gt;$var;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>魔术方法，用于使用超级对象CI。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2020/03/15/codeigniter-migration/" title="CodeIgniter迁移类文件Migration.php">https://pureven.cc/2020/03/15/codeigniter-migration/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
+              <a href="/tags/Codeigniter/" rel="tag"><i class="fa fa-tag"></i> Codeigniter</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/03/11/phpstormm-about-license/" rel="next" title="Phpstorm License">
+                  <i class="fa fa-chevron-left"></i> Phpstorm License
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/03/17/codeigniter-database/" rel="prev" title="CodeIgniter数据库相关功能的实现机制">
+                  CodeIgniter数据库相关功能的实现机制 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#成员变量"><span class="nav-number">2.</span> <span class="nav-text">成员变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#construct"><span class="nav-number">3.</span> <span class="nav-text">__construct()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#version"><span class="nav-number">4.</span> <span class="nav-text">version()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#latest"><span class="nav-number">5.</span> <span class="nav-text">latest()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#current"><span class="nav-number">6.</span> <span class="nav-text">current()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#error-string"><span class="nav-number">7.</span> <span class="nav-text">error_string()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#find-migrations"><span class="nav-number">8.</span> <span class="nav-text">find_migrations()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get-migration-number"><span class="nav-number">9.</span> <span class="nav-text">_get_migration_number()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get-migration-name"><span class="nav-number">10.</span> <span class="nav-text">_get_migration_name()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get-version"><span class="nav-number">11.</span> <span class="nav-text">_get_version()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#update-version"><span class="nav-number">12.</span> <span class="nav-text">_update_version()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get"><span class="nav-number">13.</span> <span class="nav-text">__get()</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>

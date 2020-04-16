@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/Snowflake_Snow_32px_32px.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/Snowflake_Snow_16px_16px.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Pureven" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":"default"},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="grep前言grep是一个最初用于Unix操作系统的命令行工具。由Kenneth Lane Thompson写成。grep原先是ed下的一个应用程序，名称来自于g&#x2F;re&#x2F;p（globally search a regular expression and print，利用正则表达式在指定文件中进行全局搜索并将搜索到的行打印出来）。在给出文件列表或标准输入后，grep会对匹配一个或多个正则表达式的文">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="grep sed awk 入门">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;11&#x2F;09&#x2F;linux-sed-awk-grep&#x2F;index.html">
+<meta property="og:site_name" content="Pureven">
+<meta property="og:description" content="grep前言grep是一个最初用于Unix操作系统的命令行工具。由Kenneth Lane Thompson写成。grep原先是ed下的一个应用程序，名称来自于g&#x2F;re&#x2F;p（globally search a regular expression and print，利用正则表达式在指定文件中进行全局搜索并将搜索到的行打印出来）。在给出文件列表或标准输入后，grep会对匹配一个或多个正则表达式的文">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-13T00:41:43.159Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://pureven.cc/2019/11/09/linux-sed-awk-grep/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>grep sed awk 入门 | Pureven</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pureven</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">行者无疆</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">41</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/11/09/linux-sed-awk-grep/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Snowflake_Snow.png">
+      <meta itemprop="name" content="W E N C H A O">
+      <meta itemprop="description" content="不积跬步•无以至千里">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pureven">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          grep sed awk 入门
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-11-09 07:36:20" itemprop="dateCreated datePublished" datetime="2019-11-09T07:36:20+08:00">2019-11-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-13 08:41:43" itemprop="dateModified" datetime="2020-04-13T08:41:43+08:00">2020-04-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/11/09/linux-sed-awk-grep/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/11/09/linux-sed-awk-grep/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>25k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>23 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="grep"><a href="#grep" class="headerlink" title="grep"></a>grep</h3><h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>grep是一个最初用于Unix操作系统的命令行工具。由<code>Kenneth Lane Thompson</code>写成。grep原先是ed下的一个应用程序，名称来自于g/re/p（globally search a regular expression and print，<strong>利用正则表达式在指定文件中进行全局搜索并将搜索到的行打印出来</strong>）。在给出文件列表或标准输入后，grep会对匹配一个或多个正则表达式的文本进行搜索，并只输出匹配（或者不匹配）的行或文本。摘自<span class="exturl" data-url="aHR0cHM6Ly96aC53aWtpcGVkaWEub3JnL3dpa2kvR3JlcA==" title="https://zh.wikipedia.org/wiki/Grep">维基百科<i class="fa fa-external-link"></i></span>。可以将grep理解为<strong>字符查找工具</strong>，类似于<code>ctrl + F</code>。</p>
+<a id="more"></a>
+
+<h4 id="语法形式"><a href="#语法形式" class="headerlink" title="语法形式"></a>语法形式</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven ~]# grep --help</span><br><span class="line">用法: grep [选项]... PATTERN [FILE]...</span><br><span class="line">在每个 FILE 或是标准输入中查找 PATTERN。</span><br><span class="line">默认的 PATTERN 是一个基本正则表达式(缩写为 BRE)。</span><br><span class="line">例如: grep -i &apos;hello world&apos; menu.h main.c</span><br><span class="line"></span><br><span class="line">正则表达式选择与解释:</span><br><span class="line">  -E, --extended-regexp     PATTERN 是一个可扩展的正则表达式(缩写为 ERE)</span><br><span class="line">  -F, --fixed-strings       PATTERN 是一组由断行符分隔的定长字符串。</span><br><span class="line">  -G, --basic-regexp        PATTERN 是一个基本正则表达式(缩写为 BRE)</span><br><span class="line">  -P, --perl-regexp         PATTERN 是一个 Perl 正则表达式</span><br><span class="line">  -e, --regexp=PATTERN      用 PATTERN 来进行匹配操作</span><br><span class="line">  -f, --file=FILE           从 FILE 中取得 PATTERN</span><br><span class="line">  -i, --ignore-case         忽略大小写</span><br><span class="line">  -w, --word-regexp         强制 PATTERN 仅完全匹配字词</span><br><span class="line">  -x, --line-regexp         强制 PATTERN 仅完全匹配一行</span><br><span class="line">  -z, --null-data           一个 0 字节的数据行，但不是空行</span><br><span class="line"></span><br><span class="line">Miscellaneous:</span><br><span class="line">  -s, --no-messages         suppress error messages</span><br><span class="line">  -v, --invert-match        select non-matching lines</span><br><span class="line">  -V, --version             display version information and exit</span><br><span class="line">      --help                display this help text and exit</span><br><span class="line"></span><br><span class="line">输出控制:</span><br><span class="line">  -m, --max-count=NUM       NUM 次匹配后停止</span><br><span class="line">  -b, --byte-offset         输出的同时打印字节偏移</span><br><span class="line">  -n, --line-number         输出的同时打印行号</span><br><span class="line">      --line-buffered       每行输出清空</span><br><span class="line">  -H, --with-filename       为每一匹配项打印文件名</span><br><span class="line">  -h, --no-filename         输出时不显示文件名前缀</span><br><span class="line">      --label=LABEL         将LABEL 作为标准输入文件名前缀</span><br><span class="line">  -o, --only-matching       show only the part of a line matching PATTERN</span><br><span class="line">  -q, --quiet, --silent     suppress all normal output</span><br><span class="line">      --binary-files=TYPE   assume that binary files are TYPE;</span><br><span class="line">                            TYPE is &apos;binary&apos;, &apos;text&apos;, or &apos;without-match&apos;</span><br><span class="line">  -a, --text                equivalent to --binary-files=text</span><br><span class="line">  -I                        equivalent to --binary-files=without-match</span><br><span class="line">  -d, --directories=ACTION  how to handle directories;</span><br><span class="line">                            ACTION is &apos;read&apos;, &apos;recurse&apos;, or &apos;skip&apos;</span><br><span class="line">  -D, --devices=ACTION      how to handle devices, FIFOs and sockets;</span><br><span class="line">                            ACTION is &apos;read&apos; or &apos;skip&apos;</span><br><span class="line">  -r, --recursive           like --directories=recurse</span><br><span class="line">  -R, --dereference-recursive</span><br><span class="line">                            likewise, but follow all symlinks</span><br><span class="line">      --include=FILE_PATTERN</span><br><span class="line">                            search only files that match FILE_PATTERN</span><br><span class="line">      --exclude=FILE_PATTERN</span><br><span class="line">                            skip files and directories matching FILE_PATTERN</span><br><span class="line">      --exclude-from=FILE   skip files matching any file pattern from FILE</span><br><span class="line">      --exclude-dir=PATTERN directories that match PATTERN will be skipped.</span><br><span class="line">  -L, --files-without-match print only names of FILEs containing no match</span><br><span class="line">  -l, --files-with-matches  print only names of FILEs containing matches</span><br><span class="line">  -c, --count               print only a count of matching lines per FILE</span><br><span class="line">  -T, --initial-tab         make tabs line up (if needed)</span><br><span class="line">  -Z, --null                print 0 byte after FILE name</span><br><span class="line"></span><br><span class="line">文件控制:</span><br><span class="line">  -B, --before-context=NUM  打印以文本起始的NUM 行</span><br><span class="line">  -A, --after-context=NUM   打印以文本结尾的NUM 行</span><br><span class="line">  -C, --context=NUM         打印输出文本NUM 行</span><br><span class="line">  -NUM                      same as --context=NUM</span><br><span class="line">      --group-separator=SEP use SEP as a group separator</span><br><span class="line">      --no-group-separator  use empty string as a group separator</span><br><span class="line">      --color[=WHEN],</span><br><span class="line">      --colour[=WHEN]       use markers to highlight the matching strings;</span><br><span class="line">                            WHEN is &apos;always&apos;, &apos;never&apos;, or &apos;auto&apos;</span><br><span class="line">  -U, --binary              do not strip CR characters at EOL (MSDOS/Windows)</span><br><span class="line">  -u, --unix-byte-offsets   report offsets as if CRs were not there</span><br><span class="line">                            (MSDOS/Windows)</span><br><span class="line"></span><br><span class="line">‘egrep’即‘grep -E’。‘fgrep’即‘grep -F’。</span><br><span class="line">直接使用‘egrep’或是‘fgrep’均已不可行了。</span><br><span class="line">若FILE 为 -，将读取标准输入。不带FILE，读取当前目录，除非命令行中指定了-r 选项。</span><br><span class="line">如果少于两个FILE 参数，就要默认使用-h 参数。</span><br><span class="line">如果有任意行被匹配，那退出状态为 0，否则为 1；</span><br><span class="line">如果有错误产生，且未指定 -q 参数，那退出状态为 2。</span><br><span class="line"></span><br><span class="line">请将错误报告给: bug-grep@gnu.org</span><br><span class="line">GNU Grep 主页: &lt;http://www.gnu.org/software/grep/&gt;</span><br><span class="line">GNU 软件的通用帮助: &lt;http://www.gnu.org/gethelp/&gt;</span><br><span class="line">[root@pureven ~]#</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="应用示例"><a href="#应用示例" class="headerlink" title="应用示例"></a>应用示例</h4><h5 id="在文件中查找字符串"><a href="#在文件中查找字符串" class="headerlink" title="在文件中查找字符串"></a>在文件中查找字符串</h5><ul>
+<li>在文件pwd.info中查找“spool”：默认<strong>区分大小写</strong><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat pwd.info </span><br><span class="line">   ROOT:X:0:0:ROOT:/ROOT:/BIN/BASH</span><br><span class="line">   BIN:X:1:1:BIN:/BIN:/SBIN/NOLOGIN</span><br><span class="line">   DAEMON:X:2:2:DAEMON:/SBIN:/SBIN/NOLOGIN</span><br><span class="line">   ADM:X:3:4:ADM:/VAR/ADM:/SBIN/NOLOGIN</span><br><span class="line">   LP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">   sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">   shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">   halt:x:7:0:halt:/sbin:/sbin/halt</span><br><span class="line">   mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">   operator:x:11:0:operator:/root:/sbin/nologin</span><br><span class="line">   [root@pureven Documents]# grep &quot;spool&quot; pwd.info </span><br><span class="line">   mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="不区分大小写-i"><a href="#不区分大小写-i" class="headerlink" title="不区分大小写 -i"></a>不区分大小写 -i</h5><ul>
+<li>在文件pwd.info中查找“spool”及“SPOOL”，使用<code>-i</code><strong>选项</strong><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat pwd.info </span><br><span class="line">ROOT:X:0:0:ROOT:/ROOT:/BIN/BASH</span><br><span class="line">BIN:X:1:1:BIN:/BIN:/SBIN/NOLOGIN</span><br><span class="line">DAEMON:X:2:2:DAEMON:/SBIN:/SBIN/NOLOGIN</span><br><span class="line">ADM:X:3:4:ADM:/VAR/ADM:/SBIN/NOLOGIN</span><br><span class="line">LP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">halt:x:7:0:halt:/sbin:/sbin/halt</span><br><span class="line">mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">operator:x:11:0:operator:/root:/sbin/nologin</span><br><span class="line">[root@pureven Documents]# grep -i &quot;spool&quot; pwd.info </span><br><span class="line">LP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="显示匹配行在文件中的行号-n"><a href="#显示匹配行在文件中的行号-n" class="headerlink" title="显示匹配行在文件中的行号 -n"></a>显示匹配行在文件中的行号 -n</h5><ul>
+<li>在文件pwd.info中查找“spool”，显示匹配行在文件中的行号，使用<code>-n</code><strong>选项</strong> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat pwd.info </span><br><span class="line">ROOT:X:0:0:ROOT:/ROOT:/BIN/BASH</span><br><span class="line">BIN:X:1:1:BIN:/BIN:/SBIN/NOLOGIN</span><br><span class="line">DAEMON:X:2:2:DAEMON:/SBIN:/SBIN/NOLOGIN</span><br><span class="line">ADM:X:3:4:ADM:/VAR/ADM:/SBIN/NOLOGIN</span><br><span class="line">LP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">halt:x:7:0:halt:/sbin:/sbin/halt</span><br><span class="line">mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">operator:x:11:0:operator:/root:/sbin/nologin</span><br><span class="line">[root@pureven Documents]# grep -i -n &quot;spool&quot; pwd.info </span><br><span class="line">5:LP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">9:mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="获取匹配行数-c"><a href="#获取匹配行数-c" class="headerlink" title="获取匹配行数 -c"></a>获取匹配行数 -c</h5><ul>
+<li>在文件pwd.info中查找“spool”，显示匹配行的总数，使用<code>-c</code><strong>选项</strong><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# grep -i &quot;spool&quot; pwd.info </span><br><span class="line">LP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">[root@pureven Documents]# grep -i -c  &quot;spool&quot; pwd.info </span><br><span class="line">2</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>注意：</strong><code>-c</code>选项只会打印总行数，不会打印行内容</p>
+<h5 id="显示匹配信息上下文-A-num-B-num-C-num"><a href="#显示匹配信息上下文-A-num-B-num-C-num" class="headerlink" title="显示匹配信息上下文 -A{num}/-B{num}/-C{num}"></a>显示匹配信息上下文 -A{num}/-B{num}/-C{num}</h5><ul>
+<li>当需要了解匹配信息上下文时，需要用到文件控制部分的<code>-A</code>、<code>-B</code>、<code>-C</code>选项:<blockquote>
+<p> -B, –before-context=NUM  打印以文本起始的NUM 行<br> -A, –after-context=NUM   打印以文本结尾的NUM 行<br> -C, –context=NUM         打印输出文本NUM 行<br> 换言之<br> <code>-B2</code>将会输出匹配行以及匹配行下面的2行<br> <code>-A2</code>将会输出匹配行以及匹配行上面的2行<br> <code>-C2</code>将会输出匹配行以及匹配行上下文各2行</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# grep -n &quot;SPOOL&quot; pwd.info </span><br><span class="line">5:LP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">[root@pureven Documents]# grep -n -A2 &quot;SPOOL&quot; pwd.info </span><br><span class="line">5:LP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">6-sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">7-shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">[root@pureven Documents]# grep -n -B2 &quot;SPOOL&quot; pwd.info </span><br><span class="line">3-DAEMON:X:2:2:DAEMON:/SBIN:/SBIN/NOLOGIN</span><br><span class="line">4-ADM:X:3:4:ADM:/VAR/ADM:/SBIN/NOLOGIN</span><br><span class="line">5:LP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">[root@pureven Documents]# grep -n -C2 &quot;SPOOL&quot; pwd.info </span><br><span class="line">3-DAEMON:X:2:2:DAEMON:/SBIN:/SBIN/NOLOGIN</span><br><span class="line">4-ADM:X:3:4:ADM:/VAR/ADM:/SBIN/NOLOGIN</span><br><span class="line">5:LP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">6-sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">7-shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="words-匹配-w"><a href="#words-匹配-w" class="headerlink" title="words 匹配 -w"></a>words 匹配 -w</h5><ul>
+<li>在文件pwd.info中查找单词“spool”，即<code>spool</code>作为独立的单词存在，使用<code>-w</code><strong>选项</strong><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat pwd.info </span><br><span class="line">hello ROOT:X:0:0:ROOT:/ROOT:/BIN/BASH</span><br><span class="line">world BIN:X:1:1:BIN:/BIN:/SBIN/NOLOGIN</span><br><span class="line">helloDAEMON:X:2:2:DAEMON:/SBIN:/SBIN/NOLOGIN</span><br><span class="line">worldADM:X:3:4:ADM:/VAR/ADM:/SBIN/NOLOGIN</span><br><span class="line">helloLP:X:4:7:LP:/VAR/SPOOL/LPD:/SBIN/NOLOGIN</span><br><span class="line">grep sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">grepshutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">hello halt:x:7:0:halt:/sbin:/sbin/halt</span><br><span class="line">grep mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">world operator:x:11:0:operator:/root:/sbin/nologin</span><br><span class="line">[root@pureven Documents]# </span><br><span class="line">[root@pureven Documents]# grep &quot;grep&quot; pwd.info </span><br><span class="line">grep sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">grepshutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">grep mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">[root@pureven Documents]# </span><br><span class="line">[root@pureven Documents]# grep -w &quot;grep&quot; pwd.info </span><br><span class="line">grep sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">grep mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="反向查找-v"><a href="#反向查找-v" class="headerlink" title="反向查找 -v"></a>反向查找 -v</h5><ul>
+<li>在文件pwd.info中查找不包含“spool”的行，使用<code>-v</code><strong>选项</strong><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat pwd.info </span><br><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">bin:x:1:1:bin:/bin:/sbin/nologin</span><br><span class="line">daemon:x:2:2:daemon:/sbin:/sbin/nologin</span><br><span class="line">adm:x:3:4:adm:/var/adm:/sbin/nologin</span><br><span class="line">lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</span><br><span class="line">sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">halt:x:7:0:halt:/sbin:/sbin/halt</span><br><span class="line">mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">operator:x:11:0:operator:/root:/sbin/nologin</span><br><span class="line">[root@pureven Documents]# grep -n &quot;sbin&quot; pwd.info </span><br><span class="line">2:bin:x:1:1:bin:/bin:/sbin/nologin</span><br><span class="line">3:daemon:x:2:2:daemon:/sbin:/sbin/nologin</span><br><span class="line">4:adm:x:3:4:adm:/var/adm:/sbin/nologin</span><br><span class="line">5:lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</span><br><span class="line">6:sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">7:shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">8:halt:x:7:0:halt:/sbin:/sbin/halt</span><br><span class="line">9:mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">10:operator:x:11:0:operator:/root:/sbin/nologin</span><br><span class="line">[root@pureven Documents]# grep -v -n &quot;sbin&quot; pwd.info </span><br><span class="line">1:root:x:0:0:root:/root:/bin/bash</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="同时匹配多个字符串-e"><a href="#同时匹配多个字符串-e" class="headerlink" title="同时匹配多个字符串 -e"></a>同时匹配多个字符串 -e</h5><ul>
+<li>在文件中同时匹配多个字符串，只要有一个字符串匹配就说明此行匹配成功，使用<code>-e</code><strong>选项</strong><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list </span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# grep &quot;a&quot; char.list </span><br><span class="line">a b c d e f g</span><br><span class="line">[root@pureven Documents]# grep &quot;i&quot; char.list </span><br><span class="line">h i j k l m n</span><br><span class="line">[root@pureven Documents]# grep -e &quot;a&quot; -e &quot;i&quot; char.list </span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="静默模式-q"><a href="#静默模式-q" class="headerlink" title="静默模式 -q"></a>静默模式 -q</h5><ul>
+<li>如果不关心在文件中匹配的行信息以及上下文，只关心是否匹配成功，则需要使用<code>-q</code><strong>选项</strong><br>使用-q在文件中进行匹配有三个结果：<blockquote>
+<p>0：匹配成功<br>1：匹配失败<br>2：匹配文件不存在</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list </span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# grep -q &quot;a&quot; char.list </span><br><span class="line">[root@pureven Documents]# echo $?</span><br><span class="line">0</span><br><span class="line">[root@pureven Documents]# grep -q &quot;+&quot; char.list </span><br><span class="line">[root@pureven Documents]# echo $?</span><br><span class="line">1</span><br><span class="line">[root@pureven Documents]# grep -q &quot;a&quot; char.lists</span><br><span class="line">grep: char.lists: 没有那个文件或目录</span><br><span class="line">[root@pureven Documents]# echo $?</span><br><span class="line">2</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="正则表达式-E-egrep"><a href="#正则表达式-E-egrep" class="headerlink" title="正则表达式 -E/egrep"></a>正则表达式 -E/egrep</h5><ul>
+<li><code>grep</code>支持使用扩展的正则表达式模式来匹配字符串，需要使用<strong>-E</strong>选项或直接使用<code>egrep</code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list </span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# grep &quot;a&quot; char.list </span><br><span class="line">a b c d e f g</span><br><span class="line">[root@pureven Documents]# grep &quot;i&quot; char.list </span><br><span class="line">h i j k l m n</span><br><span class="line">[root@pureven Documents]# grep -e &quot;a&quot; -e &quot;i&quot; char.list </span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">[root@pureven Documents]# grep -E &apos;a|i&apos; char.list </span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+其中<code>'a|i'</code>表示<code>a或i</code></li>
+</ul>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p>本文归纳的不全，如果不满足自己的需求可参考下列链接:<br><span class="exturl" data-url="aHR0cHM6Ly9saW51eC5jbi9hcnRpY2xlLTY5NDEtMS5odG1s" title="https://linux.cn/article-6941-1.html">https://linux.cn/article-6941-1.html<i class="fa fa-external-link"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly93d3cuenN5dGhpbmsubmV0L2FyY2hpdmVzLzE3MzM=" title="https://www.zsythink.net/archives/1733">https://www.zsythink.net/archives/1733<i class="fa fa-external-link"></i></span></p>
+<hr>
+<h3 id="sed"><a href="#sed" class="headerlink" title="sed"></a>sed</h3><h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>sed是<code>stream editor(流编辑器)</code>的缩写，是一个使用简单紧凑的编程语言来解析和转换文本的Unix实用程序。sed由贝尔实验室的Lee E. McMahon于1973年至1974年开发，并且现在大多数操作系统都可以使用。<br>sed基于交互式编辑器ed（“editor”，1971）和早期qed（“quick editor”，1965-66）的脚本功能。sed是最早支持<strong>正则表达式</strong>的工具之一，至今仍然用于<strong>文本处理</strong>，特别是用于<strong>替换</strong>命令。<br>摘自<span class="exturl" data-url="aHR0cHM6Ly96aC53aWtpcGVkaWEub3JnL3dpa2kvU2Vk" title="https://zh.wikipedia.org/wiki/Sed">维基百科<i class="fa fa-external-link"></i></span></p>
+<hr>
+<h4 id="语法形式-1"><a href="#语法形式-1" class="headerlink" title="语法形式"></a>语法形式</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# sed --help</span><br><span class="line">用法: sed [选项]... &#123;脚本(如果没有其他脚本)&#125; [输入文件]...</span><br><span class="line"></span><br><span class="line">  -n, --quiet, --silent</span><br><span class="line">                 取消自动打印模式空间</span><br><span class="line">  -e 脚本, --expression=脚本</span><br><span class="line">                 添加“脚本”到程序的运行列表</span><br><span class="line">  -f 脚本文件, --file=脚本文件</span><br><span class="line">                 添加“脚本文件”到程序的运行列表</span><br><span class="line">  --follow-symlinks</span><br><span class="line">                 直接修改文件时跟随软链接</span><br><span class="line">  -i[SUFFIX], --in-place[=SUFFIX]</span><br><span class="line">                 edit files in place (makes backup if SUFFIX supplied)</span><br><span class="line">  -c, --copy</span><br><span class="line">                 use copy instead of rename when shuffling files in -i mode</span><br><span class="line">  -b, --binary</span><br><span class="line">                 does nothing; for compatibility with WIN32/CYGWIN/MSDOS/EMX (</span><br><span class="line">                 open files in binary mode (CR+LFs are not treated specially))</span><br><span class="line">  -l N, --line-length=N</span><br><span class="line">                 指定“l”命令的换行期望长度</span><br><span class="line">  --posix</span><br><span class="line">                 关闭所有 GNU 扩展</span><br><span class="line">  -r, --regexp-extended</span><br><span class="line">                 在脚本中使用扩展正则表达式</span><br><span class="line">  -s, --separate</span><br><span class="line">                 将输入文件视为各个独立的文件而不是一个长的连续输入</span><br><span class="line">  -u, --unbuffered</span><br><span class="line">                 从输入文件读取最少的数据，更频繁的刷新输出</span><br><span class="line">  -z, --null-data</span><br><span class="line">                 separate lines by NUL characters</span><br><span class="line">  --help</span><br><span class="line">                 display this help and exit</span><br><span class="line">  --version</span><br><span class="line">                 output version information and exit</span><br><span class="line"></span><br><span class="line">如果没有 -e, --expression, -f 或 --file 选项，那么第一个非选项参数被视为</span><br><span class="line">sed脚本。其他非选项参数被视为输入文件，如果没有输入文件，那么程序将从标准</span><br><span class="line">输入读取数据。</span><br><span class="line">GNU sed home page: &lt;http://www.gnu.org/software/sed/&gt;.</span><br><span class="line">General help using GNU software: &lt;http://www.gnu.org/gethelp/&gt;.</span><br><span class="line">E-mail bug reports to: &lt;bug-sed@gnu.org&gt;.</span><br><span class="line">Be sure to include the word ``sed&apos;&apos; somewhere in the ``Subject:&apos;&apos; field.</span><br></pre></td></tr></table></figure>
+
+<h4 id="脚本动作"><a href="#脚本动作" class="headerlink" title="脚本动作"></a>脚本动作</h4><h5 id="单词替换"><a href="#单词替换" class="headerlink" title="单词替换"></a>单词替换</h5><ul>
+<li><code>sed</code>的简单使用，<strong>单词替换</strong>功能：将<code>hello</code>替换为<code>world</code>，<code>/hello/</code>表示匹配，<code>/world/</code>表示把匹配替换成<code>world</code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">docker@pureven:~$ cat input.txt                                                                                           </span><br><span class="line">hello world</span><br><span class="line">hello pureven</span><br><span class="line">docker@pureven:~$                                                                                                         </span><br><span class="line">docker@pureven:~$ sed &apos;s/hello/world/&apos; input.txt &gt; output.txt</span><br><span class="line">docker@pureven:~$ cat output.txt                                                                                          </span><br><span class="line">world world</span><br><span class="line">world pureven</span><br><span class="line">docker@pureven:~$</span><br></pre></td></tr></table></figure>
+从output.txt的内容即可发现，sed已将input.txt文件中的<code>hello</code>替换为<code>world</code>，如果不指定<code>inputfile</code>，sed将会过滤标准输入的内容。<br>一下命令是等效的：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker@pureven:~$ sed &apos;s/hello/world/&apos; input.txt &gt; output.txt</span><br><span class="line">docker@pureven:~$ cat output.txt                                                                                          </span><br><span class="line">world world</span><br><span class="line">world pureven</span><br><span class="line">docker@pureven:~$ sed &apos;s/hello/world/&apos; &lt; input.txt &gt; output.txt                                                           </span><br><span class="line">docker@pureven:~$ cat output.txt                                                                                          </span><br><span class="line">world world</span><br><span class="line">world pureven       </span><br><span class="line">docker@pureven:~$ cat input.txt | sed &apos;s/hello/world/&apos; - &gt; output.txt                                             </span><br><span class="line">docker@pureven:~$ cat output.txt                                                                                          </span><br><span class="line">world world</span><br><span class="line">world pureven</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="替换-s"><a href="#替换-s" class="headerlink" title="替换 s"></a>替换 s</h5><ul>
+<li>每行替换所有的匹配如何实现<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# clear</span><br><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d a f g</span><br><span class="line">a b c d a f g</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;s/a/*/&apos; char.list</span><br><span class="line">* b c d a f g</span><br><span class="line">* b c d a f g</span><br><span class="line">* b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;s/a/*/2&apos; char.list</span><br><span class="line">a b c d * f g</span><br><span class="line">a b c d * f g</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;s/a/*/g&apos; char.list</span><br><span class="line">* b c d * f g</span><br><span class="line">* b c d * f g</span><br><span class="line">* b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+通过比较可以得出<code>/g</code>的作用是将每行所有的<code>a</code>替换为<code>*</code>。</li>
+</ul>
+<h5 id="增加-删除-插入-a-d-i"><a href="#增加-删除-插入-a-d-i" class="headerlink" title="增加/删除/插入 a/d/i"></a>增加/删除/插入 a/d/i</h5><ul>
+<li>a表示新增，后面接字符串，这些字符串会在指定行的下一行出现</li>
+</ul>
+<p>比如在第二行后增加”hello wrold”，在所有行后增加”hello world”：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;2a hello world&apos; char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">hello world</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;a hello world&apos; char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">hello world</span><br><span class="line">h i j k l m n</span><br><span class="line">hello world</span><br><span class="line">o p q r s t</span><br><span class="line">hello world</span><br><span class="line">u v w x y z</span><br><span class="line">hello world</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>d表示删除，删除指定行</li>
+</ul>
+<p>比如删除第二行，删除第二至第四行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;2d&apos; char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;2,4d&apos; char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>i表示插入，后面接字符串，这些字符串会在指定行的上一行出现</li>
+</ul>
+<p>比如在第二行后插入”hello wrold”，在所有行后插入”hello world”：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;2i hello pureven&apos; char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">hello pureven</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;i hello pureven&apos; char.list</span><br><span class="line">hello pureven</span><br><span class="line">a b c d e f g</span><br><span class="line">hello pureven</span><br><span class="line">h i j k l m n</span><br><span class="line">hello pureven</span><br><span class="line">o p q r s t</span><br><span class="line">hello pureven</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+<h5 id="行替换-c"><a href="#行替换-c" class="headerlink" title="行替换 c"></a>行替换 c</h5><ul>
+<li>c ：取代， c 的后面可以接字串，这些字串可以取代 n1,n2 之间的行！<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">a b c d e f g</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;1,4c cc cc cc&apos; char.list</span><br><span class="line">cc cc cc</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="搜索-p"><a href="#搜索-p" class="headerlink" title="搜索 p"></a>搜索 p</h5><ul>
+<li>p ：打印，亦即将某个选择的数据印出。通常 p 会与参数 sed -n 一起运行～<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;/o/p&apos; char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed -n &apos;/o/p&apos; char.list</span><br><span class="line">o p q r s t</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="选项参数"><a href="#选项参数" class="headerlink" title="选项参数"></a>选项参数</h4><h5 id="使用文件中的命令进行替换-f"><a href="#使用文件中的命令进行替换-f" class="headerlink" title="使用文件中的命令进行替换 -f"></a>使用文件中的命令进行替换 -f</h5><ul>
+<li>-f ：添加文件中的命令<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d a f g</span><br><span class="line">a b c d a f g</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# cat char.sed </span><br><span class="line">s/a/*/g</span><br><span class="line">s/$/…………/</span><br><span class="line">[root@pureven Documents]# sed -f char.sed char.list</span><br><span class="line">* b c d * f g…………</span><br><span class="line">* b c d * f g…………</span><br><span class="line">* b c d e f g…………</span><br><span class="line">h i j k l m n…………</span><br><span class="line">o p q r s t…………</span><br><span class="line">u v w x y z…………</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="取消自动打印模式-n"><a href="#取消自动打印模式-n" class="headerlink" title="取消自动打印模式 -n"></a>取消自动打印模式 -n</h5><ul>
+<li>-n ：sed默认会打印经过处理后的所有文本信息， <code>-n</code>则取消这种自动打印的信息，一般和p搭配使用<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d a f g</span><br><span class="line">a b c d a f g</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed &apos;2,3a hello pureven&apos; char.list</span><br><span class="line">a b c d a f g</span><br><span class="line">a b c d a f g</span><br><span class="line">hello pureven</span><br><span class="line">a b c d e f g</span><br><span class="line">hello pureven</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed -n &apos;2,3a hello pureven&apos; char.list</span><br><span class="line">hello pureven</span><br><span class="line">hello pureven</span><br><span class="line">[root@pureven Documents]# sed -n &apos;/x/p&apos; char.list</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="直接修改文件内容-i"><a href="#直接修改文件内容-i" class="headerlink" title="直接修改文件内容 -i"></a>直接修改文件内容 -i</h5><ul>
+<li>-i ：直接修改文件内容<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">a b c d e f g</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed -i &apos;2,3s/a/*/&apos; char.list</span><br><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d e f g</span><br><span class="line">* b c d e f g</span><br><span class="line">* b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="多个匹配-e"><a href="#多个匹配-e" class="headerlink" title="多个匹配 -e"></a>多个匹配 -e</h5><ul>
+<li>-e : 指定匹配规则，可添加多个<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@pureven Documents]# cat char.list</span><br><span class="line">a b c d a f g</span><br><span class="line">a b c d a f g</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w x y z</span><br><span class="line">[root@pureven Documents]# sed -e &apos;2,3s/a/*/&apos; -e &apos;s/$/********/&apos; char.list</span><br><span class="line">a b c d a f g********</span><br><span class="line">* b c d a f g********</span><br><span class="line">* b c d e f g********</span><br><span class="line">h i j k l m n********</span><br><span class="line">o p q r s t********</span><br><span class="line">u v w x y z********</span><br><span class="line">[root@pureven Documents]#</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<hr>
+<h3 id="awk"><a href="#awk" class="headerlink" title="awk"></a>awk</h3><h4 id="前言-1"><a href="#前言-1" class="headerlink" title="前言"></a>前言</h4><p>AWK是一种优良的文本处理工具，Linux及Unix环境中现有的功能最强大的数据处理引擎之一。名称得自于它的创始人<code>Alfred Aho</code>、<code>Peter Weinberger</code>和<code>Brian Kernighan</code>姓氏的首个字母<br>AWK提供了极其强大的功能：可以进行<cdoe>正则表达式的匹配，<code>样式装入</code>、<code>流控制</code>、<code>数学运算符</code>、<code>进程控制语句</code>甚至于<code>内置的变量</code>和<code>函数</code>。下面进行简单介绍</cdoe></p>
+<hr>
+<h4 id="awk的命令格式和选项"><a href="#awk的命令格式和选项" class="headerlink" title="awk的命令格式和选项"></a>awk的命令格式和选项</h4><p><strong>语法形式</strong> </p>
+<blockquote>
+<p><code>awk [options] 'pattern {action}' (filename)</code></p>
+</blockquote>
+<p>选项参数说明:<br><code>options</code>:</p>
+<ul>
+<li>-F fs or –field-separator fs: 指定输入文件折分隔符，fs是一个字符串或者一个正则表达式</li>
+<li>-v var=value or –asign var=value: 赋值一个用户定义变量</li>
+<li>-f scriptfile or –file scriptfile: 从脚本文件中读取awk命令</li>
+<li>-W help or –help, -W usage or –usage: 打印全部awk选项和每个选项的简短说明</li>
+</ul>
+<p><code>pattern</code>:表示模式，即条件<br><code>action</code>:为awk语句，表示每一行的处理动作，只能被单引号包含<br><code>filename</code>:表示awk要处理的文本文件。</p>
+<p><strong>举例说明:</strong></p>
+<p>其信息通过冒号<code>:</code>进行连接，下面通过awk进行格式化显示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">[root@tony Desktop]# cat /etc/passwd | head -n 10 &gt; passwd.info </span><br><span class="line">[root@tony Desktop]# cat passwd.info </span><br><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">bin:x:1:1:bin:/bin:/sbin/nologin</span><br><span class="line">daemon:x:2:2:daemon:/sbin:/sbin/nologin</span><br><span class="line">adm:x:3:4:adm:/var/adm:/sbin/nologin</span><br><span class="line">lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</span><br><span class="line">sync:x:5:0:sync:/sbin:/bin/sync</span><br><span class="line">shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">halt:x:7:0:halt:/sbin:/sbin/halt</span><br><span class="line">mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">operator:x:11:0:operator:/root:/sbin/nologin</span><br><span class="line">[root@tony Desktop]# awk -F : &apos;&#123;printf &quot;%02s %-10s %-8s %-8s %-8s %-10s %-16s %-8s\n&quot;, NR,$1,$2,$3,$4,$5,$6,$7&#125;&apos; passwd.info </span><br><span class="line"> 1 root       x        0        0        root       /root            /bin/bash</span><br><span class="line"> 2 bin        x        1        1        bin        /bin             /sbin/nologin</span><br><span class="line"> 3 daemon     x        2        2        daemon     /sbin            /sbin/nologin</span><br><span class="line"> 4 adm        x        3        4        adm        /var/adm         /sbin/nologin</span><br><span class="line"> 5 lp         x        4        7        lp         /var/spool/lpd   /sbin/nologin</span><br><span class="line"> 6 sync       x        5        0        sync       /sbin            /bin/sync</span><br><span class="line"> 7 shutdown   x        6        0        shutdown   /sbin            /sbin/shutdown</span><br><span class="line"> 8 halt       x        7        0        halt       /sbin            /sbin/halt</span><br><span class="line"> 9 mail       x        8        12       mail       /var/spool/mail  /sbin/nologin</span><br><span class="line">10 operator   x        11       0        operator   /root            /sbin/nologin</span><br><span class="line">[root@tony Desktop]#</span><br></pre></td></tr></table></figure>
+<p>其中$1 - $7、 NR为内置变量， -F的作用是设置定界符，这里使用<code>:</code>进行分割后得到的每一列。<br><strong>这里<code>options</code>即<code>-F :</code>,<code>action</code>即<code>printf</code></strong></p>
+<p>多个分隔符示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">docker@pureven:~$ cat pwd.info </span><br><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">lp:x:7:7:lp:/var/spool/lpd:/bin/sh</span><br><span class="line">docker@pureven:~$ awk -F &apos;[:]&apos; &apos;&#123;print $1,$2,$3,$4,$5&#125;&apos; pwd.info                                                          </span><br><span class="line">root x 0 0 root</span><br><span class="line">lp x 7 7 lp</span><br><span class="line">docker@pureven:~$                                                                                                         </span><br><span class="line">docker@pureven:~$ awk -F &apos;[:|root]&apos; &apos;&#123;print $1,$2,$3,$4,$5&#125;&apos; pwd.info </span><br><span class="line">    </span><br><span class="line">lp x 7 7 lp</span><br><span class="line">docker@pureven:~$ awk -F &apos;[:|root]+&apos; &apos;&#123;print $1,$2,$3,$4,$5&#125;&apos; pwd.info                                                    </span><br><span class="line"> x 0 0 /</span><br><span class="line">lp x 7 7 lp</span><br><span class="line">docker@pureven:~$</span><br></pre></td></tr></table></figure>
+<p>其中的<code>+</code>表示连续出现的分隔符当作一个来处理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker@pureven:~$ awk -F : &apos;&#123;printf &quot;NR:%-6s NF:%-6s %-10s %-10s %-16s %-8s\n&quot;, NR,NF,$1,$5,$6,$7&#125;&apos; pwd.info                                                </span><br><span class="line">NR:1      NF:7      root       root       /root            /bin/bash</span><br><span class="line">NR:2      NF:7      lp         lp         /var/spool/lpd   /bin/sh </span><br><span class="line">NR:3      NF:7      nobody     nobody     /nonexistent     /bin/false</span><br><span class="line">NR:4      NF:7      tc         Linux User,,, /home/tc         /bin/sh </span><br><span class="line">NR:5      NF:7      docker     Docker     /home/docker     /bin/bash</span><br><span class="line">NR:6      NF:7      dockremap  Linux User,,, /home/dockremap  /bin/false</span><br><span class="line">docker@pureven:~$ awk -F : &apos;NR == 3 || NR == 5&#123;printf &quot;NR:%-6s NF:%-6s %-10s %-10s %-16s %-8s\n&quot;, NR,NF,$1,$5,$6,$7&#125;&apos; pwd.info                              </span><br><span class="line">NR:3      NF:7      nobody     nobody     /nonexistent     /bin/false</span><br><span class="line">NR:5      NF:7      docker     Docker     /home/docker     /bin/bash</span><br></pre></td></tr></table></figure>
+<p><strong>这里<code>pattern</code> 即’NR == 3 || NR == 5’</strong></p>
+<hr>
+<h4 id="内置变量"><a href="#内置变量" class="headerlink" title="内置变量"></a>内置变量</h4><p>上面用到的$1 - $7及NR均为swk内置的变量，每个内置变量的作用不同，下面列出常用的几个：</p>
+<table>
+<thead>
+<tr>
+<th align="left">变量名</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">$0</td>
+<td align="left">存放整行内容</td>
+</tr>
+<tr>
+<td align="left">$1 - $n</td>
+<td align="left">存放通过FS将内容分割后的第一个到第几个字段</td>
+</tr>
+<tr>
+<td align="left">NR</td>
+<td align="left">已经读出的内容的行号，从1开始，如果有多个文件，这个值也是不断累加</td>
+</tr>
+<tr>
+<td align="left">FNR</td>
+<td align="left">与NR不同之处在于每个文件都从1开始累加</td>
+</tr>
+<tr>
+<td align="left">NF</td>
+<td align="left">记录通过FS将内容分割后的字段数目，也就是列的数目</td>
+</tr>
+<tr>
+<td align="left">FS</td>
+<td align="left">输入的字段分隔符，默认是空格</td>
+</tr>
+<tr>
+<td align="left">OFS</td>
+<td align="left">输出的字段分隔符，默认是空格</td>
+</tr>
+<tr>
+<td align="left">RS</td>
+<td align="left">输入的记录分隔符，默认是换行符</td>
+</tr>
+<tr>
+<td align="left">ORS</td>
+<td align="left">输出的记录分隔符，默认是换行符</td>
+</tr>
+<tr>
+<td align="left">OFMT</td>
+<td align="left">数字输出格式，默认为%.6g，保留6位小数</td>
+</tr>
+<tr>
+<td align="left">FILENAME</td>
+<td align="left">当前文件名</td>
+</tr>
+</tbody></table>
+<p><strong>举例说明:</strong></p>
+<ul>
+<li><p>查看$0内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@tony Desktop]# awk &apos;&#123;print $0&#125;&apos; pwd.info </span><br><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">bin:x:1:1:bin:/bin:/sbin/nologin</span><br><span class="line">daemon:x:2:2:daemon:/sbin:/sbin/nologin</span><br><span class="line">adm:x:3:4:adm:/var/adm:/sbin/nologin</span><br><span class="line">lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</span><br><span class="line">[root@tony Desktop]# </span><br><span class="line">[root@tony Desktop]# cat pwd.info </span><br><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">bin:x:1:1:bin:/bin:/sbin/nologin</span><br><span class="line">daemon:x:2:2:daemon:/sbin:/sbin/nologin</span><br><span class="line">adm:x:3:4:adm:/var/adm:/sbin/nologin</span><br><span class="line">lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</span><br></pre></td></tr></table></figure>
+<p>$0即读取每行内容，这里将每行内容打印出来跟cat pwd.info效果一样</p>
+</li>
+<li><p>FILENAME/NR/FNR/NF 示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@tony Desktop]# awk -F : &apos;&#123;printf &quot;FILENAME:%-12s FNR:%-6s NR:%-6s NF:%-6s %-10s %-10s %-16s %-8s\n&quot;, FILENAME,FNR,NR,NF,$1,$5,$6,$7&#125;&apos; pwd.info shadow.info</span><br><span class="line">FILENAME:pwd.info     FNR:1      NR:1      NF:7      root       root       /root            /bin/bash</span><br><span class="line">FILENAME:pwd.info     FNR:2      NR:2      NF:7      bin        bin        /bin             /sbin/nologin</span><br><span class="line">FILENAME:pwd.info     FNR:3      NR:3      NF:7      daemon     daemon     /sbin            /sbin/nologin</span><br><span class="line">FILENAME:pwd.info     FNR:4      NR:4      NF:7      adm        adm        /var/adm         /sbin/nologin</span><br><span class="line">FILENAME:pwd.info     FNR:5      NR:5      NF:7      lp         lp         /var/spool/lpd   /sbin/nologin</span><br><span class="line">FILENAME:shadow.info  FNR:1      NR:6      NF:9      root       99999      7                        </span><br><span class="line">FILENAME:shadow.info  FNR:2      NR:7      NF:9      bin        99999      7                        </span><br><span class="line">FILENAME:shadow.info  FNR:3      NR:8      NF:9      daemon     99999      7                        </span><br><span class="line">FILENAME:shadow.info  FNR:4      NR:9      NF:9      adm        99999      7                        </span><br><span class="line">FILENAME:shadow.info  FNR:5      NR:10     NF:9      lp         99999      7</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>FS/OFS 示例： 输入<strong>字段</strong>分隔符<code>:</code>, 输出<strong>字段</strong>分隔符<code>**</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">docker@pureven:~$ cat pwd.info                                        </span><br><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">lp:x:7:7:lp:/var/spool/lpd:/bin/sh</span><br><span class="line">nobody:x:65534:65534:nobody:/nonexistent:/bin/false</span><br><span class="line">tc:x:1001:50:Linux User,,,:/home/tc:/bin/sh</span><br><span class="line">docker:x:1000:50:Docker:/home/docker:/bin/bash</span><br><span class="line">dockremap:x:100:101:Linux User,,,:/home/dockremap:/bin/false</span><br><span class="line">docker@pureven:~$                                                                                                         </span><br><span class="line">docker@pureven:~$ awk &apos;&#123;FS=&quot;:&quot;,OFS=&quot;**&quot;&#125;&#123;print $1, $2, $3, $4, $5, $6, $7 &#125;&apos; pwd.info </span><br><span class="line">root:x:0:0:root:/root:/bin/bash************</span><br><span class="line">lp**x**7**7**lp**/var/spool/lpd**/bin/sh</span><br><span class="line">nobody**x**65534**65534**nobody**/nonexistent**/bin/false</span><br><span class="line">tc**x**1001**50**Linux User,,,**/home/tc**/bin/sh</span><br><span class="line">docker**x**1000**50**Docker**/home/docker**/bin/bash</span><br><span class="line">dockremap**x**100**101**Linux User,,,**/home/dockremap**/bin/false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>OFMT 示例：</p>
+<blockquote>
+<p><strong>所有输入都将视为字符串，直到通过使用方式进行隐式转换为止</strong></p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker@pureven:~$ echo 3.1415926 | awk &apos;&#123;OFMT=&quot;%.2f&quot;;print 0+$0&#125;&apos;</span><br><span class="line">3.14</span><br><span class="line">docker@pureven:~$ echo 3.1415926 | awk &apos;&#123;OFMT=&quot;%.3f&quot;;print 0+$0&#125;&apos;                                                         </span><br><span class="line">3.142</span><br><span class="line">docker@pureven:~$ echo 3.1415926 | awk &apos;&#123;OFMT=&quot;%.4f&quot;;print 0+$0&#125;&apos;                                                         </span><br><span class="line">3.1416</span><br><span class="line">docker@pureven:~$ echo 3.1415926 | awk &apos;&#123;OFMT=&quot;%.5f&quot;;print 0+$0&#125;&apos;                                                         </span><br><span class="line">3.14159</span><br><span class="line">docker@pureven:~$ echo 3.1415926 | awk &apos;&#123;OFMT=&quot;%d&quot;;print 0+$0&#125;&apos;                                                           </span><br><span class="line">3</span><br><span class="line">docker@pureven:~$ echo 3.1415926 | awk &apos;&#123;OFMT=&quot;%d&quot;;print $0&#125;&apos;                                                             </span><br><span class="line">3.1415926</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<hr>
+<h4 id="内置函数"><a href="#内置函数" class="headerlink" title="内置函数"></a>内置函数</h4><table>
+<thead>
+<tr>
+<th align="left">函数名</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">toupper</td>
+<td align="left">将字符转为大写</td>
+</tr>
+<tr>
+<td align="left">tolower</td>
+<td align="left">将字符转为小写</td>
+</tr>
+<tr>
+<td align="left">length</td>
+<td align="left">长度</td>
+</tr>
+<tr>
+<td align="left">substr</td>
+<td align="left">子字符串</td>
+</tr>
+<tr>
+<td align="left">sin</td>
+<td align="left">正弦</td>
+</tr>
+<tr>
+<td align="left">cos</td>
+<td align="left">余弦</td>
+</tr>
+<tr>
+<td align="left">sqrt</td>
+<td align="left">平方根</td>
+</tr>
+<tr>
+<td align="left">rand</td>
+<td align="left">随机数</td>
+</tr>
+</tbody></table>
+<p>完整列表请参见<span class="exturl" data-url="aHR0cHM6Ly93d3cuZ251Lm9yZy9zb2Z0d2FyZS9nYXdrL21hbnVhbC9odG1sX25vZGUvQnVpbHRfMDAyZGluLmh0bWwjQnVpbHRfMDAyZGlu" title="https://www.gnu.org/software/gawk/manual/html_node/Built_002din.html#Built_002din">手册<i class="fa fa-external-link"></i></span></p>
+<p><strong>举例说明:</strong></p>
+<ul>
+<li><p><code>substr()</code>函数测试：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@tony Desktop]# awk -F : &apos;&#123;print substr(FILENAME, 5,4), NF, $(NF-1), $0&#125;&apos; pwd.info </span><br><span class="line">info 7 /root root:x:0:0:root:/root:/bin/bash</span><br><span class="line">info 7 /bin bin:x:1:1:bin:/bin:/sbin/nologin</span><br><span class="line">info 7 /sbin daemon:x:2:2:daemon:/sbin:/sbin/nologin</span><br><span class="line">info 7 /var/adm adm:x:3:4:adm:/var/adm:/sbin/nologin</span><br><span class="line">info 7 /var/spool/lpd lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</span><br><span class="line">[root@tony Desktop]#</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>toupper()/tolower()</code>函数测试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@tony Desktop]# </span><br><span class="line">[root@tony Desktop]# awk -F : &apos;&#123;print tolower(FILENAME), NF, $(NF-1), $0&#125;&apos; pwd.info </span><br><span class="line">pwd.info 7 /root root:x:0:0:root:/root:/bin/bash</span><br><span class="line">pwd.info 7 /bin bin:x:1:1:bin:/bin:/sbin/nologin</span><br><span class="line">pwd.info 7 /sbin daemon:x:2:2:daemon:/sbin:/sbin/nologin</span><br><span class="line">pwd.info 7 /var/adm adm:x:3:4:adm:/var/adm:/sbin/nologin</span><br><span class="line">pwd.info 7 /var/spool/lpd lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</span><br><span class="line">[root@tony Desktop]# </span><br><span class="line">[root@tony Desktop]# awk -F : &apos;&#123;print toupper(FILENAME), NF, $(NF-1), $0&#125;&apos; pwd.info </span><br><span class="line">PWD.INFO 7 /root root:x:0:0:root:/root:/bin/bash</span><br><span class="line">PWD.INFO 7 /bin bin:x:1:1:bin:/bin:/sbin/nologin</span><br><span class="line">PWD.INFO 7 /sbin daemon:x:2:2:daemon:/sbin:/sbin/nologin</span><br><span class="line">PWD.INFO 7 /var/adm adm:x:3:4:adm:/var/adm:/sbin/nologin</span><br><span class="line">PWD.INFO 7 /var/spool/lpd lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>对变量进行重新赋值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@tony Desktop]# awk -F : &apos;&#123;print toupper(FILENAME), NF, $(NF-1), $0 = &quot;***&quot;&#125;&apos; pwd.info </span><br><span class="line">PWD.INFO 7 /root ***</span><br><span class="line">PWD.INFO 7 /bin ***</span><br><span class="line">PWD.INFO 7 /sbin ***</span><br><span class="line">PWD.INFO 7 /var/adm ***</span><br><span class="line">PWD.INFO 7 /var/spool/lpd ***</span><br></pre></td></tr></table></figure>
+<p>$0本来是每行内容的，经过赋值变成了***</p>
+</li>
+<li><p>实现单词统计和去重</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">docker@pureven:~$ cat word.list                                                                                             </span><br><span class="line">hello world pureven awk</span><br><span class="line">hello world pureven awk</span><br><span class="line">hello world pureven awk</span><br><span class="line">awk hello world pureven</span><br><span class="line">pureven awk hello world</span><br><span class="line">world pureven awk hello</span><br><span class="line">docker@pureven:~$ awk &apos;&#123;c+=length($0)+1;w+=NF&#125;END&#123;print &quot;row_nums = &quot; NR,&quot;\nword_nums = &quot; w, &quot;\nchar_nums = &quot; c&#125;&apos; word.list                         </span><br><span class="line">row_nums = 6 </span><br><span class="line">word_nums = 24 </span><br><span class="line">char_nums = 144</span><br><span class="line">docker@pureven:~$ awk &apos;!arr[$0]++ &#123;print $0&#125;&apos; word.list                                                                                             </span><br><span class="line">hello world pureven awk</span><br><span class="line">awk hello world pureven</span><br><span class="line">pureven awk hello world</span><br><span class="line">world pureven awk hello</span><br><span class="line">docker@pureven:~$</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>单词统计：c += leng($0) + 1将每行字符串相加；w += NF 将每行单词数相加。<br>去重：<code>arr[$0]++</code>中$0作为key，初值arr[$0] = 0，当读取重复行后通过arr[$0]++变为arr[$0] = 1，取非后为假就过滤掉了</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<h4 id="awk-模式"><a href="#awk-模式" class="headerlink" title="awk 模式"></a>awk 模式</h4><p><code>pattern</code>表示模式，用一个比较好理解的单词就是指<strong>条件</strong>，这里介绍awk的模式中的三类：<code>空模式</code>, <code>关系运算模式</code>, <code>BEGIN/END模式</code>。</p>
+<blockquote>
+<p>空模式：表示没有指定任何条件的模式，awk会直接对文本处理。<br>关系运算模式： 如前文中的’NR % 2 == 1’、’$1 == “root”‘、’$1 == “daemon”‘等，awk会根据这些条件对文件进行操作。<br>BEGIN/END模式：BEGIN表示开始处理文本之前需要执行的操作，END表示将所有行都处理完毕之后需要执行的操作。</p>
+</blockquote>
+<h5 id="关系运算模式"><a href="#关系运算模式" class="headerlink" title="关系运算模式"></a><code>关系运算模式</code></h5><p><code>awk</code>允许指定输出条件，只输出符合条件的行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root@tony Desktop]# awk -F : &apos;&#123;printf &quot;%02s %-10s %-8s %-8s %-8s %-10s %-16s %-8s\n&quot;, NR,$1,$2,$3,$4,$5,$6,$7&#125;&apos; pwd.info </span><br><span class="line"> 1 root       x        0        0        root       /root            /bin/bash</span><br><span class="line"> 2 bin        x        1        1        bin        /bin             /sbin/nologin</span><br><span class="line"> 3 daemon     x        2        2        daemon     /sbin            /sbin/nologin</span><br><span class="line"> 4 adm        x        3        4        adm        /var/adm         /sbin/nologin</span><br><span class="line"> 5 lp         x        4        7        lp         /var/spool/lpd   /sbin/nologin</span><br><span class="line">[root@tony Desktop]#</span><br><span class="line">[root@tony Desktop]# awk -F : &apos;NR % 2 == 1 &#123;printf &quot;%02s %-10s %-8s %-8s %-8s %-10s %-16s %-8s\n&quot;, NR,$1,$2,$3,$4,$5,$6,$7&#125;&apos; pwd.info </span><br><span class="line"> 1 root       x        0        0        root       /root            /bin/bash</span><br><span class="line"> 3 daemon     x        2        2        daemon     /sbin            /sbin/nologin</span><br><span class="line"> 5 lp         x        4        7        lp         /var/spool/lpd   /sbin/nologin</span><br><span class="line">[root@tony Desktop]# </span><br><span class="line">[root@tony Desktop]# awk -F : &apos;$1 == &quot;root&quot; &#123;printf &quot;%02s %-10s %-8s %-8s %-8s %-10s %-16s %-8s\n&quot;, NR,$1,$2,$3,$4,$5,$6,$7&#125;&apos; pwd.info </span><br><span class="line"> 1 root       x        0        0        root       /root            /bin/bash</span><br><span class="line">[root@tony Desktop]# </span><br><span class="line">[root@tony Desktop]# awk -F : &apos;$1 == &quot;daemon&quot; &#123;printf &quot;%02s %-10s %-8s %-8s %-8s %-10s %-16s %-8s\n&quot;, NR,$1,$2,$3,$4,$5,$6,$7&#125;&apos; pwd.info </span><br><span class="line"> 3 daemon     x        2        2        daemon     /sbin            /sbin/nologin</span><br><span class="line">[root@tony Desktop]#</span><br></pre></td></tr></table></figure>
+<p><code>NR % 2 == 1</code>表示条件，作用是输出时只输出NR为奇数的行,<code>$1 == "root"</code>和<code>$1 == "daemon"</code>分别匹配第一列为<code>root</code>和<code>daemon</code>的行。</p>
+<p>另外<code>awk</code>还支持if … else条件判断</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@tony Desktop]# awk -F : &apos;&#123;printf &quot;%02s %-10s %-8s %-8s %-8s %-10s %-16s %-8s\n&quot;, NR,$1,$2,$3,$4,$5,$6,$7&#125;&apos; pwd.info </span><br><span class="line"> 1 root       x        0        0        root       /root            /bin/bash</span><br><span class="line"> 2 bin        x        1        1        bin        /bin             /sbin/nologin</span><br><span class="line"> 3 daemon     x        2        2        daemon     /sbin            /sbin/nologin</span><br><span class="line"> 4 adm        x        3        4        adm        /var/adm         /sbin/nologin</span><br><span class="line"> 5 lp         x        4        7        lp         /var/spool/lpd   /sbin/nologin</span><br><span class="line">[root@tony Desktop]# </span><br><span class="line">[root@tony Desktop]# </span><br><span class="line">[root@tony Desktop]# </span><br><span class="line">[root@tony Desktop]# awk -F : &apos;&#123;if (NR &gt; 3) printf &quot;%02s %-10s %-8s %-8s %-8s %-10s %-16s %-8s\n&quot;, NR,$1,$2,$3,$4,$5,$6,$7; else print NR, $0&#125;&apos; pwd.info </span><br><span class="line">1 root:x:0:0:root:/root:/bin/bash</span><br><span class="line">2 bin:x:1:1:bin:/bin:/sbin/nologin</span><br><span class="line">3 daemon:x:2:2:daemon:/sbin:/sbin/nologin</span><br><span class="line"> 4 adm        x        3        4        adm        /var/adm         /sbin/nologin</span><br><span class="line"> 5 lp         x        4        7        lp         /var/spool/lpd   /sbin/nologin</span><br><span class="line">[root@tony Desktop]#</span><br></pre></td></tr></table></figure>
+
+<h5 id="BEGIN-END模式"><a href="#BEGIN-END模式" class="headerlink" title="BEGIN/END模式"></a><code>BEGIN/END模式</code></h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">docker@pureven:~$ cat input.txt </span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t</span><br><span class="line">u v w z y z</span><br><span class="line">docker@pureven:~$                                                                                                                                           </span><br><span class="line">docker@pureven:~$ awk &apos;BEGIN&#123;print &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,&quot;5&quot;,&quot;6&quot;,&quot;7&quot;&#125;&#123;print $1, $2, $3, $4, $5, $6, $7&#125;END&#123;print &quot;7&quot;,&quot;6&quot;,&quot;5&quot;,&quot;4&quot;,&quot;3&quot;,&quot;2&quot;,&quot;1&quot;&#125;&apos; input.txt </span><br><span class="line">1 2 3 4 5 6 7</span><br><span class="line">a b c d e f g</span><br><span class="line">h i j k l m n</span><br><span class="line">o p q r s t </span><br><span class="line">u v w z y z </span><br><span class="line">7 6 5 4 3 2 1</span><br><span class="line">docker@pureven:~$</span><br></pre></td></tr></table></figure>
+
+<h4 id="参考链接-1"><a href="#参考链接-1" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cDovL3d3dy5ydWFueWlmZW5nLmNvbS9ibG9nLzIwMTgvMTEvYXdrLmh0bWw=" title="http://www.ruanyifeng.com/blog/2018/11/awk.html">awk 入门教程<i class="fa fa-external-link"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly9jb29sc2hlbGwuY24vYXJ0aWNsZXMvOTEwNC5odG1s" title="https://coolshell.cn/articles/9104.html">sed 简明教程<i class="fa fa-external-link"></i></span></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>W E N C H A O
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://pureven.cc/2019/11/09/linux-sed-awk-grep/" title="grep sed awk 入门">https://pureven.cc/2019/11/09/linux-sed-awk-grep/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/11/07/docker-toolbox-change-default-docker-machine-dir/" rel="next" title="Windows Docker Toolbox替换默认docker machine的存储位置">
+                  <i class="fa fa-chevron-left"></i> Windows Docker Toolbox替换默认docker machine的存储位置
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/11/13/openssl-req-help/" rel="prev" title="linux openssl req 生成自签名证书">
+                  linux openssl req 生成自签名证书 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#grep"><span class="nav-number">1.</span> <span class="nav-text">grep</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#语法形式"><span class="nav-number">1.2.</span> <span class="nav-text">语法形式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#应用示例"><span class="nav-number">1.3.</span> <span class="nav-text">应用示例</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在文件中查找字符串"><span class="nav-number">1.3.1.</span> <span class="nav-text">在文件中查找字符串</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#不区分大小写-i"><span class="nav-number">1.3.2.</span> <span class="nav-text">不区分大小写 -i</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#显示匹配行在文件中的行号-n"><span class="nav-number">1.3.3.</span> <span class="nav-text">显示匹配行在文件中的行号 -n</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#获取匹配行数-c"><span class="nav-number">1.3.4.</span> <span class="nav-text">获取匹配行数 -c</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#显示匹配信息上下文-A-num-B-num-C-num"><span class="nav-number">1.3.5.</span> <span class="nav-text">显示匹配信息上下文 -A{num}/-B{num}/-C{num}</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#words-匹配-w"><span class="nav-number">1.3.6.</span> <span class="nav-text">words 匹配 -w</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#反向查找-v"><span class="nav-number">1.3.7.</span> <span class="nav-text">反向查找 -v</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#同时匹配多个字符串-e"><span class="nav-number">1.3.8.</span> <span class="nav-text">同时匹配多个字符串 -e</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#静默模式-q"><span class="nav-number">1.3.9.</span> <span class="nav-text">静默模式 -q</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#正则表达式-E-egrep"><span class="nav-number">1.3.10.</span> <span class="nav-text">正则表达式 -E/egrep</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">1.4.</span> <span class="nav-text">参考链接</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sed"><span class="nav-number">2.</span> <span class="nav-text">sed</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">2.1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#语法形式-1"><span class="nav-number">2.2.</span> <span class="nav-text">语法形式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#脚本动作"><span class="nav-number">2.3.</span> <span class="nav-text">脚本动作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#单词替换"><span class="nav-number">2.3.1.</span> <span class="nav-text">单词替换</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#替换-s"><span class="nav-number">2.3.2.</span> <span class="nav-text">替换 s</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#增加-删除-插入-a-d-i"><span class="nav-number">2.3.3.</span> <span class="nav-text">增加/删除/插入 a/d/i</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#行替换-c"><span class="nav-number">2.3.4.</span> <span class="nav-text">行替换 c</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#搜索-p"><span class="nav-number">2.3.5.</span> <span class="nav-text">搜索 p</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#选项参数"><span class="nav-number">2.4.</span> <span class="nav-text">选项参数</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#使用文件中的命令进行替换-f"><span class="nav-number">2.4.1.</span> <span class="nav-text">使用文件中的命令进行替换 -f</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#取消自动打印模式-n"><span class="nav-number">2.4.2.</span> <span class="nav-text">取消自动打印模式 -n</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#直接修改文件内容-i"><span class="nav-number">2.4.3.</span> <span class="nav-text">直接修改文件内容 -i</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#多个匹配-e"><span class="nav-number">2.4.4.</span> <span class="nav-text">多个匹配 -e</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#awk"><span class="nav-number">3.</span> <span class="nav-text">awk</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言-1"><span class="nav-number">3.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#awk的命令格式和选项"><span class="nav-number">3.2.</span> <span class="nav-text">awk的命令格式和选项</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内置变量"><span class="nav-number">3.3.</span> <span class="nav-text">内置变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内置函数"><span class="nav-number">3.4.</span> <span class="nav-text">内置函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#awk-模式"><span class="nav-number">3.5.</span> <span class="nav-text">awk 模式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#关系运算模式"><span class="nav-number">3.5.1.</span> <span class="nav-text">关系运算模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#BEGIN-END模式"><span class="nav-number">3.5.2.</span> <span class="nav-text">BEGIN/END模式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接-1"><span class="nav-number">3.6.</span> <span class="nav-text">参考链接</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+<a href="/">
+  <img class="site-author-image" itemprop="image" alt="W E N C H A O"
+    src="/images/Snowflake_Snow.png">
+</a>
+  <p class="site-author-name" itemprop="name">W E N C H A O</p>
+  <div class="site-description" itemprop="description">不积跬步•无以至千里</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3B1cmV2ZW4=" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;pureven"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="bWFpbHRvOjE5Nzg4OTA4NThAcXEuY29t" title="E-Mail &amp;rarr; mailto:1978890858@qq.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvemgtQ04vZG9jcy9XZWI=" title="https:&#x2F;&#x2F;developer.mozilla.org&#x2F;zh-CN&#x2F;docs&#x2F;Web">Web 开发技术 | MDN</span>
+        </li>
+        <li class="links-of-blogroll-item">
+          <span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC50ZW5jZW50LmNvbS9kZXZlbG9wZXIvZGV2ZG9jcw==" title="https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;devdocs">开发者手册 - 云+社区 - 腾讯云</span>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">W E N C H A O</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">331k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">5:01</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oHc91UAhBsCsHsozJKCtNWgs-gzGzoHsz',
+    appKey: '2voBHHj0cAqUynyNLoG4JoQf',
+    placeholder: "Just go go",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/click.js"></script>
