@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>PHPStorm配置Xdebug断点调试</title>
+      <link href="/2020/05/03/phpstorm-xdebug/"/>
+      <url>/2020/05/03/phpstorm-xdebug/</url>
+      
+        <content type="html"><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>厌倦了通过<code>var_dump()</code>、<code>var_export()</code>、<code>print_r()</code>等命令加<code>exit()</code>命令调试代码可以使用<strong>Xdebug</strong>来调试。</p><a id="more"></a><hr><h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>XDebug调试是一种C/S结构，Client是PHP-Xdebug插件，Server是我们的IDE（或者各种Editor插件），中间通过DBGp协议通信。PHP脚本在运行时，由Xdebug插件向IDE发起连接，将调试信息发送给IDE，并通过DBGp协议进行互动。详细结束可参考<span class="exturl" data-url="aHR0cHM6Ly94ZGVidWcub3JnL2RvY3MvcmVtb3Rl" title="https://xdebug.org/docs/remote">官网说明<i class="fa fa-external-link"></i></span>。</p><hr><h4 id="安装配置"><a href="#安装配置" class="headerlink" title="安装配置"></a>安装配置</h4><h5 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h5><p>下载Xdebug，先打印phpinfo()信息，然后<code>右键-&gt;源码</code>复制源码信息到<span class="exturl" data-url="aHR0cHM6Ly94ZGVidWcub3JnL3dpemFyZA==" title="https://xdebug.org/wizard">https://xdebug.org/wizard<i class="fa fa-external-link"></i></span>，点击<code>分析我的phpinfo()输出</code>可以看到当前php环境对应的Xdebug版本，点击下载即可。</p><p>下载完成后根据提示放入对应的php安装目录的<code>ext</code>目录下，如<code>G:\Nginx+php+mysql\php-7.4.3-nts-Win32-vc15-x64\ext\php_xdebug-2.9.5-7.4-vc15-nts-x86_64.dll</code>。</p><h5 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h5><p>在php.ini文件中进行Xdebug相关设置，相关配置说明<span class="exturl" data-url="aHR0cHM6Ly94ZGVidWcub3JnL2RvY3MvYWxsX3NldHRpbmdz" title="https://xdebug.org/docs/all_settings">参考官网<i class="fa fa-external-link"></i></span></p><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[XDebug]</span></span><br><span class="line"><span class="attr">xdebug.profiler_enable</span>=<span class="literal">on</span> <span class="comment">; 启用性能检测分析</span></span><br><span class="line"><span class="attr">xdebug.auto_trace</span>=<span class="literal">on</span>      <span class="comment">; 启用代码自动跟踪</span></span><br><span class="line"><span class="attr">xdebug.collect_params</span>=<span class="literal">on</span>  <span class="comment">; 允许收集传递给函数的参数变量</span></span><br><span class="line"><span class="attr">xdebug.collect_return</span>=<span class="literal">on</span>  <span class="comment">; 允许收集函数调用的返回值</span></span><br><span class="line"><span class="attr">xdebug.profiler_output_dir</span>=<span class="string">"G:\Nginx+php+mysql\tmp\xdebug"</span> <span class="comment">; 指定性能分析文件的存放目录</span></span><br><span class="line"><span class="attr">xdebug.trace_output_dir</span>=<span class="string">"G:\Nginx+php+mysql\tmp\xdebug"</span>    <span class="comment">; 指定堆栈跟踪文件的存放目录</span></span><br><span class="line"><span class="attr">zend_extension</span> = <span class="string">"G:\Nginx+php+mysql\php-7.4.3-nts-Win32-vc15-x64\ext\php_xdebug-2.9.5-7.4-vc15-nts-x86_64.dll"</span> <span class="comment"># 扩展文件绝对路径</span></span><br><span class="line"><span class="attr">xdebug.remote_enable</span>=<span class="literal">on</span>     <span class="comment">; 打开远程调试开关</span></span><br><span class="line"><span class="attr">xdebug.remote_handler</span>=dbgp  <span class="comment">; </span></span><br><span class="line"><span class="attr">xdebug.remote_mode</span>=req      <span class="comment">; </span></span><br><span class="line"><span class="attr">xdebug.remote_port</span>=<span class="number">9100</span>     <span class="comment">; 此处为客户端监听端口，即debug信息通过此端口传递给客户端，如PHPStorm，所以不要与服务器监听的端口冲突，比如Apache或Nginx</span></span><br><span class="line"><span class="attr">xdebug.idekey</span>=<span class="string">"PHPSTORM"</span>    <span class="comment">;</span></span><br></pre></td></tr></table></figure><hr><h4 id="配置PHPStorm"><a href="#配置PHPStorm" class="headerlink" title="配置PHPStorm"></a>配置PHPStorm</h4><h5 id="添加PHP-Debug-Servers"><a href="#添加PHP-Debug-Servers" class="headerlink" title="添加PHP Debug Servers"></a>添加PHP Debug Servers</h5><p>点击<code>File -&gt; Settings -&gt; Languages &amp; Frameworks -&gt; PHP -&gt; Debug -&gt; Servers</code>，点击<code>+</code>号添加站点地址和端口以及Debugger类型，如图<br><img src="/2020/05/03/phpstorm-xdebug/20200503223425.png" alt><br>点击<code>apply</code>及<code>OK</code>。</p><h5 id="添加PHP-Web-Page"><a href="#添加PHP-Web-Page" class="headerlink" title="添加PHP Web Page"></a>添加PHP Web Page</h5><p>点击<code>Run -&gt; Edit Configurations</code>，点击<code>+</code>号选择<code>PHP Web Page</code>，选择上面添加的服务，然后设置入口文件，如<code>/index.php</code>，配置如图<br><img src="/2020/05/03/phpstorm-xdebug/20200503224221.png" alt></p><hr><h4 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h4><p>PHPStorm选择添加的<code>PHP Web Page</code>，设置好断点，点击绿色小虫虫图标就可以看到文件中加载的变量信息了，如图<br><img src="/2020/05/03/phpstorm-xdebug/20200503224637.png" alt></p><hr><h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly9zZWdtZW50ZmF1bHQuY29tL2EvMTE5MDAwMDAxOTgxMTI5OA==" title="https://segmentfault.com/a/1190000019811298">Phpstorm+Xdebug配置断点调试<i class="fa fa-external-link"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly9zZWdtZW50ZmF1bHQuY29tL2EvMTE5MDAwMDAxMTMzMjAyMQ==" title="https://segmentfault.com/a/1190000011332021">PHP xdebug 调试工具安装与使用<i class="fa fa-external-link"></i></span></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Tools </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> PHP </tag>
+            
+            <tag> PHPStorm </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CodeIgniter RESTful API实现</title>
       <link href="/2020/04/17/codeigniter-restful/"/>
       <url>/2020/04/17/codeigniter-restful/</url>
