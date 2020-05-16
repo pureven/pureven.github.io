@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>PHP的?:与??</title>
+      <link href="/2020/05/16/php-ternary-null-coalescing-operator/"/>
+      <url>/2020/05/16/php-ternary-null-coalescing-operator/</url>
+      
+        <content type="html"><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>适当的使用三元运算符<code>?:</code>和NULL合并运算符<code>??</code>可以替换不少<code>if ... else ...</code>。</p><a id="more"></a><hr><h4 id="三元运算符"><a href="#三元运算符" class="headerlink" title="三元运算符"></a>三元运算符</h4><p>表达式 (expr1) ? (expr2) : (expr3) 在 expr1 求值为 TRUE 时的值为 expr2，在 expr1 求值为 FALSE 时的值为 expr3。</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Example usage for: Ternary Operator</span></span><br><span class="line">$action = (<span class="keyword">empty</span>($_POST[<span class="string">'action'</span>])) ? <span class="string">'default'</span> : $_POST[<span class="string">'action'</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// The above is identical to this if/else statement</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">empty</span>($_POST[<span class="string">'action'</span>])) &#123;</span><br><span class="line">    $action = <span class="string">'default'</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    $action = $_POST[<span class="string">'action'</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><font color="#891717">自 PHP 5.3 起，可以省略三元运算符中间那部分。表达式 expr1 ?: expr3 在 expr1 求值为 TRUE 时返回 expr1，否则返回 expr3。</font></p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 当$_POST['action']为null或''，则$action == 'default'</span></span><br><span class="line"><span class="comment">// 当$_POST['action'=不为空则$action == $_POST['action']</span></span><br><span class="line">$action = $_POST[<span class="string">'action'</span>] ?: <span class="string">'default'</span>;</span><br></pre></td></tr></table></figure><p><b><font color="#891717">Note: 注意三元运算符是个语句，因此其求值不是变量，而是语句的结果。如果想通过引用返回一个变量这点就很重要。在一个通过引用返回的函数中语句 <code>return $var == 42 ? $a : $b;</code> 将不起作用，以后的 PHP 版本会为此发出一条警告。</font></b></p><hr><h4 id="NULL合并运算符"><a href="#NULL合并运算符" class="headerlink" title="NULL合并运算符"></a>NULL合并运算符</h4><p>PHP7开始支持NULL合并运算符<code>??</code>。当 expr1 为 NULL，表达式 (expr1) ?? (expr2) 等同于 expr2，否则为 expr1。</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Example usage for: Null Coalesce Operator</span></span><br><span class="line">$action = $_POST[<span class="string">'action'</span>] ?? <span class="string">'default'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// The above is identical to this if/else statement</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_POST[<span class="string">'action'</span>])) &#123;</span><br><span class="line">    $action = $_POST[<span class="string">'action'</span>];</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    $action = <span class="string">'default'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><b><font color="#891717">Note: 请注意：NULL 合并运算符是一个表达式，产生的也是表达式结果，而不是变量。 返回引用变量时需要强调这一点。 因此，在返回引用的函数里就无法使用这样的语句: <code>return $foo ?? $bar;</code>，还会提示警告。</font></b></p><hr><h4 id="三元运算符和NULL合并运算符之间的区别"><a href="#三元运算符和NULL合并运算符之间的区别" class="headerlink" title="三元运算符和NULL合并运算符之间的区别"></a>三元运算符和NULL合并运算符之间的区别</h4><ul><li>三元运算符是<code>左关联</code>的；而NULL合并运算符是<code>右关联</code>的。</li><li>三元运算符检查值<code>是否为true</code>；而NULL合并运算符检查该值<code>是否为Null</code>。</li><li>如果要执行更多迭代，则发现<code>NULL合并</code>运算符比三元运算符<code>更快</code>。</li><li><code>NULL合并</code>运算符可以提供<code>更好的可读性</code>。</li></ul><hr><h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvbGFuZ3VhZ2Uub3BlcmF0b3JzLmNvbXBhcmlzb24ucGhwI2xhbmd1YWdlLm9wZXJhdG9ycy5jb21wYXJpc29uLnRlcm5hcnk=" title="https://www.php.net/manual/zh/language.operators.comparison.php#language.operators.comparison.ternary">三元运算符<i class="fa fa-external-link"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvbGFuZ3VhZ2Uub3BlcmF0b3JzLmNvbXBhcmlzb24ucGhwI2xhbmd1YWdlLm9wZXJhdG9ycy5jb21wYXJpc29uLmNvYWxlc2Nl" title="https://www.php.net/manual/zh/language.operators.comparison.php#language.operators.comparison.coalesce">NULL合并运算符<i class="fa fa-external-link"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLmNuL3BocC13ZWl6aWppYW9jaGVuZy00MTUwMDYuaHRtbA==" title="https://www.php.cn/php-weizijiaocheng-415006.html">PHP中三元运算符和NULL合并运算符的简单比较<i class="fa fa-external-link"></i></span></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 开发者手册 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> PHP </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>PHPStorm配置Xdebug断点调试</title>
       <link href="/2020/05/03/phpstorm-xdebug/"/>
       <url>/2020/05/03/phpstorm-xdebug/</url>

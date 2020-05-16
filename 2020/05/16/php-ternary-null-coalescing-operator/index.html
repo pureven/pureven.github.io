@@ -52,18 +52,18 @@
   };
 </script>
 
-  <meta name="description" content="引言本文持续跟进phpstorm可用的license。">
-<meta name="keywords" content="PHPStorm">
+  <meta name="description" content="引言适当的使用三元运算符?:和NULL合并运算符??可以替换不少if ... else ...。">
+<meta name="keywords" content="PHP">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Phpstorm License">
-<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;11&#x2F;phpstormm-about-license&#x2F;index.html">
+<meta property="og:title" content="PHP的?:与??">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;05&#x2F;16&#x2F;php-ternary-null-coalescing-operator&#x2F;index.html">
 <meta property="og:site_name" content="Pureven">
-<meta property="og:description" content="引言本文持续跟进phpstorm可用的license。">
+<meta property="og:description" content="引言适当的使用三元运算符?:和NULL合并运算符??可以替换不少if ... else ...。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-04-24T03:53:59.993Z">
+<meta property="og:updated_time" content="2020-05-16T12:43:23.139Z">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://pureven.cc/2020/03/11/phpstormm-about-license/">
+<link rel="canonical" href="https://pureven.cc/2020/05/16/php-ternary-null-coalescing-operator/">
 
 
 <script id="page-configurations">
@@ -77,7 +77,7 @@
   };
 </script>
 
-  <title>Phpstorm License | Pureven</title>
+  <title>PHP的?:与?? | Pureven</title>
   
 
 
@@ -214,7 +214,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/03/11/phpstormm-about-license/">
+    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/05/16/php-ternary-null-coalescing-operator/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/Snowflake_Snow.png">
@@ -227,7 +227,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          Phpstorm License
+          PHP的?:与??
         </h2>
 
         <div class="post-meta">
@@ -236,24 +236,18 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2020-03-11 08:34:00" itemprop="dateCreated datePublished" datetime="2020-03-11T08:34:00+08:00">2020-03-11</time>
+              <time title="创建时间：2020-05-16 19:05:05 / 修改时间：20:43:23" itemprop="dateCreated datePublished" datetime="2020-05-16T19:05:05+08:00">2020-05-16</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 11:53:59" itemprop="dateModified" datetime="2020-04-24T11:53:59+08:00">2020-04-24</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Tools/" itemprop="url" rel="index">
-                    <span itemprop="name">Tools</span>
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%8B%E5%86%8C/" itemprop="url" rel="index">
+                    <span itemprop="name">开发者手册</span>
                   </a>
                 </span>
             </span>
@@ -267,8 +261,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2020/03/11/phpstormm-about-license/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/11/phpstormm-about-license/" itemprop="commentCount"></span>
+    <a title="valine" href="/2020/05/16/php-ternary-null-coalescing-operator/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/16/php-ternary-null-coalescing-operator/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -278,14 +272,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>4.9k</span>
+              <span>1.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
+              <span>1 分钟</span>
             </span>
 
         </div>
@@ -297,23 +291,31 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>本文持续跟进phpstorm可用的license。</p>
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>适当的使用三元运算符<code>?:</code>和NULL合并运算符<code>??</code>可以替换不少<code>if ... else ...</code>。</p>
 <a id="more"></a>
 
-<h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><p><font color="#891717"><b>下面步骤作废，可直接参考<span class="exturl" data-url="aHR0cDovL2lkZWEubWVkZW1pbmcuY29tL2pldHMv" title="http://idea.medeming.com/jets/">该链接<i class="fa fa-external-link"></i></span></b></font></p>
-<ol>
-<li><p>将下列配置加入<code>hosts</code>文件。</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span> <span class="string">https://account.jetbrains.com:443</span></span><br><span class="line"><span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span> <span class="string">account.jetbrains.com</span></span><br><span class="line"><span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span> <span class="string">http://www.jetbrains.com</span></span><br><span class="line"><span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span> <span class="string">www-weighted.jetbrains.com</span></span><br><span class="line"><span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span> <span class="string">account.jetbrains.com</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>命令行执行<code>ipconfig /flushdns</code>刷新DNS缓存。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Microsoft Windows [版本 10.0.18362.657]</span><br><span class="line">(c) 2019 Microsoft Corporation。保留所有权利。</span><br><span class="line"></span><br><span class="line">C:\Users\39260&gt;ipconfig /flushdns</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>打开Phpstorm，选择<code>Enter Key</code>，然后选择<code>Activation code</code>，输入下面License。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Z4ZSP0F8FF-eyJsaWNlbnNlSWQiOiJaNFpTUDBGOEZGIiwibGljZW5zZWVOYW1lIjoi5rC45LmF5r+A5rS7IGlkZWEubWVkZW1pbmcuY29tIiwiYXNzaWduZWVOYW1lIjoiIiwiYXNzaWduZWVFbWFpbCI6IiIsImxpY2Vuc2VSZXN0cmljdGlvbiI6IiIsImNoZWNrQ29uY3VycmVudFVzZSI6ZmFsc2UsInByb2R1Y3RzIjpbeyJjb2RlIjoiSUkiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6ZmFsc2V9LHsiY29kZSI6IkFDIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOmZhbHNlfSx7ImNvZGUiOiJEUE4iLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6dHJ1ZX0seyJjb2RlIjoiUlNDIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOnRydWV9LHsiY29kZSI6IlBTIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOmZhbHNlfSx7ImNvZGUiOiJSU0YiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6dHJ1ZX0seyJjb2RlIjoiR08iLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6ZmFsc2V9LHsiY29kZSI6IkRNIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOnRydWV9LHsiY29kZSI6IkNMIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOmZhbHNlfSx7ImNvZGUiOiJSUzAiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6dHJ1ZX0seyJjb2RlIjoiUkMiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6dHJ1ZX0seyJjb2RlIjoiUkQiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6ZmFsc2V9LHsiY29kZSI6IlBDIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOmZhbHNlfSx7ImNvZGUiOiJSU1YiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6dHJ1ZX0seyJjb2RlIjoiUlNVIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOmZhbHNlfSx7ImNvZGUiOiJSTSIsInBhaWRVcFRvIjoiMjAyMC0wNS0yMiIsImV4dGVuZGVkIjpmYWxzZX0seyJjb2RlIjoiV1MiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6ZmFsc2V9LHsiY29kZSI6IkRCIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOmZhbHNlfSx7ImNvZGUiOiJEQyIsInBhaWRVcFRvIjoiMjAyMC0wNS0yMiIsImV4dGVuZGVkIjp0cnVlfSx7ImNvZGUiOiJQREIiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6dHJ1ZX0seyJjb2RlIjoiUFdTIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOnRydWV9LHsiY29kZSI6IlBHTyIsInBhaWRVcFRvIjoiMjAyMC0wNS0yMiIsImV4dGVuZGVkIjp0cnVlfSx7ImNvZGUiOiJQUFMiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6dHJ1ZX0seyJjb2RlIjoiUFBDIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOnRydWV9LHsiY29kZSI6IlBSQiIsInBhaWRVcFRvIjoiMjAyMC0wNS0yMiIsImV4dGVuZGVkIjp0cnVlfSx7ImNvZGUiOiJQU1ciLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6dHJ1ZX0seyJjb2RlIjoiRFAiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6dHJ1ZX0seyJjb2RlIjoiUlMiLCJwYWlkVXBUbyI6IjIwMjAtMDUtMjIiLCJleHRlbmRlZCI6dHJ1ZX0seyJjb2RlIjoiRFBBIiwicGFpZFVwVG8iOiIyMDIwLTA1LTIyIiwiZXh0ZW5kZWQiOnRydWV9XSwibWV0YWRhdGEiOiIwMTIwMjAwNDIzUFBBTTAwMDAwNSIs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</span><br></pre></td></tr></table></figure>
+<hr>
+<h4 id="三元运算符"><a href="#三元运算符" class="headerlink" title="三元运算符"></a>三元运算符</h4><p>表达式 (expr1) ? (expr2) : (expr3) 在 expr1 求值为 TRUE 时的值为 expr2，在 expr1 求值为 FALSE 时的值为 expr3。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Example usage for: Ternary Operator</span></span><br><span class="line">$action = (<span class="keyword">empty</span>($_POST[<span class="string">'action'</span>])) ? <span class="string">'default'</span> : $_POST[<span class="string">'action'</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// The above is identical to this if/else statement</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">empty</span>($_POST[<span class="string">'action'</span>])) &#123;</span><br><span class="line">    $action = <span class="string">'default'</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    $action = $_POST[<span class="string">'action'</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-</li>
-</ol>
-<p><strong>注：该license维保期到<code>2021年2月9号</code>。</strong></p>
+<p><font color="#891717">自 PHP 5.3 起，可以省略三元运算符中间那部分。表达式 expr1 ?: expr3 在 expr1 求值为 TRUE 时返回 expr1，否则返回 expr3。</font></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 当$_POST['action']为null或''，则$action == 'default'</span></span><br><span class="line"><span class="comment">// 当$_POST['action'=不为空则$action == $_POST['action']</span></span><br><span class="line">$action = $_POST[<span class="string">'action'</span>] ?: <span class="string">'default'</span>;</span><br></pre></td></tr></table></figure>
+
+<p><b><font color="#891717">Note: 注意三元运算符是个语句，因此其求值不是变量，而是语句的结果。如果想通过引用返回一个变量这点就很重要。在一个通过引用返回的函数中语句 <code>return $var == 42 ? $a : $b;</code> 将不起作用，以后的 PHP 版本会为此发出一条警告。</font></b></p>
+<hr>
+<h4 id="NULL合并运算符"><a href="#NULL合并运算符" class="headerlink" title="NULL合并运算符"></a>NULL合并运算符</h4><p>PHP7开始支持NULL合并运算符<code>??</code>。当 expr1 为 NULL，表达式 (expr1) ?? (expr2) 等同于 expr2，否则为 expr1。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Example usage for: Null Coalesce Operator</span></span><br><span class="line">$action = $_POST[<span class="string">'action'</span>] ?? <span class="string">'default'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// The above is identical to this if/else statement</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_POST[<span class="string">'action'</span>])) &#123;</span><br><span class="line">    $action = $_POST[<span class="string">'action'</span>];</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    $action = <span class="string">'default'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><b><font color="#891717">Note: 请注意：NULL 合并运算符是一个表达式，产生的也是表达式结果，而不是变量。 返回引用变量时需要强调这一点。 因此，在返回引用的函数里就无法使用这样的语句: <code>return $foo ?? $bar;</code>，还会提示警告。</font></b></p>
+<hr>
+<h4 id="三元运算符和NULL合并运算符之间的区别"><a href="#三元运算符和NULL合并运算符之间的区别" class="headerlink" title="三元运算符和NULL合并运算符之间的区别"></a>三元运算符和NULL合并运算符之间的区别</h4><ul>
+<li>三元运算符是<code>左关联</code>的；而NULL合并运算符是<code>右关联</code>的。</li>
+<li>三元运算符检查值<code>是否为true</code>；而NULL合并运算符检查该值<code>是否为Null</code>。</li>
+<li>如果要执行更多迭代，则发现<code>NULL合并</code>运算符比三元运算符<code>更快</code>。</li>
+<li><code>NULL合并</code>运算符可以提供<code>更好的可读性</code>。</li>
+</ul>
+<hr>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvbGFuZ3VhZ2Uub3BlcmF0b3JzLmNvbXBhcmlzb24ucGhwI2xhbmd1YWdlLm9wZXJhdG9ycy5jb21wYXJpc29uLnRlcm5hcnk=" title="https://www.php.net/manual/zh/language.operators.comparison.php#language.operators.comparison.ternary">三元运算符<i class="fa fa-external-link"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvbGFuZ3VhZ2Uub3BlcmF0b3JzLmNvbXBhcmlzb24ucGhwI2xhbmd1YWdlLm9wZXJhdG9ycy5jb21wYXJpc29uLmNvYWxlc2Nl" title="https://www.php.net/manual/zh/language.operators.comparison.php#language.operators.comparison.coalesce">NULL合并运算符<i class="fa fa-external-link"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLmNuL3BocC13ZWl6aWppYW9jaGVuZy00MTUwMDYuaHRtbA==" title="https://www.php.cn/php-weizijiaocheng-415006.html">PHP中三元运算符和NULL合并运算符的简单比较<i class="fa fa-external-link"></i></span></p>
 
     </div>
 
@@ -329,7 +331,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://pureven.cc/2020/03/11/phpstormm-about-license/" title="Phpstorm License">https://pureven.cc/2020/03/11/phpstormm-about-license/</a>
+    <a href="https://pureven.cc/2020/05/16/php-ternary-null-coalescing-operator/" title="PHP的?:与??">https://pureven.cc/2020/05/16/php-ternary-null-coalescing-operator/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
@@ -341,24 +343,21 @@
       <footer class="post-footer">
           
           <div class="post-tags">
-              <a href="/tags/PHPStorm/" rel="tag"><i class="fa fa-tag"></i> PHPStorm</a>
+              <a href="/tags/PHP/" rel="tag"><i class="fa fa-tag"></i> PHP</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
-                <a href="/2020/03/08/nginx-advanced-conf/" rel="next" title="Nginx高级配置">
-                  <i class="fa fa-chevron-left"></i> Nginx高级配置
+                <a href="/2020/05/03/phpstorm-xdebug/" rel="next" title="PHPStorm配置Xdebug断点调试">
+                  <i class="fa fa-chevron-left"></i> PHPStorm配置Xdebug断点调试
                 </a>
             </div>
 
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-                <a href="/2020/03/15/codeigniter-migration/" rel="prev" title="CodeIgniter迁移类文件Migration.php">
-                  CodeIgniter迁移类文件Migration.php <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
       </footer>
@@ -398,7 +397,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤"><span class="nav-number">2.</span> <span class="nav-text">步骤</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三元运算符"><span class="nav-number">2.</span> <span class="nav-text">三元运算符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NULL合并运算符"><span class="nav-number">3.</span> <span class="nav-text">NULL合并运算符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三元运算符和NULL合并运算符之间的区别"><span class="nav-number">4.</span> <span class="nav-text">三元运算符和NULL合并运算符之间的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">5.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
