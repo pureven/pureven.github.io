@@ -56,14 +56,14 @@
 <meta name="keywords" content="PHP,Codeigniter">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CodeIgniter钩子类文件Hooks.php">
-<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;29&#x2F;codeigniter-hooks&#x2F;index.html">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.github.io&#x2F;2019&#x2F;12&#x2F;29&#x2F;codeigniter-hooks&#x2F;index.html">
 <meta property="og:site_name" content="Pureven">
 <meta property="og:description" content="引言CodeIgniter的钩子特性提供了一种方法来修改框架的内部运作流程，而无需修改核心文件。CodeIgniter的运行遵循着一个特定的流程，你可以参考这个页面的应用程序流程图 。但是，有些时候你可能希望在执行流程中的某些阶段添加一些动作，例如在控制器加载之前或之后执行一段脚本， 或者在其他的某些位置触发你的脚本。上面是摘自官网的描述，在实际应用中见过一个例子: 在控制器实例化之后控制器的任何">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-04-13T00:41:43.071Z">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://pureven.cc/2019/12/29/codeigniter-hooks/">
+<link rel="canonical" href="https://pureven.github.io/2019/12/29/codeigniter-hooks/">
 
 
 <script id="page-configurations">
@@ -214,7 +214,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/12/29/codeigniter-hooks/">
+    <link itemprop="mainEntityOfPage" href="https://pureven.github.io/2019/12/29/codeigniter-hooks/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/Snowflake_Snow.png">
@@ -327,7 +327,7 @@
 </ol>
 <hr>
 <h4 id="call-hook"><a href="#call-hook" class="headerlink" title="call_hook()"></a>call_hook()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public function call_hook($which = &apos;&apos;)</span><br><span class="line">&#123;</span><br><span class="line">    if ( ! $this-&gt;enabled OR ! isset($this-&gt;hooks[$which]))</span><br><span class="line">    &#123;</span><br><span class="line">        return FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    if (is_array($this-&gt;hooks[$which]) &amp;&amp; ! isset($this-&gt;hooks[$which][&apos;function&apos;]))</span><br><span class="line">    &#123;</span><br><span class="line">        foreach ($this-&gt;hooks[$which] as $val)</span><br><span class="line">        &#123;</span><br><span class="line">            $this-&gt;_run_hook($val);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;_run_hook($this-&gt;hooks[$which]);</span><br><span class="line">    &#125;</span><br><span class="line">    return TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>该方法是<a href="https://pureven.cc/2019/12/19/codeigniter-codeigniter/">CodeIgniter.php</a>文件中直接调用的接口，功能是判断钩子是否启用，以及被调用的钩子是否被定义，最后调用<code>_run_hook()</code>内部方法执行。功能实现:</p>
+<p>该方法是<span class="exturl" data-url="aHR0cHM6Ly9wdXJldmVuLmNjLzIwMTkvMTIvMTkvY29kZWlnbml0ZXItY29kZWlnbml0ZXIv" title="https://pureven.cc/2019/12/19/codeigniter-codeigniter/">CodeIgniter.php<i class="fa fa-external-link"></i></span>文件中直接调用的接口，功能是判断钩子是否启用，以及被调用的钩子是否被定义，最后调用<code>_run_hook()</code>内部方法执行。功能实现:</p>
 <ul>
 <li>如果钩子未启用或被调用的钩子不存在则直接返回。</li>
 <li>判断钩子的定义类型分别来执行<code>_run_hook()</code>，这里如果钩子数组是一个关联数组存在function键名则执行根据其值执行<code>_run_hook()</code>，如果是多次调用同一个挂钩点或者匿名函数进行调用的则直接执行<code>_run_hook()</code>。</li>
@@ -369,7 +369,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://pureven.cc/2019/12/29/codeigniter-hooks/" title="CodeIgniter钩子类文件Hooks.php">https://pureven.cc/2019/12/29/codeigniter-hooks/</a>
+    <a href="https://pureven.github.io/2019/12/29/codeigniter-hooks/" title="CodeIgniter钩子类文件Hooks.php">https://pureven.github.io/2019/12/29/codeigniter-hooks/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
@@ -526,7 +526,7 @@
 <div class="copyright">
   
   &copy; 2019 – 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

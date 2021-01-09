@@ -56,14 +56,14 @@
 <meta name="keywords" content="PHP,Codeigniter">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CodeIgniter配置类文件Config.php">
-<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2019&#x2F;12&#x2F;31&#x2F;codeigniter-config&#x2F;index.html">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.github.io&#x2F;2019&#x2F;12&#x2F;31&#x2F;codeigniter-config&#x2F;index.html">
 <meta property="og:site_name" content="Pureven">
 <meta property="og:description" content="引言CodeIgniter的配置类有跟配置相关的属性和方法，比如:load()方法、item()方法等等。application&#x2F;config目录下有好多配置文件，这些文件通过手工加载时会用到load()方法；当加载完某个配置文件后，可以通过item()方法获取某个配置项，当然也可以通过set_item()设置配置项。配置类主要完成下面几个功能:  加载配置文件。 获取配置项。 设置配置项。 一些">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-04-13T00:41:43.293Z">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://pureven.cc/2019/12/31/codeigniter-config/">
+<link rel="canonical" href="https://pureven.github.io/2019/12/31/codeigniter-config/">
 
 
 <script id="page-configurations">
@@ -214,7 +214,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2019/12/31/codeigniter-config/">
+    <link itemprop="mainEntityOfPage" href="https://pureven.github.io/2019/12/31/codeigniter-config/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/Snowflake_Snow.png">
@@ -317,7 +317,7 @@
 <h4 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public function __construct()</span><br><span class="line">&#123;</span><br><span class="line">    $this-&gt;config =&amp; get_config();</span><br><span class="line">    if (empty($this-&gt;config[&apos;base_url&apos;]))</span><br><span class="line">    &#123;</span><br><span class="line">        if (isset($_SERVER[&apos;SERVER_ADDR&apos;]))</span><br><span class="line">        &#123;</span><br><span class="line">            if (strpos($_SERVER[&apos;SERVER_ADDR&apos;], &apos;:&apos;) !== FALSE)</span><br><span class="line">            &#123;</span><br><span class="line">                $server_addr = &apos;[&apos;.$_SERVER[&apos;SERVER_ADDR&apos;].&apos;]&apos;;</span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                $server_addr = $_SERVER[&apos;SERVER_ADDR&apos;];</span><br><span class="line">            &#125;</span><br><span class="line">            $base_url = (is_https() ? &apos;https&apos; : &apos;http&apos;).&apos;://&apos;.$server_addr</span><br><span class="line">                .substr($_SERVER[&apos;SCRIPT_NAME&apos;], 0, strpos($_SERVER[&apos;SCRIPT_NAME&apos;], basename($_SERVER[&apos;SCRIPT_FILENAME&apos;])));</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            $base_url = &apos;http://localhost/&apos;;</span><br><span class="line">        &#125;</span><br><span class="line">        $this-&gt;set_item(&apos;base_url&apos;, $base_url);</span><br><span class="line">    &#125;</span><br><span class="line">    log_message(&apos;info&apos;, &apos;Config Class Initialized&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>该方法的功能实现:</p>
 <ol>
-<li>由<a href="https://pureven.cc/2019/12/23/codeigniter-common/">全局函数库文件</a>可知<code>get_config()</code>函数返回的是config文件中$config的引用。这里在Config组件实例化时，要将所有的配置存放到属性$config中，便于之后的访问和处理。</li>
+<li>由<span class="exturl" data-url="aHR0cHM6Ly9wdXJldmVuLmNjLzIwMTkvMTIvMjMvY29kZWlnbml0ZXItY29tbW9uLw==" title="https://pureven.cc/2019/12/23/codeigniter-common/">全局函数库文件<i class="fa fa-external-link"></i></span>可知<code>get_config()</code>函数返回的是config文件中$config的引用。这里在Config组件实例化时，要将所有的配置存放到属性$config中，便于之后的访问和处理。</li>
 <li>如果配置文件中<code>base_url</code>设置为空，即<code>$config[&#39;base_url&#39;] = &#39;&#39;;</code>，这时该方法会根据服务器和执行环境信息来设置此配置项，不满足条件时设置为<code>http://localhost/</code>。</li>
 </ol>
 <hr>
@@ -385,7 +385,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://pureven.cc/2019/12/31/codeigniter-config/" title="CodeIgniter配置类文件Config.php">https://pureven.cc/2019/12/31/codeigniter-config/</a>
+    <a href="https://pureven.github.io/2019/12/31/codeigniter-config/" title="CodeIgniter配置类文件Config.php">https://pureven.github.io/2019/12/31/codeigniter-config/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
@@ -542,7 +542,7 @@
 <div class="copyright">
   
   &copy; 2019 – 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

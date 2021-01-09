@@ -56,14 +56,14 @@
 <meta name="keywords" content="PHP,Codeigniter">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CodeIgniter数据库相关功能的实现机制">
-<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;17&#x2F;codeigniter-database&#x2F;index.html">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.github.io&#x2F;2020&#x2F;03&#x2F;17&#x2F;codeigniter-database&#x2F;index.html">
 <meta property="og:site_name" content="Pureven">
 <meta property="og:description" content="引言PHP操作数据库如MySQL的流程分为连接数据库、设置字符编码、选择数据库、构造sql语句、执行sql语句、获取执行结果、关闭数据库连接等。如下面一个分页的例子">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-04-13T00:41:43.047Z">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://pureven.cc/2020/03/17/codeigniter-database/">
+<link rel="canonical" href="https://pureven.github.io/2020/03/17/codeigniter-database/">
 
 
 <script id="page-configurations">
@@ -214,7 +214,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/03/17/codeigniter-database/">
+    <link itemprop="mainEntityOfPage" href="https://pureven.github.io/2020/03/17/codeigniter-database/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/Snowflake_Snow.png">
@@ -310,7 +310,7 @@
 <h4 id="连接数据库"><a href="#连接数据库" class="headerlink" title="连接数据库"></a>连接数据库</h4><p>连接数据库有<code>自动连接</code>和<code>手动连接</code>两种方式，其中在加载<code>model</code>时可以设置同时连接数据库，在加载<code>dbutilh</code>和<code>dbforge</code>时则会间接的连接数据库。这里的连接数据库都是执行的<code>$this-&gt;load-&gt;database()</code>语句。</p>
 <h5 id="自动连接"><a href="#自动连接" class="headerlink" title="自动连接"></a>自动连接</h5><p><code>自动连接</code>特性将在每一个页面加载时自动实例化数据库类。要启用<code>自动连接</code>， 可在 <code>application/config/autoload.php</code>中的<code>library</code>数组里添加<code>database</code>:</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$autoload[<span class="string">'libraries'</span>] = <span class="keyword">array</span>(<span class="string">'database'</span>);</span><br></pre></td></tr></table></figure>
-<p>配置好后会在<code>初始化Loader类</code>时完成数据库的连接，可参考<a href="https://pureven.cc/2020/02/17/codeigniter-loader/">Loader类</a>中<code>initialize()</code>的方法。通过该方法间接执行了<code>this-&gt;load-&gt;database()</code></p>
+<p>配置好后会在<code>初始化Loader类</code>时完成数据库的连接，可参考<span class="exturl" data-url="aHR0cHM6Ly9wdXJldmVuLmNjLzIwMjAvMDIvMTcvY29kZWlnbml0ZXItbG9hZGVyLw==" title="https://pureven.cc/2020/02/17/codeigniter-loader/">Loader类<i class="fa fa-external-link"></i></span>中<code>initialize()</code>的方法。通过该方法间接执行了<code>this-&gt;load-&gt;database()</code></p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($autoload[<span class="string">'libraries'</span>]) &amp;&amp; count($autoload[<span class="string">'libraries'</span>]) &gt; <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Load the database driver. 此处是指初始化时就加载数据库</span></span><br><span class="line">    <span class="keyword">if</span> (in_array(<span class="string">'database'</span>, $autoload[<span class="string">'libraries'</span>]))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 加载DB类，只有加载了才能使用$this-&gt;db-&gt;...</span></span><br><span class="line">        <span class="keyword">$this</span>-&gt;database();</span><br><span class="line">        <span class="comment">// 返回不包含'database'的数组</span></span><br><span class="line">        $autoload[<span class="string">'libraries'</span>] = array_diff($autoload[<span class="string">'libraries'</span>], <span class="keyword">array</span>(<span class="string">'database'</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Load all other libraries</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;library($autoload[<span class="string">'libraries'</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h5 id="手动连接"><a href="#手动连接" class="headerlink" title="手动连接"></a>手动连接</h5><p><code>手动连接</code>是指可以手动执行<code>$this-&gt;load-&gt;database()</code>语句来连接数据库，详见<span class="exturl" data-url="aHR0cHM6Ly9jb2RlaWduaXRlci5vcmcuY24vdXNlcl9ndWlkZS9kYXRhYmFzZS9jb25uZWN0aW5nLmh0bWwjaWQ1" title="https://codeigniter.org.cn/user_guide/database/connecting.html#id5">手动连接到数据库<i class="fa fa-external-link"></i></span>。</p>
@@ -347,7 +347,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://pureven.cc/2020/03/17/codeigniter-database/" title="CodeIgniter数据库相关功能的实现机制">https://pureven.cc/2020/03/17/codeigniter-database/</a>
+    <a href="https://pureven.github.io/2020/03/17/codeigniter-database/" title="CodeIgniter数据库相关功能的实现机制">https://pureven.github.io/2020/03/17/codeigniter-database/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
@@ -504,7 +504,7 @@
 <div class="copyright">
   
   &copy; 2019 – 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

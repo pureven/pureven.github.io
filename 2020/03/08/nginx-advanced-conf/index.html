@@ -56,20 +56,20 @@
 <meta name="keywords" content="Nginx">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Nginx高级配置">
-<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;index.html">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.github.io&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;index.html">
 <meta property="og:site_name" content="Pureven">
 <meta property="og:description" content="引言上文对Windows平台下搭建Nginx + PHP环境做了介绍，通过上文的配置通过http:&#x2F;&#x2F;localhost:6688&#x2F;index.php访问本地的index.php文件。这时index.php文件是通过后端服务器进行解析的，此时Nginx作为代理服务器，本文对Nginx作为代理服务器进行介绍以及一些其他功能。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308163752.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308164312.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.github.io&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308163752.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.github.io&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308164312.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;06&#x2F;nginx-simple-conf-with-php-fpm&#x2F;20200306144934.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308170806.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200310204402.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.github.io&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308170806.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pureven.github.io&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200310204402.png">
 <meta property="og:updated_time" content="2020-04-13T00:41:43.128Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308163752.png">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pureven.github.io&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-advanced-conf&#x2F;20200308163752.png">
 
-<link rel="canonical" href="https://pureven.cc/2020/03/08/nginx-advanced-conf/">
+<link rel="canonical" href="https://pureven.github.io/2020/03/08/nginx-advanced-conf/">
 
 
 <script id="page-configurations">
@@ -220,7 +220,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/03/08/nginx-advanced-conf/">
+    <link itemprop="mainEntityOfPage" href="https://pureven.github.io/2020/03/08/nginx-advanced-conf/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/Snowflake_Snow.png">
@@ -303,7 +303,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p><a href="https://pureven.cc/2020/03/06/nginx-simple-conf-with-php-fpm/">上文</a>对Windows平台下搭建Nginx + PHP环境做了介绍，通过上文的配置通过<code>http://localhost:6688/index.php</code>访问本地的index.php文件。这时index.php文件是通过后端服务器进行解析的，此时Nginx作为代理服务器，本文对Nginx作为代理服务器进行介绍以及一些其他功能。</p><a id="more"></a>
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p><span class="exturl" data-url="aHR0cHM6Ly9wdXJldmVuLmNjLzIwMjAvMDMvMDYvbmdpbngtc2ltcGxlLWNvbmYtd2l0aC1waHAtZnBtLw==" title="https://pureven.cc/2020/03/06/nginx-simple-conf-with-php-fpm/">上文<i class="fa fa-external-link"></i></span>对Windows平台下搭建Nginx + PHP环境做了介绍，通过上文的配置通过<code>http://localhost:6688/index.php</code>访问本地的index.php文件。这时index.php文件是通过后端服务器进行解析的，此时Nginx作为代理服务器，本文对Nginx作为代理服务器进行介绍以及一些其他功能。</p><a id="more"></a>
 <hr>
 <h4 id="正向代理与反向代理"><a href="#正向代理与反向代理" class="headerlink" title="正向代理与反向代理"></a>正向代理与反向代理</h4><h5 id="正向代理"><a href="#正向代理" class="headerlink" title="正向代理"></a>正向代理</h5><p>正向代理也是大家最常接触的到的代理模式，我们会从两个方面来说关于正向代理的处理模式，分别从软件方面和生活方面来解释一下什么叫正向代理。比如我们想要访问facebook，但是因为国内的网络环境我们是访问不了的，我们就会去使用一些翻墙工具，帮助我们访问facebook，那么翻墙工具背后实际上就是一个可以访问国外网站的代理服务器，我们将请求发送给代理服务器，代理服务器去访问国外的网站，然后将访问到的数据传递给我们。 </p>
 <p>上述这样的代理模式称为正向代理，<code>正向代理最大的特点是客户端非常明确要访问的服务器地址；服务器只清楚请求来自哪个代理服务器，而不清楚来自哪个具体的客户端；正向代理模式屏蔽或者隐藏了真实客户端信息。</code><br><img src="/2020/03/08/nginx-advanced-conf/20200308163752.png" alt></p>
@@ -458,7 +458,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://pureven.cc/2020/03/08/nginx-advanced-conf/" title="Nginx高级配置">https://pureven.cc/2020/03/08/nginx-advanced-conf/</a>
+    <a href="https://pureven.github.io/2020/03/08/nginx-advanced-conf/" title="Nginx高级配置">https://pureven.github.io/2020/03/08/nginx-advanced-conf/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
@@ -614,7 +614,7 @@
 <div class="copyright">
   
   &copy; 2019 – 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

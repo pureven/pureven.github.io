@@ -56,14 +56,14 @@
 <meta name="keywords" content="PHP,Codeigniter">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CodeIgniter编码类文件Utf8.php">
-<meta property="og:url" content="https:&#x2F;&#x2F;pureven.cc&#x2F;2020&#x2F;01&#x2F;13&#x2F;codeigniter-utf8&#x2F;index.html">
+<meta property="og:url" content="https:&#x2F;&#x2F;pureven.github.io&#x2F;2020&#x2F;01&#x2F;13&#x2F;codeigniter-utf8&#x2F;index.html">
 <meta property="og:site_name" content="Pureven">
 <meta property="og:description" content="引言ASCII字符的编号从1到128 az，AZ，0-9和标点符号。这对于英语很好，但是那里几乎所有其他语言的字符都不适合那里。为了解决这个问题，我们提供了UTF-8，它可以将额外的字符存储为多位，并向后兼容ASCII。CodeIgniter的Utf8类除构造方法外有clean_string()、safe_ascii_for_xml()、convert_to_utf8()、is_ascii()。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-04-13T00:41:43.350Z">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://pureven.cc/2020/01/13/codeigniter-utf8/">
+<link rel="canonical" href="https://pureven.github.io/2020/01/13/codeigniter-utf8/">
 
 
 <script id="page-configurations">
@@ -214,7 +214,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://pureven.cc/2020/01/13/codeigniter-utf8/">
+    <link itemprop="mainEntityOfPage" href="https://pureven.github.io/2020/01/13/codeigniter-utf8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/Snowflake_Snow.png">
@@ -308,7 +308,7 @@
 <p>该方法默认在输入类<code>Input</code>中使用，用于判断字符串不为ASCII码的情况下使用<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24ubWItY29udmVydC1lbmNvZGluZw==" title="https://www.php.net/manual/zh/function.mb-convert-encoding">mb_convert_encoding()<i class="fa fa-external-link"></i></span>或<span class="exturl" data-url="aHR0cHM6Ly93d3cucGhwLm5ldC9tYW51YWwvemgvZnVuY3Rpb24uaWNvbnY=" title="https://www.php.net/manual/zh/function.iconv">iconv()<i class="fa fa-external-link"></i></span>函数将字符串转换为<code>UTF-8</code>。</p>
 <hr>
 <h4 id="safe-ascii-for-xml"><a href="#safe-ascii-for-xml" class="headerlink" title="safe_ascii_for_xml()"></a>safe_ascii_for_xml()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function safe_ascii_for_xml($str)</span><br><span class="line">&#123;</span><br><span class="line">    return remove_invisible_characters($str, FALSE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>该方法用于删除所有在xml中可能导致问题的ASCII码字符，除了<strong>水平制表符</strong>、<strong>换行</strong>、<strong>回车</strong>。直接调用<a href="https://pureven.cc/2019/12/23/codeigniter-common/">remove_invisible_characters()</a>来删除无效的字符并返回。</p>
+<p>该方法用于删除所有在xml中可能导致问题的ASCII码字符，除了<strong>水平制表符</strong>、<strong>换行</strong>、<strong>回车</strong>。直接调用<span class="exturl" data-url="aHR0cHM6Ly9wdXJldmVuLmNjLzIwMTkvMTIvMjMvY29kZWlnbml0ZXItY29tbW9uLw==" title="https://pureven.cc/2019/12/23/codeigniter-common/">remove_invisible_characters()<i class="fa fa-external-link"></i></span>来删除无效的字符并返回。</p>
 <hr>
 <h4 id="convert-to-utf8"><a href="#convert-to-utf8" class="headerlink" title="convert_to_utf8()"></a>convert_to_utf8()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public function convert_to_utf8($str, $encoding)</span><br><span class="line">&#123;</span><br><span class="line">    if (MB_ENABLED)</span><br><span class="line">    &#123;</span><br><span class="line">        return mb_convert_encoding($str, &apos;UTF-8&apos;, $encoding);</span><br><span class="line">    &#125;</span><br><span class="line">    elseif (ICONV_ENABLED)</span><br><span class="line">    &#123;</span><br><span class="line">        return @iconv($encoding, &apos;UTF-8&apos;, $str);</span><br><span class="line">    &#125;</span><br><span class="line">    return FALSE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>该方法用于将字符串转换为UTF-8编码，如果支持mbstring则使用mb_convert_encoding()进行转换、否则如果支持iconv则使用iconv()进行转换。</p>
@@ -332,7 +332,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://pureven.cc/2020/01/13/codeigniter-utf8/" title="CodeIgniter编码类文件Utf8.php">https://pureven.cc/2020/01/13/codeigniter-utf8/</a>
+    <a href="https://pureven.github.io/2020/01/13/codeigniter-utf8/" title="CodeIgniter编码类文件Utf8.php">https://pureven.github.io/2020/01/13/codeigniter-utf8/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC9udWxs"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
@@ -489,7 +489,7 @@
 <div class="copyright">
   
   &copy; 2019 – 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
